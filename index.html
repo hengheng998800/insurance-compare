@@ -7,8 +7,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="保险对比">
-<link rel="apple-touch-icon" sizes="180x180" href="insurance-icon.png">
-<link rel="manifest" href="insurance-manifest.webmanifest">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+<link rel="manifest" href="manifest.webmanifest">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 html{overflow-x:hidden;max-width:100%}
@@ -1578,7 +1578,7 @@ document.getElementById('btn-settings').addEventListener('click', openSettings);
 // 注册 Service Worker
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', function(){
-    navigator.serviceWorker.register('./insurance-sw.js').catch(function(e){
+    navigator.serviceWorker.register('./sw.js').catch(function(e){
       console.warn('SW 注册失败', e);
     });
   });
