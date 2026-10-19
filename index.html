@@ -75,6 +75,19 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei
 .frow:first-of-type{border-top:none}
 .flabel{font-size:13px;color:#5f6368;width:92px;flex-shrink:0;padding-top:7px;line-height:1.35}
 .fnote{font-size:10px;color:#b0b6bf;margin-top:2px;line-height:1.3;font-weight:400}
+/* 多条描述 */
+.multi-wrap{flex:1;min-width:0}
+.multi-row{display:flex;align-items:flex-start;gap:4px}
+.multi-row + .multi-row{margin-top:4px}
+.multi-input{flex:1;min-width:0;min-height:26px;line-height:1.5}
+.multi-del{width:22px;height:26px;display:flex;align-items:center;justify-content:center;color:#c0c5cc;font-size:17px;cursor:pointer;flex-shrink:0;border-radius:5px;line-height:1}
+.multi-del:active{background:#fef2f2;color:#d93025}
+.multi-add{font-size:12px;color:#2f6fed;padding:7px 0 1px;cursor:pointer;display:inline-block;font-weight:500}
+.multi-add:active{opacity:.6}
+/* 详情/对比里的多条显示 */
+.multi-view{display:flex;flex-direction:column;gap:3px}
+.multi-view .mv-item{position:relative;padding-left:11px;line-height:1.5}
+.multi-view .mv-item::before{content:'';position:absolute;left:0;top:.62em;width:4px;height:4px;border-radius:50%;background:#c0c5cc}
 .finput{flex:1;min-width:0;border:none;outline:none;font-size:14px;color:#202124;background:transparent;padding:6px 0;font-family:inherit;line-height:1.45;resize:none}
 .finput::placeholder{color:#c0c5cc}
 textarea.finput{min-height:38px;overflow:hidden}
@@ -307,10 +320,6 @@ var TYPES = {
    注意：各险种的字段【完全独立】，不做通用字段合并，因为每个险种的责任结构不同。
 ------------------------------------ */
 
-/* 有无类字段的统一选项 */
-var YN = ['', '有', '无'];
-var YN_PAY = ['', '有（占保额）', '有（不占保额）', '无'];
-
 var TYPE_FIELDS = {
   /* ===== 重疾险（按用户实际对标条款设计） ===== */
   cz: [
@@ -319,7 +328,7 @@ var TYPE_FIELDS = {
     { key:'ageLimit',     label:'投保年龄',   type:'text', unit:'如 0-17周岁', group:'一、投保规则' },
     { key:'coverage',     label:'保障期间',   type:'text', unit:'如 终身/至70岁', group:'一、投保规则' },
     { key:'payPeriod',    label:'交费期间',   type:'text', unit:'如 20年/30年', group:'一、投保规则' },
-    { key:'review',       label:'保单复议',   type:'select', options:['','支持','不支持'], group:'一、投保规则', better:'high', score:true },
+    { key:'review',       label:'保单复议',   type:'text', group:'一、投保规则', better:'high', score:true, note:'如：支持/不支持，复议可修改核保结论' },
     { key:'waitPeriod',   label:'等待期',     type:'num', unit:'天', group:'一、投保规则', better:'low', score:true },
     { key:'occupation',   label:'职业类别',   type:'text', unit:'如 1-4类', group:'一、投保规则' },
     { key:'maxSumInsured',label:'最高基本保额', type:'num', unit:'万', group:'一、投保规则', better:'high', score:true },
@@ -327,34 +336,34 @@ var TYPE_FIELDS = {
     { key:'sumInsured',   label:'投保基本保额', type:'num', unit:'万', group:'一、投保规则' },
 
     // 二、必选责任
-    { key:'criticalPay',  label:'重大疾病保险金', type:'long', group:'二、必选责任', note:'赔付比例、次数、是否分组' },
-    { key:'mediumPay',    label:'中症疾病保险金', type:'long', group:'二、必选责任', note:'赔付比例、次数' },
-    { key:'mildPay',      label:'轻度疾病保险金', type:'long', group:'二、必选责任', note:'赔付比例、次数' },
-    { key:'afterCritical',label:'重疾赔付后轻中症是否有效', type:'select', options:['','有效','无效','部分有效'], group:'二、必选责任', better:'high', score:true },
-    { key:'waiver',       label:'被保人保费豁免', type:'select', options:['','含','不含'], group:'二、必选责任', better:'high', score:true },
-    { key:'accidentExtra',label:'意外重疾额外赔', type:'long', group:'二、必选责任', note:'额外赔付比例与条件' },
-    { key:'cancerExtend', label:'恶性肿瘤-重度拓展保险金', type:'long', group:'二、必选责任', note:'拓展范围与赔付' },
-    { key:'lungNodule',   label:'肺结节关爱保险金', type:'long', group:'二、必选责任', note:'赔付比例与条件' },
-    { key:'breastNodule', label:'乳腺结节关爱保险金', type:'long', group:'二、必选责任', note:'赔付比例与条件' },
-    { key:'thyroidNodule',label:'甲状腺结节关爱保险金', type:'long', group:'二、必选责任', note:'赔付比例与条件' },
-    { key:'noduleOccupy', label:'结节关爱金是否占保额', type:'select', options:['','占保额','不占保额'], group:'二、必选责任', better:'low', score:true },
-    { key:'hospitalAllow',label:'60岁后住院津贴', type:'long', group:'二、必选责任', note:'津贴标准与天数限制' },
+    { key:'criticalPay',  label:'重大疾病保险金', type:'long', multi:true, group:'二、必选责任', note:'赔付比例、次数、是否分组' },
+    { key:'mediumPay',    label:'中症疾病保险金', type:'long', multi:true, group:'二、必选责任', note:'赔付比例、次数' },
+    { key:'mildPay',      label:'轻度疾病保险金', type:'long', multi:true, group:'二、必选责任', note:'赔付比例、次数' },
+    { key:'afterCritical',label:'重疾赔付后轻中症是否有效', type:'text', group:'二、必选责任', better:'high', score:true, note:'如：重疾赔后轻中症继续有效/终止' },
+    { key:'waiver',       label:'被保人保费豁免', type:'text', group:'二、必选责任', better:'high', score:true, note:'如：含（确诊轻症/中症/重疾后免后续保费）' },
+    { key:'accidentExtra',label:'意外重疾额外赔', type:'long', multi:true, group:'二、必选责任', note:'额外赔付比例与条件' },
+    { key:'cancerExtend', label:'恶性肿瘤-重度拓展保险金', type:'long', multi:true, group:'二、必选责任', note:'拓展范围与赔付' },
+    { key:'lungNodule',   label:'肺结节关爱保险金', type:'long', multi:true, group:'二、必选责任', note:'赔付比例与条件' },
+    { key:'breastNodule', label:'乳腺结节关爱保险金', type:'long', multi:true, group:'二、必选责任', note:'赔付比例与条件' },
+    { key:'thyroidNodule',label:'甲状腺结节关爱保险金', type:'long', multi:true, group:'二、必选责任', note:'赔付比例与条件' },
+    { key:'noduleOccupy', label:'结节关爱金是否占保额', type:'text', group:'二、必选责任', better:'low', score:true, note:'如：不占基本保额/占基本保额' },
+    { key:'hospitalAllow',label:'60岁后住院津贴', type:'long', multi:true, group:'二、必选责任', note:'津贴标准与天数限制' },
 
     // 三、可选责任
-    { key:'optCare',      label:'疾病关爱保险金', type:'long', group:'三、可选责任' },
-    { key:'optMulti',     label:'重大疾病多次给付', type:'long', group:'三、可选责任', note:'间隔期、次数、分组' },
-    { key:'optCancerMed', label:'恶性肿瘤-重度医疗津贴', type:'long', group:'三、可选责任' },
-    { key:'optCancerDrug',label:'恶性肿瘤-重度特药治疗金', type:'long', group:'三、可选责任' },
-    { key:'optPillar',    label:'顶梁柱关爱保险金', type:'long', group:'三、可选责任' },
-    { key:'optPrecancer', label:'癌前病变手术关爱金', type:'long', group:'三、可选责任' },
-    { key:'optCompensate',label:'重大疾病保费补偿金', type:'long', group:'三、可选责任' },
-    { key:'optDeath',     label:'身故或全残保险金', type:'select', options:['','含','不含','可选'], group:'三、可选责任' },
-    { key:'optPolicyWaiver',label:'投保人豁免', type:'select', options:['','含','不含','可选'], group:'三、可选责任', better:'high', score:true },
+    { key:'optCare',      label:'疾病关爱保险金', type:'long', multi:true, group:'三、可选责任' },
+    { key:'optMulti',     label:'重大疾病多次给付', type:'long', multi:true, group:'三、可选责任', note:'间隔期、次数、分组' },
+    { key:'optCancerMed', label:'恶性肿瘤-重度医疗津贴', type:'long', multi:true, group:'三、可选责任' },
+    { key:'optCancerDrug',label:'恶性肿瘤-重度特药治疗金', type:'long', multi:true, group:'三、可选责任' },
+    { key:'optPillar',    label:'顶梁柱关爱保险金', type:'long', multi:true, group:'三、可选责任' },
+    { key:'optPrecancer', label:'癌前病变手术关爱金', type:'long', multi:true, group:'三、可选责任' },
+    { key:'optCompensate',label:'重大疾病保费补偿金', type:'long', multi:true, group:'三、可选责任' },
+    { key:'optDeath',     label:'身故或全残保险金', type:'text', group:'三、可选责任', note:'如：含（18岁后赔保额）/不含/可附加' },
+    { key:'optPolicyWaiver',label:'投保人豁免', type:'text', group:'三、可选责任', better:'high', score:true, note:'如：可附加投保人豁免（轻中重疾/身故）' },
 
     // 四、其他
-    { key:'healthNotice', label:'健康告知',   type:'select', options:['','宽松','一般','严格'], group:'四、其他', better:'low' },
-    { key:'exclusions',   label:'免责条款要点', type:'long', group:'四、其他' },
-    { key:'note',         label:'总体备注',   type:'long', group:'四、其他' }
+    { key:'healthNotice', label:'健康告知',   type:'text', group:'四、其他', better:'low', note:'如：宽松（仅3条）/一般/严格（14条）' },
+    { key:'exclusions',   label:'免责条款要点', type:'long', multi:true, group:'四、其他' },
+    { key:'note',         label:'总体备注',   type:'long', multi:true, group:'四、其他' }
   ],
 
   /* ===== 医疗险 ===== */
@@ -364,28 +373,28 @@ var TYPE_FIELDS = {
     { key:'coverage',     label:'保障期间',   type:'text', unit:'通常1年', group:'一、投保规则' },
     { key:'waitPeriod',   label:'等待期',     type:'num', unit:'天', group:'一、投保规则', better:'low', score:true },
     { key:'occupation',   label:'职业类别',   type:'text', group:'一、投保规则' },
-    { key:'healthNotice', label:'健康告知',   type:'select', options:['','宽松','一般','严格'], group:'一、投保规则', better:'low' },
+    { key:'healthNotice', label:'健康告知',   type:'text', group:'一、投保规则', better:'low' },
     { key:'price',        label:'保费',       type:'num', unit:'元/年', group:'一、投保规则', better:'low', score:true },
     { key:'sumInsured',   label:'年度保额',   type:'num', unit:'万', group:'一、投保规则', better:'high', score:true },
 
     { key:'deductible',   label:'免赔额',     type:'num', unit:'元', group:'二、核心责任', better:'low', score:true },
     { key:'reimburseRate',label:'报销比例',   type:'text', unit:'如 100%', group:'二、核心责任', better:'high', score:true },
-    { key:'generalMed',   label:'一般医疗',   type:'long', group:'二、核心责任' },
-    { key:'criticalMed',  label:'重疾医疗',   type:'long', group:'二、核心责任' },
-    { key:'socialInside', label:'社保内报销', type:'long', group:'二、核心责任' },
-    { key:'socialOutside',label:'社保外报销', type:'long', group:'二、核心责任' },
-    { key:'outpatient',   label:'门诊责任',   type:'long', group:'二、核心责任' },
-    { key:'hospitalRange',label:'医院范围',   type:'select', options:['','公立普通','公立特需','私立','不限'], group:'二、核心责任', better:'high', score:true },
+    { key:'generalMed',   label:'一般医疗',   type:'long', multi:true, group:'二、核心责任' },
+    { key:'criticalMed',  label:'重疾医疗',   type:'long', multi:true, group:'二、核心责任' },
+    { key:'socialInside', label:'社保内报销', type:'long', multi:true, group:'二、核心责任' },
+    { key:'socialOutside',label:'社保外报销', type:'long', multi:true, group:'二、核心责任' },
+    { key:'outpatient',   label:'门诊责任',   type:'long', multi:true, group:'二、核心责任' },
+    { key:'hospitalRange',label:'医院范围',   type:'text', group:'二、核心责任', better:'high', score:true, note:'如：二级及以上公立医院普通部' },
 
     { key:'guaranteed',   label:'保证续保',   type:'text', unit:'如 20年', group:'三、续保与特药', better:'high', score:true },
-    { key:'renewal',      label:'续保条件',   type:'long', group:'三、续保与特药' },
-    { key:'specialDrug',  label:'院外特药',   type:'long', group:'三、续保与特药' },
-    { key:'proton',       label:'质子重离子', type:'long', group:'三、续保与特药' },
-    { key:'advanced',     label:'先进疗法',   type:'long', group:'三、续保与特药' },
+    { key:'renewal',      label:'续保条件',   type:'long', multi:true, group:'三、续保与特药' },
+    { key:'specialDrug',  label:'院外特药',   type:'long', multi:true, group:'三、续保与特药' },
+    { key:'proton',       label:'质子重离子', type:'long', multi:true, group:'三、续保与特药' },
+    { key:'advanced',     label:'先进疗法',   type:'long', multi:true, group:'三、续保与特药' },
 
-    { key:'renewalBonus', label:'免赔额递减/优惠', type:'long', group:'四、其他' },
-    { key:'exclusions',   label:'免责条款要点', type:'long', group:'四、其他' },
-    { key:'note',         label:'总体备注',   type:'long', group:'四、其他' }
+    { key:'renewalBonus', label:'免赔额递减/优惠', type:'long', multi:true, group:'四、其他' },
+    { key:'exclusions',   label:'免责条款要点', type:'long', multi:true, group:'四、其他' },
+    { key:'note',         label:'总体备注',   type:'long', multi:true, group:'四、其他' }
   ],
 
   /* ===== 意外险 ===== */
@@ -399,17 +408,17 @@ var TYPE_FIELDS = {
 
     { key:'accidentDeath',label:'意外身故保额', type:'num', unit:'万', group:'二、意外责任', better:'high', score:true },
     { key:'accidentDisable',label:'意外伤残保额', type:'num', unit:'万', group:'二、意外责任', better:'high' },
-    { key:'disableRatio', label:'伤残赔付比例', type:'long', group:'二、意外责任' },
-    { key:'trafficExtra', label:'交通意外额外赔', type:'long', group:'二、意外责任' },
+    { key:'disableRatio', label:'伤残赔付比例', type:'long', multi:true, group:'二、意外责任' },
+    { key:'trafficExtra', label:'交通意外额外赔', type:'long', multi:true, group:'二、意外责任' },
     { key:'medical',      label:'意外医疗额度', type:'num', unit:'万', group:'二、意外责任', better:'high', score:true },
     { key:'medicalDeduct',label:'意外医疗免赔额', type:'num', unit:'元', group:'二、意外责任', better:'low', score:true },
     { key:'medicalRate',  label:'意外医疗报销比例', type:'text', unit:'如 100%', group:'二、意外责任', better:'high' },
-    { key:'socialLimit',  label:'是否限社保', type:'select', options:['','限社保内','不限社保'], group:'二、意外责任', better:'low', score:true },
-    { key:'hospitalAllow',label:'住院津贴',   type:'long', group:'二、意外责任' },
-    { key:'suddenDeath',  label:'猝死责任',   type:'long', group:'二、意外责任' },
+    { key:'socialLimit',  label:'是否限社保', type:'text', group:'二、意外责任', better:'low', score:true, note:'如：不限社保，0免赔，100%报销' },
+    { key:'hospitalAllow',label:'住院津贴',   type:'long', multi:true, group:'二、意外责任' },
+    { key:'suddenDeath',  label:'猝死责任',   type:'long', multi:true, group:'二、意外责任' },
 
-    { key:'exclusions',   label:'免责条款要点', type:'long', group:'三、其他' },
-    { key:'note',         label:'总体备注',   type:'long', group:'三、其他' }
+    { key:'exclusions',   label:'免责条款要点', type:'long', multi:true, group:'三、其他' },
+    { key:'note',         label:'总体备注',   type:'long', multi:true, group:'三、其他' }
   ],
 
   /* ===== 定期寿险 ===== */
@@ -420,19 +429,19 @@ var TYPE_FIELDS = {
     { key:'payPeriod',    label:'交费期间',   type:'text', group:'一、投保规则' },
     { key:'waitPeriod',   label:'等待期',     type:'num', unit:'天', group:'一、投保规则', better:'low', score:true },
     { key:'occupation',   label:'职业限制',   type:'text', group:'一、投保规则' },
-    { key:'healthNotice', label:'健康告知',   type:'select', options:['','宽松','一般','严格'], group:'一、投保规则', better:'low', score:true },
+    { key:'healthNotice', label:'健康告知',   type:'text', group:'一、投保规则', better:'low', score:true },
     { key:'maxSumInsured',label:'最高保额',   type:'num', unit:'万', group:'一、投保规则', better:'high', score:true },
     { key:'price',        label:'保费',       type:'num', unit:'元/年', group:'一、投保规则', better:'low', score:true },
     { key:'sumInsured',   label:'投保保额',   type:'num', unit:'万', group:'一、投保规则', better:'high', score:true },
 
-    { key:'deathCover',   label:'身故保险金', type:'long', group:'二、保障责任' },
-    { key:'fullDisable',  label:'全残责任',   type:'select', options:YN, group:'二、保障责任', better:'high', score:true },
-    { key:'diseaseDeath', label:'疾病身故',   type:'long', group:'二、保障责任' },
-    { key:'accidentDeath',label:'意外身故额外赔', type:'long', group:'二、保障责任' },
-    { key:'waiver',       label:'保费豁免',   type:'long', group:'二、保障责任' },
+    { key:'deathCover',   label:'身故保险金', type:'long', multi:true, group:'二、保障责任' },
+    { key:'fullDisable',  label:'全残责任',   type:'text', group:'二、保障责任', better:'high', score:true, note:'如：18岁后身故/全残赔保额，之前退保费' },
+    { key:'diseaseDeath', label:'疾病身故',   type:'long', multi:true, group:'二、保障责任' },
+    { key:'accidentDeath',label:'意外身故额外赔', type:'long', multi:true, group:'二、保障责任' },
+    { key:'waiver',       label:'保费豁免',   type:'long', multi:true, group:'二、保障责任' },
 
-    { key:'exclusions',   label:'免责条款要点', type:'long', group:'三、其他' },
-    { key:'note',         label:'总体备注',   type:'long', group:'三、其他' }
+    { key:'exclusions',   label:'免责条款要点', type:'long', multi:true, group:'三、其他' },
+    { key:'note',         label:'总体备注',   type:'long', multi:true, group:'三、其他' }
   ],
 
   /* ===== 年金/储蓄险 ===== */
@@ -447,16 +456,16 @@ var TYPE_FIELDS = {
     { key:'irr',          label:'实际 IRR',   type:'num', unit:'%', group:'二、收益指标', better:'high', score:true },
     { key:'guaranteedRate',label:'保证利率',  type:'num', unit:'%', group:'二、收益指标', better:'high', score:true },
     { key:'cashValueYear',label:'回本年限',   type:'num', unit:'年', group:'二、收益指标', better:'low', score:true },
-    { key:'totalReturn',  label:'长期总收益', type:'long', group:'二、收益指标' },
-    { key:'dividend',     label:'分红/万能账户', type:'long', group:'二、收益指标' },
+    { key:'totalReturn',  label:'长期总收益', type:'long', multi:true, group:'二、收益指标' },
+    { key:'dividend',     label:'分红/万能账户', type:'long', multi:true, group:'二、收益指标' },
 
     { key:'payoutStart',  label:'起领年龄',   type:'text', group:'三、领取方式' },
     { key:'payoutAmount', label:'年领取金额', type:'num', unit:'元', group:'三、领取方式', better:'high', score:true },
-    { key:'payoutType',   label:'领取方式',   type:'select', options:['','终身领取','固定年限','一次性'], group:'三、领取方式' },
-    { key:'flexible',     label:'减保灵活性', type:'long', group:'三、领取方式' },
+    { key:'payoutType',   label:'领取方式',   type:'text', group:'三、领取方式', note:'如：月领/年领，领至80岁/终身' },
+    { key:'flexible',     label:'减保灵活性', type:'long', multi:true, group:'三、领取方式' },
 
-    { key:'exclusions',   label:'免责条款要点', type:'long', group:'四、其他' },
-    { key:'note',         label:'总体备注',   type:'long', group:'四、其他' }
+    { key:'exclusions',   label:'免责条款要点', type:'long', multi:true, group:'四、其他' },
+    { key:'note',         label:'总体备注',   type:'long', multi:true, group:'四、其他' }
   ],
 
   /* ===== 其他 ===== */
@@ -467,9 +476,9 @@ var TYPE_FIELDS = {
     { key:'waitPeriod',   label:'等待期',     type:'num', unit:'天', group:'一、投保规则', better:'low' },
     { key:'price',        label:'保费',       type:'num', unit:'元/年', group:'一、投保规则', better:'low', score:true },
     { key:'sumInsured',   label:'保额',       type:'num', unit:'万', group:'一、投保规则', better:'high', score:true },
-    { key:'detail',       label:'保障内容',   type:'long', group:'二、核心条款' },
-    { key:'exclusions',   label:'免责条款要点', type:'long', group:'三、其他' },
-    { key:'note',         label:'总体备注',   type:'long', group:'三、其他' }
+    { key:'detail',       label:'保障内容',   type:'long', multi:true, group:'二、核心条款' },
+    { key:'exclusions',   label:'免责条款要点', type:'long', multi:true, group:'三、其他' },
+    { key:'note',         label:'总体备注',   type:'long', multi:true, group:'三、其他' }
   ]
 };
 
@@ -566,8 +575,41 @@ function fmtNum(v) {
 /* 从文本里提取第一个数字，用于打分（如 "100%" → 100，"20年" → 20） */
 function extractNum(v) {
   if (v === '' || v === undefined || v === null) return null;
+  // 多条描述：取第一条能提取到数字的
+  if (Array.isArray(v)) {
+    for (var i = 0; i < v.length; i++) {
+      var n = extractNum(v[i]);
+      if (n !== null) return n;
+    }
+    return null;
+  }
   var m = String(v).match(/-?\d+(\.\d+)?/);
   return m ? parseFloat(m[0]) : null;
+}
+/* 把字段值渲染成显示用 HTML：数组→带圆点的多行，字符串→原样 */
+function renderValueHTML(v) {
+  if (v === undefined || v === null || v === '') return '';
+  if (Array.isArray(v)) {
+    var items = v.filter(function(x){ return x !== '' && x !== null && x !== undefined; });
+    if (items.length === 0) return '';
+    if (items.length === 1) return esc(items[0]);
+    return '<div class="multi-view">' + items.map(function(x){
+      return '<div class="mv-item">' + esc(x) + '</div>';
+    }).join('') + '</div>';
+  }
+  return esc(v);
+}
+/* 值转纯文本（对比表里用，保留换行分隔） */
+function valueToText(v) {
+  if (v === undefined || v === null || v === '') return '';
+  if (Array.isArray(v)) return v.filter(function(x){ return x !== ''; }).join('\n');
+  return String(v);
+}
+/* 判断字段值是否为空 */
+function valueEmpty(v) {
+  if (v === undefined || v === null) return true;
+  if (Array.isArray(v)) return v.filter(function(x){ return x !== ''; }).length === 0;
+  return String(v).trim() === '';
 }
 function getProduct(id) {
   return appData.products.find(function(p){ return p.id === id; });
@@ -830,18 +872,26 @@ function renderEdit() {
       var val = (p.fields && p.fields[f.key] !== undefined) ? p.fields[f.key] : '';
       h += '<div class="frow">';
       h += '<div class="flabel">' + esc(f.label) + (f.note ? '<div class="fnote">' + esc(f.note) + '</div>' : '') + '</div>';
-      if (f.type === 'select') {
-        h += '<div class="frow-select" style="flex:1;display:flex"><select class="finput" data-k="' + f.key + '" data-t="' + f.type + '">';
-        (f.options || ['']).forEach(function(o){
-          h += '<option value="' + esc(o) + '"' + (String(val) === o ? ' selected' : '') + '>' + (o === '' ? '—' : esc(o)) + '</option>';
+      if (f.type === 'long' && f.multi) {
+        // 多条描述：每行一条，可增删
+        var lines = Array.isArray(val) ? val.slice() : (val ? [String(val)] : []);
+        if (lines.length === 0) lines = [''];
+        h += '<div class="multi-wrap" data-k="' + f.key + '">';
+        lines.forEach(function(ln, li){
+          h += '<div class="multi-row">' +
+            '<textarea class="finput multi-input" data-k="' + f.key + '" data-t="long" rows="1" ' +
+            'placeholder="' + esc(li === 0 ? (f.note || '填写一条描述…') : '再填一条…') + '">' + esc(ln) + '</textarea>' +
+            (lines.length > 1 ? '<div class="multi-del" data-k="' + f.key + '" data-i="' + li + '">×</div>' : '') +
+          '</div>';
         });
-        h += '</select></div>';
+        h += '<div class="multi-add" data-k="' + f.key + '">＋ 增加一条</div>';
+        h += '</div>';
       } else if (f.type === 'long') {
         h += '<textarea class="finput" data-k="' + f.key + '" data-t="long" rows="2" placeholder="' + esc(f.note || f.unit || '点击填写…') + '">' + esc(val) + '</textarea>';
       } else {
         h += '<input class="finput' + (f.type === 'num' ? ' num' : '') + '" data-k="' + f.key + '" data-t="' + f.type + '" ' +
              (f.type === 'num' ? 'type="number" inputmode="decimal" ' : '') +
-             'placeholder="' + esc(f.note || f.unit || '') + '" value="' + esc(val) + '">';
+             'placeholder="' + esc(f.note || '') + '" value="' + esc(val) + '">';
         if (f.unit && f.type === 'num') h += '<div class="unit">' + esc(f.unit) + '</div>';
       }
       h += '</div>';
@@ -860,14 +910,15 @@ function renderEdit() {
   h += '</div>';
   box.innerHTML = h;
 
-  // 长文本框自动撑高
-  box.querySelectorAll('textarea.finput').forEach(function(ta){
+  // 长文本框自动撑高（非多条字段）
+  box.querySelectorAll('textarea.finput:not(.multi-input)').forEach(function(ta){
     function autoGrow(){ ta.style.height = 'auto'; ta.style.height = Math.max(38, ta.scrollHeight) + 'px'; }
     ta.addEventListener('input', autoGrow);
     setTimeout(autoGrow, 0);
   });
+  bindMulti();
 
-  // 收集当前填写内容
+  // 收集当前填写内容（多条字段收集为数组，过滤空行）
   function collect() {
     var nameEl = document.getElementById('f-name');
     var obj = {
@@ -875,12 +926,82 @@ function renderEdit() {
       type: type,
       fields: {}
     };
+    // 先处理多条字段
+    box.querySelectorAll('.multi-wrap').forEach(function(wrap){
+      var k = wrap.dataset.k;
+      var arr = [];
+      wrap.querySelectorAll('.multi-input').forEach(function(ta){
+        var v = (ta.value || '').trim();
+        if (v) arr.push(v);
+      });
+      if (arr.length > 0) obj.fields[k] = arr;
+    });
+    // 再处理单值字段（跳过多条字段内的 textarea）
     box.querySelectorAll('[data-k]').forEach(function(el){
+      if (el.classList.contains('multi-input')) return;
       var k = el.dataset.k;
       var v = el.value;
       if (v !== '' && v !== undefined && v !== null) obj.fields[k] = v;
     });
     return obj;
+  }
+
+  // 多条字段：自动撑高（只处理高度，事件统一用委托绑定，避免重复绑定）
+  function bindMulti() {
+    box.querySelectorAll('textarea.multi-input').forEach(function(ta){
+      function grow(){ ta.style.height = 'auto'; ta.style.height = Math.max(26, ta.scrollHeight) + 'px'; }
+      ta.addEventListener('input', grow);
+      grow();
+    });
+  }
+
+  // 增删交互：事件委托到编辑容器，只绑定一次（关键：避免重渲染后旧监听指向已销毁的节点）
+  if (!box._multiDelegated) {
+    box._multiDelegated = true;
+    box.addEventListener('click', function(ev){
+      var addBtn = ev.target.closest('.multi-add');
+      if (addBtn) {
+        var wrap = addBtn.closest('.multi-wrap');
+        if (!wrap) return;
+        var cur = [];
+        wrap.querySelectorAll('.multi-input').forEach(function(ta){ cur.push(ta.value); });
+        cur.push('');
+        renderMultiSection(wrap, addBtn.dataset.k, cur);
+        return;
+      }
+      var delBtn = ev.target.closest('.multi-del');
+      if (delBtn) {
+        var wrap2 = delBtn.closest('.multi-wrap');
+        if (!wrap2) return;
+        var idx = parseInt(delBtn.dataset.i, 10);
+        var cur2 = [];
+        wrap2.querySelectorAll('.multi-input').forEach(function(ta){ cur2.push(ta.value); });
+        cur2.splice(idx, 1);
+        if (cur2.length === 0) cur2 = [''];
+        renderMultiSection(wrap2, delBtn.dataset.k, cur2);
+        return;
+      }
+    });
+  }
+
+  // 重新渲染某个多条字段区块
+  function renderMultiSection(wrap, key, values) {
+    var fld = findField(type, key);
+    var note = fld && fld.note ? fld.note : '';
+    var inner = '';
+    values.forEach(function(ln, li){
+      inner += '<div class="multi-row">' +
+        '<textarea class="finput multi-input" data-k="' + key + '" data-t="long" rows="1" ' +
+        'placeholder="' + esc(li === 0 ? (note || '填写一条描述…') : '再填一条…') + '">' + esc(ln) + '</textarea>' +
+        (values.length > 1 ? '<div class="multi-del" data-k="' + key + '" data-i="' + li + '">×</div>' : '') +
+      '</div>';
+    });
+    inner += '<div class="multi-add" data-k="' + key + '">＋ 增加一条</div>';
+    wrap.innerHTML = inner;
+    bindMulti();
+    // 自动聚焦新加的那条
+    var tas = wrap.querySelectorAll('.multi-input');
+    if (tas.length) { var last = tas[tas.length-1]; last.focus(); }
   }
 
   document.getElementById('btn-save-product').addEventListener('click', function(){
@@ -954,9 +1075,9 @@ function renderDetail() {
     var rows = '';
     gmap[g].forEach(function(fd){
       var v = f[fd.key];
-      if (v === undefined || v === '' || v === null) return;
+      if (valueEmpty(v)) return;
       var unit = (fd.type === 'num' && fd.unit) ? ' ' + fd.unit : '';
-      rows += '<div class="drow"><div class="dk">' + esc(fd.label) + '</div><div class="dv">' + esc(v) + esc(unit) + '</div></div>';
+      rows += '<div class="drow"><div class="dk">' + esc(fd.label) + '</div><div class="dv">' + renderValueHTML(v) + esc(unit) + '</div></div>';
     });
     if (rows) h += '<div class="detail-sec"><div class="detail-sec-t">' + esc(g) + '</div>' + rows + '</div>';
   });
@@ -1039,7 +1160,7 @@ function renderTable() {
   fields = fields.filter(function(fd){
     return list.some(function(p){
       var ff = p.fields || {};
-      return ff[fd.key] !== undefined && ff[fd.key] !== '' && ff[fd.key] !== null;
+      return !valueEmpty(ff[fd.key]);
     });
   });
 
@@ -1054,8 +1175,7 @@ function renderTable() {
   // 表体
   fields.forEach(function(fd){
     var vals = list.map(function(p){
-      var v = (p.fields||{})[fd.key];
-      return (v === undefined || v === null) ? '' : String(v);
+      return valueToText((p.fields||{})[fd.key]);
     });
     // 差异判断：值不全相同
     var filledVals = vals.filter(function(v){ return v !== ''; });
@@ -1078,7 +1198,8 @@ function renderTable() {
       if (isDiff) cls = 'diff';
       if (i === bestIdx) cls = 'best';
       else if (i === worstIdx) cls = 'worst';
-      var show = v === '' ? '<span style="color:#c0c5cc">—</span>' : esc(v) + (fd.type === 'num' && fd.unit ? '<span style="color:#9aa1ab;font-size:11px"> ' + esc(fd.unit) + '</span>' : '');
+      var show = v === '' ? '<span style="color:#c0c5cc">—</span>'
+                : esc(v).replace(/\n/g, '<br>') + (fd.type === 'num' && fd.unit ? '<span style="color:#9aa1ab;font-size:11px"> ' + esc(fd.unit) + '</span>' : '');
       h += '<td class="' + cls + '">' + show + (i === bestIdx ? '<span class="best-mark">优</span>' : '') + '</td>';
     });
     h += '</tr>';
@@ -1140,9 +1261,7 @@ function renderDuo() {
     });
   });
   var fields = ordered.map(function(k){ return kmap[k]; }).filter(function(fd){
-    var va = (A.fields||{})[fd.key], vb = (B.fields||{})[fd.key];
-    function filled(v){ return v !== undefined && v !== null && v !== ''; }
-    return filled(va) || filled(vb);
+    return !valueEmpty((A.fields||{})[fd.key]) || !valueEmpty((B.fields||{})[fd.key]);
   });
 
   // 差异统计
@@ -1150,8 +1269,8 @@ function renderDuo() {
   h += '<div class="duo-list">';
   fields.forEach(function(fd){
     var va = (A.fields||{})[fd.key], vb = (B.fields||{})[fd.key];
-    var sa = (va === undefined || va === null) ? '' : String(va);
-    var sb = (vb === undefined || vb === null) ? '' : String(vb);
+    var sa = valueToText(va);
+    var sb = valueToText(vb);
     var same = sa === sb;
 
     // 优劣判断
@@ -1176,8 +1295,8 @@ function renderDuo() {
     h += '<div class="duo-row">' +
       '<div class="duo-label">' + esc(fd.label) + '</div>' +
       '<div class="duo-cells">' +
-        '<div class="' + cA + '">' + (sa === '' ? '<span style="color:#c0c5cc">未填</span>' : esc(sa) + esc(unit)) + (onlyA ? '<span class="duo-only">仅A</span>' : '') + '</div>' +
-        '<div class="' + cB + '">' + (sb === '' ? '<span style="color:#c0c5cc">未填</span>' : esc(sb) + esc(unit)) + (onlyB ? '<span class="duo-only">仅B</span>' : '') + '</div>' +
+        '<div class="' + cA + '">' + (sa === '' ? '<span style="color:#c0c5cc">未填</span>' : esc(sa).replace(/\n/g, '<br>') + esc(unit)) + (onlyA ? '<span class="duo-only">仅A</span>' : '') + '</div>' +
+        '<div class="' + cB + '">' + (sb === '' ? '<span style="color:#c0c5cc">未填</span>' : esc(sb).replace(/\n/g, '<br>') + esc(unit)) + (onlyB ? '<span class="duo-only">仅B</span>' : '') + '</div>' +
       '</div>' +
     '</div>';
   });
