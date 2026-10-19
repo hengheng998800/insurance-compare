@@ -91,8 +91,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei
 .finput{flex:1;min-width:0;border:none;outline:none;font-size:14px;color:#202124;background:transparent;padding:6px 0;font-family:inherit;line-height:1.45;resize:none}
 .finput::placeholder{color:#c0c5cc}
 textarea.finput{min-height:38px;overflow:hidden}
-.finput.num{text-align:right}
-.unit{font-size:12px;color:#9aa1ab;padding-top:8px;flex-shrink:0}
 .frow-select{position:relative}
 .frow-select select{flex:1;border:none;outline:none;font-size:14px;color:#202124;background:transparent;padding:7px 0;font-family:inherit;appearance:none;-webkit-appearance:none}
 .frow-select::after{content:'›';position:absolute;right:14px;top:50%;transform:translateY(-50%) rotate(90deg);font-size:16px;color:#c0c5cc;pointer-events:none}
@@ -325,15 +323,15 @@ var TYPE_FIELDS = {
   cz: [
     // 一、投保规则
     { key:'company',      label:'保险公司',   type:'text', group:'一、投保规则' },
-    { key:'ageLimit',     label:'投保年龄',   type:'text', unit:'如 0-17周岁', group:'一、投保规则' },
-    { key:'coverage',     label:'保障期间',   type:'text', unit:'如 终身/至70岁', group:'一、投保规则' },
-    { key:'payPeriod',    label:'交费期间',   type:'text', unit:'如 20年/30年', group:'一、投保规则' },
+    { key:'ageLimit',     label:'投保年龄',   type:'text', group:'一、投保规则' },
+    { key:'coverage',     label:'保障期间',   type:'text', group:'一、投保规则' },
+    { key:'payPeriod',    label:'交费期间',   type:'text', group:'一、投保规则' },
     { key:'review',       label:'保单复议',   type:'text', group:'一、投保规则', better:'high', score:true, note:'如：支持/不支持，复议可修改核保结论' },
-    { key:'waitPeriod',   label:'等待期',     type:'num', unit:'天', group:'一、投保规则', better:'low', score:true },
-    { key:'occupation',   label:'职业类别',   type:'text', unit:'如 1-4类', group:'一、投保规则' },
-    { key:'maxSumInsured',label:'最高基本保额', type:'num', unit:'万', group:'一、投保规则', better:'high', score:true },
-    { key:'price',        label:'保费',       type:'num', unit:'元/年', group:'一、投保规则', better:'low', score:true },
-    { key:'sumInsured',   label:'投保基本保额', type:'num', unit:'万', group:'一、投保规则' },
+    { key:'waitPeriod',   label:'等待期',     type:'text', group:'一、投保规则', better:'low', score:true },
+    { key:'occupation',   label:'职业类别',   type:'text', group:'一、投保规则' },
+    { key:'maxSumInsured',label:'最高基本保额', type:'text', group:'一、投保规则', better:'high', score:true },
+    { key:'price',        label:'保费',       type:'text', group:'一、投保规则', better:'low', score:true },
+    { key:'sumInsured',   label:'投保基本保额', type:'text', group:'一、投保规则' },
 
     // 二、必选责任
     { key:'criticalPay',  label:'重大疾病保险金', type:'long', multi:true, group:'二、必选责任', note:'赔付比例、次数、是否分组' },
@@ -369,16 +367,16 @@ var TYPE_FIELDS = {
   /* ===== 医疗险 ===== */
   yl: [
     { key:'company',      label:'保险公司',   type:'text', group:'一、投保规则' },
-    { key:'ageLimit',     label:'投保年龄',   type:'text', unit:'如 0-60周岁', group:'一、投保规则' },
-    { key:'coverage',     label:'保障期间',   type:'text', unit:'通常1年', group:'一、投保规则' },
-    { key:'waitPeriod',   label:'等待期',     type:'num', unit:'天', group:'一、投保规则', better:'low', score:true },
+    { key:'ageLimit',     label:'投保年龄',   type:'text', group:'一、投保规则' },
+    { key:'coverage',     label:'保障期间',   type:'text', group:'一、投保规则' },
+    { key:'waitPeriod',   label:'等待期',     type:'text', group:'一、投保规则', better:'low', score:true },
     { key:'occupation',   label:'职业类别',   type:'text', group:'一、投保规则' },
     { key:'healthNotice', label:'健康告知',   type:'text', group:'一、投保规则', better:'low' },
-    { key:'price',        label:'保费',       type:'num', unit:'元/年', group:'一、投保规则', better:'low', score:true },
-    { key:'sumInsured',   label:'年度保额',   type:'num', unit:'万', group:'一、投保规则', better:'high', score:true },
+    { key:'price',        label:'保费',       type:'text', group:'一、投保规则', better:'low', score:true },
+    { key:'sumInsured',   label:'年度保额',   type:'text', group:'一、投保规则', better:'high', score:true },
 
-    { key:'deductible',   label:'免赔额',     type:'num', unit:'元', group:'二、核心责任', better:'low', score:true },
-    { key:'reimburseRate',label:'报销比例',   type:'text', unit:'如 100%', group:'二、核心责任', better:'high', score:true },
+    { key:'deductible',   label:'免赔额',     type:'text', group:'二、核心责任', better:'low', score:true },
+    { key:'reimburseRate',label:'报销比例',   type:'text', group:'二、核心责任', better:'high', score:true },
     { key:'generalMed',   label:'一般医疗',   type:'long', multi:true, group:'二、核心责任' },
     { key:'criticalMed',  label:'重疾医疗',   type:'long', multi:true, group:'二、核心责任' },
     { key:'socialInside', label:'社保内报销', type:'long', multi:true, group:'二、核心责任' },
@@ -386,7 +384,7 @@ var TYPE_FIELDS = {
     { key:'outpatient',   label:'门诊责任',   type:'long', multi:true, group:'二、核心责任' },
     { key:'hospitalRange',label:'医院范围',   type:'text', group:'二、核心责任', better:'high', score:true, note:'如：二级及以上公立医院普通部' },
 
-    { key:'guaranteed',   label:'保证续保',   type:'text', unit:'如 20年', group:'三、续保与特药', better:'high', score:true },
+    { key:'guaranteed',   label:'保证续保',   type:'text', group:'三、续保与特药', better:'high', score:true },
     { key:'renewal',      label:'续保条件',   type:'long', multi:true, group:'三、续保与特药' },
     { key:'specialDrug',  label:'院外特药',   type:'long', multi:true, group:'三、续保与特药' },
     { key:'proton',       label:'质子重离子', type:'long', multi:true, group:'三、续保与特药' },
@@ -401,18 +399,18 @@ var TYPE_FIELDS = {
   yw: [
     { key:'company',      label:'保险公司',   type:'text', group:'一、投保规则' },
     { key:'ageLimit',     label:'投保年龄',   type:'text', group:'一、投保规则' },
-    { key:'coverage',     label:'保障期间',   type:'text', unit:'通常1年', group:'一、投保规则' },
-    { key:'effective',    label:'生效时间',   type:'text', unit:'如 T+3', group:'一、投保规则', better:'low', score:true },
-    { key:'occupation',   label:'职业限制',   type:'text', unit:'如 1-3类', group:'一、投保规则' },
-    { key:'price',        label:'保费',       type:'num', unit:'元/年', group:'一、投保规则', better:'low', score:true },
+    { key:'coverage',     label:'保障期间',   type:'text', group:'一、投保规则' },
+    { key:'effective',    label:'生效时间',   type:'text', group:'一、投保规则', better:'low', score:true },
+    { key:'occupation',   label:'职业限制',   type:'text', group:'一、投保规则' },
+    { key:'price',        label:'保费',       type:'text', group:'一、投保规则', better:'low', score:true },
 
-    { key:'accidentDeath',label:'意外身故保额', type:'num', unit:'万', group:'二、意外责任', better:'high', score:true },
-    { key:'accidentDisable',label:'意外伤残保额', type:'num', unit:'万', group:'二、意外责任', better:'high' },
+    { key:'accidentDeath',label:'意外身故保额', type:'text', group:'二、意外责任', better:'high', score:true },
+    { key:'accidentDisable',label:'意外伤残保额', type:'text', group:'二、意外责任', better:'high' },
     { key:'disableRatio', label:'伤残赔付比例', type:'long', multi:true, group:'二、意外责任' },
     { key:'trafficExtra', label:'交通意外额外赔', type:'long', multi:true, group:'二、意外责任' },
-    { key:'medical',      label:'意外医疗额度', type:'num', unit:'万', group:'二、意外责任', better:'high', score:true },
-    { key:'medicalDeduct',label:'意外医疗免赔额', type:'num', unit:'元', group:'二、意外责任', better:'low', score:true },
-    { key:'medicalRate',  label:'意外医疗报销比例', type:'text', unit:'如 100%', group:'二、意外责任', better:'high' },
+    { key:'medical',      label:'意外医疗额度', type:'text', group:'二、意外责任', better:'high', score:true },
+    { key:'medicalDeduct',label:'意外医疗免赔额', type:'text', group:'二、意外责任', better:'low', score:true },
+    { key:'medicalRate',  label:'意外医疗报销比例', type:'text', group:'二、意外责任', better:'high' },
     { key:'socialLimit',  label:'是否限社保', type:'text', group:'二、意外责任', better:'low', score:true, note:'如：不限社保，0免赔，100%报销' },
     { key:'hospitalAllow',label:'住院津贴',   type:'long', multi:true, group:'二、意外责任' },
     { key:'suddenDeath',  label:'猝死责任',   type:'long', multi:true, group:'二、意外责任' },
@@ -425,14 +423,14 @@ var TYPE_FIELDS = {
   sx: [
     { key:'company',      label:'保险公司',   type:'text', group:'一、投保规则' },
     { key:'ageLimit',     label:'投保年龄',   type:'text', group:'一、投保规则' },
-    { key:'coverage',     label:'保障期间',   type:'text', unit:'如 20年/至60岁', group:'一、投保规则' },
+    { key:'coverage',     label:'保障期间',   type:'text', group:'一、投保规则' },
     { key:'payPeriod',    label:'交费期间',   type:'text', group:'一、投保规则' },
-    { key:'waitPeriod',   label:'等待期',     type:'num', unit:'天', group:'一、投保规则', better:'low', score:true },
+    { key:'waitPeriod',   label:'等待期',     type:'text', group:'一、投保规则', better:'low', score:true },
     { key:'occupation',   label:'职业限制',   type:'text', group:'一、投保规则' },
     { key:'healthNotice', label:'健康告知',   type:'text', group:'一、投保规则', better:'low', score:true },
-    { key:'maxSumInsured',label:'最高保额',   type:'num', unit:'万', group:'一、投保规则', better:'high', score:true },
-    { key:'price',        label:'保费',       type:'num', unit:'元/年', group:'一、投保规则', better:'low', score:true },
-    { key:'sumInsured',   label:'投保保额',   type:'num', unit:'万', group:'一、投保规则', better:'high', score:true },
+    { key:'maxSumInsured',label:'最高保额',   type:'text', group:'一、投保规则', better:'high', score:true },
+    { key:'price',        label:'保费',       type:'text', group:'一、投保规则', better:'low', score:true },
+    { key:'sumInsured',   label:'投保保额',   type:'text', group:'一、投保规则', better:'high', score:true },
 
     { key:'deathCover',   label:'身故保险金', type:'long', multi:true, group:'二、保障责任' },
     { key:'fullDisable',  label:'全残责任',   type:'text', group:'二、保障责任', better:'high', score:true, note:'如：18岁后身故/全残赔保额，之前退保费' },
@@ -450,17 +448,17 @@ var TYPE_FIELDS = {
     { key:'ageLimit',     label:'投保年龄',   type:'text', group:'一、投保规则' },
     { key:'coverage',     label:'保障期间',   type:'text', group:'一、投保规则' },
     { key:'payPeriod',    label:'交费期间',   type:'text', group:'一、投保规则' },
-    { key:'price',        label:'年交保费',   type:'num', unit:'元', group:'一、投保规则' },
-    { key:'sumInsured',   label:'基本保额',   type:'num', unit:'元', group:'一、投保规则' },
+    { key:'price',        label:'年交保费',   type:'text', group:'一、投保规则' },
+    { key:'sumInsured',   label:'基本保额',   type:'text', group:'一、投保规则' },
 
-    { key:'irr',          label:'实际 IRR',   type:'num', unit:'%', group:'二、收益指标', better:'high', score:true },
-    { key:'guaranteedRate',label:'保证利率',  type:'num', unit:'%', group:'二、收益指标', better:'high', score:true },
-    { key:'cashValueYear',label:'回本年限',   type:'num', unit:'年', group:'二、收益指标', better:'low', score:true },
+    { key:'irr',          label:'实际 IRR',   type:'text', group:'二、收益指标', better:'high', score:true },
+    { key:'guaranteedRate',label:'保证利率',  type:'text', group:'二、收益指标', better:'high', score:true },
+    { key:'cashValueYear',label:'回本年限',   type:'text', group:'二、收益指标', better:'low', score:true },
     { key:'totalReturn',  label:'长期总收益', type:'long', multi:true, group:'二、收益指标' },
     { key:'dividend',     label:'分红/万能账户', type:'long', multi:true, group:'二、收益指标' },
 
     { key:'payoutStart',  label:'起领年龄',   type:'text', group:'三、领取方式' },
-    { key:'payoutAmount', label:'年领取金额', type:'num', unit:'元', group:'三、领取方式', better:'high', score:true },
+    { key:'payoutAmount', label:'年领取金额', type:'text', group:'三、领取方式', better:'high', score:true },
     { key:'payoutType',   label:'领取方式',   type:'text', group:'三、领取方式', note:'如：月领/年领，领至80岁/终身' },
     { key:'flexible',     label:'减保灵活性', type:'long', multi:true, group:'三、领取方式' },
 
@@ -473,9 +471,9 @@ var TYPE_FIELDS = {
     { key:'company',      label:'保险公司',   type:'text', group:'一、投保规则' },
     { key:'ageLimit',     label:'投保年龄',   type:'text', group:'一、投保规则' },
     { key:'coverage',     label:'保障期间',   type:'text', group:'一、投保规则' },
-    { key:'waitPeriod',   label:'等待期',     type:'num', unit:'天', group:'一、投保规则', better:'low' },
-    { key:'price',        label:'保费',       type:'num', unit:'元/年', group:'一、投保规则', better:'low', score:true },
-    { key:'sumInsured',   label:'保额',       type:'num', unit:'万', group:'一、投保规则', better:'high', score:true },
+    { key:'waitPeriod',   label:'等待期',     type:'text', group:'一、投保规则', better:'low' },
+    { key:'price',        label:'保费',       type:'text', group:'一、投保规则', better:'low', score:true },
+    { key:'sumInsured',   label:'保额',       type:'text', group:'一、投保规则', better:'high', score:true },
     { key:'detail',       label:'保障内容',   type:'long', multi:true, group:'二、核心条款' },
     { key:'exclusions',   label:'免责条款要点', type:'long', multi:true, group:'三、其他' },
     { key:'note',         label:'总体备注',   type:'long', multi:true, group:'三、其他' }
@@ -887,12 +885,10 @@ function renderEdit() {
         h += '<div class="multi-add" data-k="' + f.key + '">＋ 增加一条</div>';
         h += '</div>';
       } else if (f.type === 'long') {
-        h += '<textarea class="finput" data-k="' + f.key + '" data-t="long" rows="2" placeholder="' + esc(f.note || f.unit || '点击填写…') + '">' + esc(val) + '</textarea>';
+        h += '<textarea class="finput" data-k="' + f.key + '" data-t="long" rows="2" placeholder="' + esc(f.note || '点击填写…') + '">' + esc(val) + '</textarea>';
       } else {
-        h += '<input class="finput' + (f.type === 'num' ? ' num' : '') + '" data-k="' + f.key + '" data-t="' + f.type + '" ' +
-             (f.type === 'num' ? 'type="number" inputmode="decimal" ' : '') +
+        h += '<input class="finput" data-k="' + f.key + '" data-t="text" ' +
              'placeholder="' + esc(f.note || '') + '" value="' + esc(val) + '">';
-        if (f.unit && f.type === 'num') h += '<div class="unit">' + esc(f.unit) + '</div>';
       }
       h += '</div>';
     });
@@ -1076,8 +1072,7 @@ function renderDetail() {
     gmap[g].forEach(function(fd){
       var v = f[fd.key];
       if (valueEmpty(v)) return;
-      var unit = (fd.type === 'num' && fd.unit) ? ' ' + fd.unit : '';
-      rows += '<div class="drow"><div class="dk">' + esc(fd.label) + '</div><div class="dv">' + renderValueHTML(v) + esc(unit) + '</div></div>';
+      rows += '<div class="drow"><div class="dk">' + esc(fd.label) + '</div><div class="dv">' + renderValueHTML(v) + '</div></div>';
     });
     if (rows) h += '<div class="detail-sec"><div class="detail-sec-t">' + esc(g) + '</div>' + rows + '</div>';
   });
@@ -1199,7 +1194,7 @@ function renderTable() {
       if (i === bestIdx) cls = 'best';
       else if (i === worstIdx) cls = 'worst';
       var show = v === '' ? '<span style="color:#c0c5cc">—</span>'
-                : esc(v).replace(/\n/g, '<br>') + (fd.type === 'num' && fd.unit ? '<span style="color:#9aa1ab;font-size:11px"> ' + esc(fd.unit) + '</span>' : '');
+                : esc(v).replace(/\n/g, '<br>');
       h += '<td class="' + cls + '">' + show + (i === bestIdx ? '<span class="best-mark">优</span>' : '') + '</td>';
     });
     h += '</tr>';
@@ -1288,15 +1283,14 @@ function renderDuo() {
       }
     }
 
-    var unit = (fd.type === 'num' && fd.unit) ? ' ' + fd.unit : '';
     var cA = 'duo-cell' + (winA ? ' win' : (winB ? ' lose' : (same ? ' same' : '')));
     var cB = 'duo-cell' + (winB ? ' win' : (winA ? ' lose' : (same ? ' same' : '')));
 
     h += '<div class="duo-row">' +
       '<div class="duo-label">' + esc(fd.label) + '</div>' +
       '<div class="duo-cells">' +
-        '<div class="' + cA + '">' + (sa === '' ? '<span style="color:#c0c5cc">未填</span>' : esc(sa).replace(/\n/g, '<br>') + esc(unit)) + (onlyA ? '<span class="duo-only">仅A</span>' : '') + '</div>' +
-        '<div class="' + cB + '">' + (sb === '' ? '<span style="color:#c0c5cc">未填</span>' : esc(sb).replace(/\n/g, '<br>') + esc(unit)) + (onlyB ? '<span class="duo-only">仅B</span>' : '') + '</div>' +
+        '<div class="' + cA + '">' + (sa === '' ? '<span style="color:#c0c5cc">未填</span>' : esc(sa).replace(/\n/g, '<br>')) + (onlyA ? '<span class="duo-only">仅A</span>' : '') + '</div>' +
+        '<div class="' + cB + '">' + (sb === '' ? '<span style="color:#c0c5cc">未填</span>' : esc(sb).replace(/\n/g, '<br>')) + (onlyB ? '<span class="duo-only">仅B</span>' : '') + '</div>' +
       '</div>' +
     '</div>';
   });
