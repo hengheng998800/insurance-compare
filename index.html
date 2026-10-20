@@ -40,6 +40,20 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei
 .chip{padding:5px 13px;border-radius:16px;font-size:13px;white-space:nowrap;cursor:pointer;background:#f0f1f4;color:#666;transition:.2s;border:1px solid transparent}
 .chip.active{background:#2f6fed;color:#fff;border-color:#2f6fed}
 .chip .cnt{opacity:.7;font-size:11px;margin-left:2px}
+/* 下拉式筛选 pill（v2.6） */
+.fsel-wrap{position:relative;display:inline-flex;align-items:center}
+.fsel{appearance:none;-webkit-appearance:none;border:1px solid #e2e6ec;background:#f0f1f4;border-radius:16px;padding:5px 26px 5px 13px;font-size:13px;color:#555;outline:none;max-width:170px;font-family:inherit}
+.fsel.active{border-color:#2f6fed;color:#2f6fed;background:#e8f0fe;font-weight:600}
+.fsel-wrap::after{content:'▾';position:absolute;right:11px;font-size:11px;color:#9aa1ab;pointer-events:none}
+/* 产品库筛选面板（v2.6） */
+.list-filter{display:flex;gap:7px;align-items:center;padding:8px 12px;background:#fff;border-bottom:1px solid #eee;flex-shrink:0;flex-wrap:wrap}
+.list-filter .fsel{max-width:132px;flex-shrink:0}
+.list-search{flex:1;min-width:130px;border:1px solid #e2e6ec;border-radius:16px;padding:6px 13px;font-size:13px;background:#f7f8fa;outline:none;font-family:inherit}
+.list-search:focus{border-color:#2f6fed;background:#fff}
+/* 勾选产品折叠（v2.6） */
+.sel-pills{transition:max-height .25s ease}
+.sel-pills.collapsed{max-height:92px;overflow:hidden}
+.sel-more{font-size:12px;color:#2f6fed;cursor:pointer;padding:7px 2px 0;text-align:center;font-weight:600}
 
 /* ===== 产品卡片 ===== */
 .list{padding:10px 12px}
@@ -332,6 +346,7 @@ textarea.finput{min-height:38px;overflow:hidden}
     <!-- 产品库 -->
     <div class="page active" id="page-list">
       <div class="filter-bar" id="type-filter"></div>
+      <div class="list-filter" id="list-filter"></div>
       <div class="list" id="product-list"></div>
     </div>
     <!-- 对比表 -->
@@ -368,7 +383,7 @@ textarea.finput{min-height:38px;overflow:hidden}
 <div class="toast" id="toast"></div>
 <script>
 /* ============================================================
-   保险对比工具 v2.5
+   保险对比工具 v2.6
    纯本地 PWA：IndexedDB 主存储 + localStorage 兜底，数据不出手机
    ============================================================ */
 
@@ -1050,6 +1065,9 @@ function getProduct(id) {
 var state = {
   currentPage: 'list',
   listType: 'all',        // 产品库筛选类型
+  listCo: 'all',          // 产品库筛选公司
+  listTier: 'all',        // 产品库筛选医疗层级
+  listQ: '',              // 产品库搜索关键词
   tableType: 'all',       // 对比表筛选类型
   tableCo: 'all',         // 对比表筛选公司
   tableTier: 'all',       // 对比表筛选医疗层级
@@ -1123,9 +1141,39 @@ function renderList() {
     });
   });
 
+  // 公司 / 层级 / 搜索 筛选面板
+  function tierOfP(p){ return p.tier || '未标注'; }
+  var TIERS = ['基础百万医疗','中端医疗','高端医疗'];
+  var lf = document.getElementById('list-filter');
+  var searchWasFocused = document.activeElement && document.activeElement.id === 'list-q';
+  var coMap = {};
+  appData.products.forEach(function(p){ var c = ((p.fields||{}).company||'').trim(); if (c) coMap[c] = (coMap[c]||0)+1; });
+  var coOpts = '<option value="all">公司</option>' + Object.keys(coMap).sort().map(function(c){
+    return '<option value="' + esc(c) + '"' + (state.listCo===c?' selected':'') + '>' + esc(c) + ' (' + coMap[c] + ')</option>';
+  }).join('');
+  var tierOpts = '<option value="all">层级</option>' + TIERS.map(function(tr){
+    var n = appData.products.filter(function(p){ return p.type==='yl' && tierOfP(p)===tr; }).length;
+    return '<option value="' + tr + '"' + (state.listTier===tr?' selected':'') + '>' + tr + ' (' + n + ')</option>';
+  }).join('') + '<option value="未标注"' + (state.listTier==='未标注'?' selected':'') + '>未标注</option>';
+  lf.innerHTML = '<input class="list-search" id="list-q" placeholder="🔍 搜产品名 / 公司…" value="' + esc(state.listQ) + '">' +
+    '<span class="fsel-wrap"><select class="fsel' + (state.listCo!=='all'?' active':'') + '" id="list-co">' + coOpts + '</select></span>' +
+    '<span class="fsel-wrap"><select class="fsel' + (state.listTier!=='all'?' active':'') + '" id="list-tier">' + tierOpts + '</select></span>';
+  lf.querySelector('#list-co').addEventListener('change', function(){ state.listCo = this.value; renderList(); });
+  lf.querySelector('#list-tier').addEventListener('change', function(){ state.listTier = this.value; renderList(); });
+  lf.querySelector('#list-q').addEventListener('input', function(){ state.listQ = this.value.trim(); renderList(); });
+  if (searchWasFocused) { var qEl = lf.querySelector('#list-q'); qEl.focus(); qEl.setSelectionRange(qEl.value.length, qEl.value.length); }
+
   // 产品列表
   var list = appData.products.filter(function(p){
-    return state.listType === 'all' || p.type === state.listType;
+    if (state.listType !== 'all' && p.type !== state.listType) return false;
+    var c = ((p.fields||{}).company||'').trim();
+    if (state.listCo !== 'all' && c !== state.listCo) return false;
+    if (state.listTier !== 'all' && (p.type !== 'yl' || tierOfP(p) !== state.listTier)) return false;
+    if (state.listQ) {
+      var hay = (p.name + ' ' + ((p.fields||{}).company||'')).toLowerCase();
+      if (hay.indexOf(state.listQ.toLowerCase()) < 0) return false;
+    }
+    return true;
   });
   // 按更新时间倒序
   list.sort(function(a,b){ return (b.updatedAt||0) - (a.updatedAt||0); });
@@ -1655,7 +1703,7 @@ function renderTable() {
   });
   fb += '</div>';
 
-  // 公司 / 医疗层级筛选（先取全量，再生成候选）
+  // 公司 / 医疗层级：下拉式筛选（一排两个，不占空间）
   var TIERS = ['基础百万医疗','中端医疗','高端医疗'];
   function tierOf(p){ return p.tier || '未标注'; }
   var allYl = appData.products.filter(function(p){ return p.type === 'yl'; });
@@ -1665,20 +1713,19 @@ function renderTable() {
   if (state.tableCo !== 'all' && !coMap[state.tableCo]) state.tableCo = 'all';
   if (state.tableTier !== 'all' && TIERS.indexOf(state.tableTier) < 0 && state.tableTier !== '未标注') state.tableTier = 'all';
 
-  fb += '<div class="filter-bar" id="co-bar">';
-  fb += '<div class="chip' + (state.tableCo==='all'?' active':'') + '" data-co="all">全部公司<span class="cnt">' + allYl.length + '</span></div>';
-  coList.forEach(function(c){
-    fb += '<div class="chip' + (state.tableCo===c?' active':'') + '" data-co="' + esc(c) + '">' + esc(c) + '<span class="cnt">' + coMap[c] + '</span></div>';
-  });
-  fb += '</div>';
-  fb += '<div class="filter-bar" id="tier-bar">';
-  fb += '<div class="chip' + (state.tableTier==='all'?' active':'') + '" data-tier="all">全部层级</div>';
-  TIERS.forEach(function(tr){
-    var n = allYl.filter(function(p){ return tierOf(p) === tr; }).length;
-    fb += '<div class="chip' + (state.tableTier===tr?' active':'') + '" data-tier="' + tr + '">' + tr + '<span class="cnt">' + n + '</span></div>';
-  });
-  var nU = allYl.filter(function(p){ return tierOf(p) === '未标注'; }).length;
-  if (nU) fb += '<div class="chip' + (state.tableTier==='未标注'?' active':'') + '" data-tier="未标注">未标注<span class="cnt">' + nU + '</span></div>';
+  fb += '<div class="filter-bar" id="ct-bar">';
+  fb += '<span class="fsel-wrap"><select class="fsel' + (state.tableCo!=='all'?' active':'') + '" id="co-sel">' +
+    '<option value="all">公司：全部 (' + allYl.length + ')</option>' +
+    coList.map(function(c){ return '<option value="' + esc(c) + '"' + (state.tableCo===c?' selected':'') + '>' + esc(c) + ' (' + coMap[c] + ')</option>'; }).join('') +
+    '</select></span>';
+  fb += '<span class="fsel-wrap"><select class="fsel' + (state.tableTier!=='all'?' active':'') + '" id="tier-sel">' +
+    '<option value="all">层级：全部</option>' +
+    TIERS.map(function(tr){
+      var n = allYl.filter(function(p){ return tierOf(p) === tr; }).length;
+      return '<option value="' + tr + '"' + (state.tableTier===tr?' selected':'') + '>' + tr + ' (' + n + ')</option>';
+    }).join('') +
+    (allYl.some(function(p){ return tierOf(p)==='未标注'; }) ? '<option value="未标注"' + (state.tableTier==='未标注'?' selected':'') + '>未标注</option>' : '') +
+    '</select></span>';
   fb += '</div>';
 
   var scope = appData.products.filter(function(p){
@@ -1695,18 +1742,22 @@ function renderTable() {
   scope.forEach(function(p){ scopeIds[p.id] = true; });
   state.tableIds = state.tableIds.filter(function(id){ return scopeIds[id]; });
 
-  // ===== 产品勾选条 =====
+  // ===== 产品勾选条（超过 6 个折叠，点"展开全部"再看全部）=====
+  var pillArr = scope.map(function(p){
+    var on = state.tableIds.indexOf(p.id) >= 0;
+    return '<div class="sel-pill' + (on ? ' on' : '') + '" data-sel="' + esc(p.id) + '">' +
+            (on ? '✓ ' : '') + esc(p.name) + '</div>';
+  });
+  var needFold = pillArr.length > 6;
   fb += '<div class="sel-bar"><div class="sel-head">' +
           '<span class="sel-t">勾选要对比的产品</span>' +
           '<span class="sel-n">' + (state.tableIds.length ? '已选 ' + state.tableIds.length + ' 个' : '未勾选＝全部 ' + scope.length + ' 个') + '</span>' +
           (state.tableIds.length ? '<span class="sel-clear" id="sel-clear">清空</span>' : '') +
-        '</div><div class="sel-pills">';
-  scope.forEach(function(p){
-    var on = state.tableIds.indexOf(p.id) >= 0;
-    fb += '<div class="sel-pill' + (on ? ' on' : '') + '" data-sel="' + esc(p.id) + '">' +
-            (on ? '✓ ' : '') + esc(p.name) + '</div>';
-  });
-  fb += '</div></div>';
+        '</div><div class="sel-pills' + (needFold ? ' collapsed' : '') + '">' +
+          pillArr.join('') +
+        '</div>' +
+        (needFold ? '<div class="sel-more" id="sel-more">展开全部 ' + pillArr.length + ' 个 ▾</div>' : '') +
+        '</div>';
 
   // 勾选过滤：勾了哪些就只对比哪些
   var list = scope.filter(function(p){
@@ -1856,6 +1907,13 @@ function bindSelPills(box) {
   box.addEventListener('click', function(ev){
     var clr = ev.target.closest('#sel-clear');
     if (clr) { state.tableIds = []; renderTable(); toast('已恢复全部'); return; }
+    var more = ev.target.closest('#sel-more');
+    if (more) {
+      var pills = box.querySelector('.sel-pills');
+      var folded = pills.classList.toggle('collapsed');
+      more.textContent = folded ? ('展开全部 ' + pills.children.length + ' 个 ▾') : '收起 ▴';
+      return;
+    }
     var pill = ev.target.closest('.sel-pill');
     if (!pill) return;
     var id = pill.dataset.sel;
@@ -2043,20 +2101,12 @@ function bindTypeChips(box, stateKey, rerender) {
     });
   });
 }
-/* 公司 / 医疗层级筛选条 */
+/* 公司 / 医疗层级下拉筛选 */
 function bindCoTierChips(box) {
-  box.querySelectorAll('#co-bar .chip').forEach(function(el){
-    el.addEventListener('click', function(){
-      state.tableCo = this.dataset.co;
-      renderTable();
-    });
-  });
-  box.querySelectorAll('#tier-bar .chip').forEach(function(el){
-    el.addEventListener('click', function(){
-      state.tableTier = this.dataset.tier;
-      renderTable();
-    });
-  });
+  var co = box.querySelector('#co-sel');
+  if (co) co.addEventListener('change', function(){ state.tableCo = this.value; renderTable(); });
+  var tr = box.querySelector('#tier-sel');
+  if (tr) tr.addEventListener('change', function(){ state.tableTier = this.value; renderTable(); });
 }
 
 /* ============================================================
