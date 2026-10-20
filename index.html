@@ -109,15 +109,15 @@ textarea.finput{min-height:38px;overflow:hidden}
 
 /* ===== 对比表 ===== */
 .cmp-wrap{padding:10px 0 20px}
-.cmp-scroll{overflow:auto;-webkit-overflow-scrolling:touch;scrollbar-width:thin;max-height:calc(100dvh - 175px);border-radius:10px;margin:0 8px;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.cmp-scroll{overflow:auto;scrollbar-width:thin;max-height:calc(100dvh - 175px);border-radius:10px;margin:0 8px;box-shadow:0 1px 4px rgba(0,0,0,.06);background:#fff;overscroll-behavior:contain}
 .cmp-table{border-collapse:separate;border-spacing:0;font-size:12.5px;min-width:100%}
 .cmp-table th,.cmp-table td{padding:9px 10px;text-align:left;vertical-align:top;border-bottom:1px solid #f0f1f4;background:#fff;line-height:1.45}
-.cmp-table thead th{position:sticky;top:0;background:#fafbfc;font-weight:600;font-size:12.5px;color:#202124;border-bottom:2px solid #e8eaed;z-index:2;min-width:132px;max-width:150px}
-.cmp-table thead th:first-child{position:sticky;left:0;top:0;z-index:4;background:#f3f6fb}
+.cmp-table thead th{position:-webkit-sticky;position:sticky;top:0;background:#fafbfc;-webkit-transform:translateZ(0);transform:translateZ(0);font-weight:600;font-size:12.5px;color:#202124;border-bottom:2px solid #e8eaed;z-index:2;min-width:132px;max-width:150px}
+.cmp-table thead th:first-child{position:-webkit-sticky;position:sticky;left:0;top:0;z-index:4;background:#f3f6fb}
 /* 分组行：一、投保规则 / 二、必选责任 … */
-.cmp-table tr.group-row th{position:sticky;left:0;background:linear-gradient(90deg,#e8f0fe,#f4f8ff);color:#1a5fd0;font-weight:700;font-size:12px;letter-spacing:.5px;padding:7px 10px;text-align:left;border-top:1px solid #d6e4ff;border-bottom:1px solid #d6e4ff;z-index:3}
+.cmp-table tr.group-row th{position:-webkit-sticky;position:sticky;left:0;background:linear-gradient(90deg,#e8f0fe,#f4f8ff);color:#1a5fd0;font-weight:700;font-size:12px;letter-spacing:.5px;padding:7px 10px;text-align:left;border-top:1px solid #d6e4ff;border-bottom:1px solid #d6e4ff;z-index:3}
 .cmp-table tr.group-row th .gcnt{font-weight:400;font-size:11px;color:#5b8def;margin-left:6px}
-.cmp-table tbody th{position:sticky;left:0;background:#fafbfc;font-weight:500;color:#5f6368;font-size:12px;min-width:84px;max-width:96px;z-index:1;border-right:1px solid #f0f1f4}
+.cmp-table tbody th{position:-webkit-sticky;position:sticky;left:0;background:#fafbfc;-webkit-transform:translateZ(0);transform:translateZ(0);font-weight:500;color:#5f6368;font-size:12px;min-width:84px;max-width:96px;z-index:1;border-right:1px solid #f0f1f4}
 .cmp-table td{min-width:132px;max-width:170px;color:#3c4043;word-break:break-word}
 .cmp-table td.diff{background:#fffdf5}
 .cmp-table td.best{background:#f0fdf4;color:#137333;font-weight:600}
@@ -265,7 +265,7 @@ textarea.finput{min-height:38px;overflow:hidden}
 <div class="toast" id="toast"></div>
 <script>
 /* ============================================================
-   保险对比工具 v1.0
+   保险对比工具 v1.6
    纯本地 PWA：IndexedDB 主存储 + localStorage 兜底，数据不出手机
    ============================================================ */
 
@@ -1504,7 +1504,7 @@ function openSettings() {
         '</div>' +
         '<div style="margin-top:14px;font-size:13px;color:#8a919b">' +
           '产品数：<b style="color:#202124">' + appData.products.length + '</b>　已填字段：<b style="color:#202124">' + totalFields + '</b>' +
-          '<br>版本：v1.0' +
+          '<br>版本：v1.6' +
         '</div>' +
       '</div>' +
       '<div style="padding:16px">' +
