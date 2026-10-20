@@ -46,9 +46,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei
 .fsel.active{border-color:#2f6fed;color:#2f6fed;background:#e8f0fe;font-weight:600}
 .fsel-wrap::after{content:'▾';position:absolute;right:11px;font-size:11px;color:#9aa1ab;pointer-events:none}
 /* 产品库筛选面板（v2.6） */
-.list-filter{display:flex;gap:7px;align-items:center;padding:8px 12px;background:#fff;border-bottom:1px solid #eee;flex-shrink:0;flex-wrap:wrap}
-.list-filter .fsel{max-width:132px;flex-shrink:0}
-.list-search{flex:1;min-width:130px;border:1px solid #e2e6ec;border-radius:16px;padding:6px 13px;font-size:13px;background:#f7f8fa;outline:none;font-family:inherit}
+.list-filter{display:block;padding:9px 12px;background:#fff;border-bottom:1px solid #eee;flex-shrink:0}
+.lf-row{display:flex;gap:7px;align-items:center}
+.lf-row + .lf-row{margin-top:8px}
+.list-filter .fsel{max-width:150px;flex:1}
+.list-search{flex:1;min-width:0;width:100%;border:1px solid #e2e6ec;border-radius:16px;padding:7px 14px;font-size:13px;background:#f7f8fa;outline:none;font-family:inherit;box-sizing:border-box}
 .list-search:focus{border-color:#2f6fed;background:#fff}
 /* 勾选产品折叠（v2.6） */
 .sel-pills{transition:max-height .25s ease}
@@ -57,7 +59,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei
 
 /* ===== 产品卡片 ===== */
 .list{padding:10px 12px}
-.pcard{background:#fff;border-radius:12px;padding:13px 14px;margin-bottom:9px;box-shadow:0 1px 3px rgba(0,0,0,.06);cursor:pointer;position:relative;transition:box-shadow .15s}
+.pcard{background:#fff;border-radius:12px;padding:13px 14px;margin-bottom:12px;box-shadow:0 1px 3px rgba(0,0,0,.06);cursor:pointer;position:relative;transition:box-shadow .15s;border:1px solid #e8ebf0}
 .pcard:active{box-shadow:0 1px 6px rgba(0,0,0,.12)}
 .pcard-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
 .pcard-name{font-size:15px;font-weight:600;line-height:1.35;flex:1;min-width:0;word-break:break-all}
@@ -383,7 +385,7 @@ textarea.finput{min-height:38px;overflow:hidden}
 <div class="toast" id="toast"></div>
 <script>
 /* ============================================================
-   保险对比工具 v2.6
+   保险对比工具 v2.7
    纯本地 PWA：IndexedDB 主存储 + localStorage 兜底，数据不出手机
    ============================================================ */
 
@@ -1151,13 +1153,15 @@ function renderList() {
   var coOpts = '<option value="all">公司</option>' + Object.keys(coMap).sort().map(function(c){
     return '<option value="' + esc(c) + '"' + (state.listCo===c?' selected':'') + '>' + esc(c) + ' (' + coMap[c] + ')</option>';
   }).join('');
-  var tierOpts = '<option value="all">层级</option>' + TIERS.map(function(tr){
+  var tierOpts = '<option value="all">档次</option>' + TIERS.map(function(tr){
     var n = appData.products.filter(function(p){ return p.type==='yl' && tierOfP(p)===tr; }).length;
     return '<option value="' + tr + '"' + (state.listTier===tr?' selected':'') + '>' + tr + ' (' + n + ')</option>';
   }).join('') + '<option value="未标注"' + (state.listTier==='未标注'?' selected':'') + '>未标注</option>';
-  lf.innerHTML = '<input class="list-search" id="list-q" placeholder="🔍 搜产品名 / 公司…" value="' + esc(state.listQ) + '">' +
+  lf.innerHTML = '<div class="lf-row"><input class="list-search" id="list-q" placeholder="🔍 搜产品名 / 公司…" value="' + esc(state.listQ) + '"></div>' +
+    '<div class="lf-row">' +
     '<span class="fsel-wrap"><select class="fsel' + (state.listCo!=='all'?' active':'') + '" id="list-co">' + coOpts + '</select></span>' +
-    '<span class="fsel-wrap"><select class="fsel' + (state.listTier!=='all'?' active':'') + '" id="list-tier">' + tierOpts + '</select></span>';
+    '<span class="fsel-wrap"><select class="fsel' + (state.listTier!=='all'?' active':'') + '" id="list-tier">' + tierOpts + '</select></span>' +
+    '</div>';
   lf.querySelector('#list-co').addEventListener('change', function(){ state.listCo = this.value; renderList(); });
   lf.querySelector('#list-tier').addEventListener('change', function(){ state.listTier = this.value; renderList(); });
   lf.querySelector('#list-q').addEventListener('input', function(){ state.listQ = this.value.trim(); renderList(); });
@@ -1397,7 +1401,7 @@ function renderEdit() {
     '<div class="fgroup-title">' + t.icon + ' ' + t.name + '</div>' +
     '<div class="frow"><div class="flabel">产品名称<span style="color:#d93025">*</span></div>' +
     '<input class="finput" id="f-name" placeholder="如 某某福终身重疾险" value="' + esc(p.name) + '"></div>' +
-    (type === 'yl' ? '<div class="frow"><div class="flabel">医疗层级<div class="fnote">用于按层级筛选对比：基础百万医疗 / 中端医疗 / 高端医疗</div></div>' +
+    (type === 'yl' ? '<div class="frow"><div class="flabel">医疗档次<div class="fnote">用于按档次筛选对比：基础百万医疗 / 中端医疗 / 高端医疗</div></div>' +
       '<select class="finput" id="f-tier">' +
       ['','基础百万医疗','中端医疗','高端医疗'].map(function(o){
         var lb = o === '' ? '未标注' : o;
@@ -1719,7 +1723,7 @@ function renderTable() {
     coList.map(function(c){ return '<option value="' + esc(c) + '"' + (state.tableCo===c?' selected':'') + '>' + esc(c) + ' (' + coMap[c] + ')</option>'; }).join('') +
     '</select></span>';
   fb += '<span class="fsel-wrap"><select class="fsel' + (state.tableTier!=='all'?' active':'') + '" id="tier-sel">' +
-    '<option value="all">层级：全部</option>' +
+    '<option value="all">档次：全部</option>' +
     TIERS.map(function(tr){
       var n = allYl.filter(function(p){ return tierOf(p) === tr; }).length;
       return '<option value="' + tr + '"' + (state.tableTier===tr?' selected':'') + '>' + tr + ' (' + n + ')</option>';
