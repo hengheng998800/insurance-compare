@@ -118,7 +118,10 @@ textarea.finput{min-height:38px;overflow:hidden}
 .cmp-table tr.group-row th{position:-webkit-sticky;position:sticky;left:0;background:linear-gradient(90deg,#e8f0fe,#f4f8ff);color:#1a5fd0;font-weight:700;font-size:12px;letter-spacing:.5px;padding:7px 10px;text-align:left;border-top:1px solid #d6e4ff;border-bottom:1px solid #d6e4ff;z-index:3}
 .cmp-table tr.group-row th .gcnt{font-weight:400;font-size:11px;color:#5b8def;margin-left:6px}
 .cmp-table tbody th{position:-webkit-sticky;position:sticky;left:0;background:#fafbfc;-webkit-transform:translateZ(0);transform:translateZ(0);font-weight:500;color:#5f6368;font-size:12px;min-width:84px;max-width:96px;z-index:1;border-right:1px solid #f0f1f4}
-.cmp-table td{min-width:132px;max-width:170px;color:#3c4043;word-break:break-word}
+.cmp-table td{min-width:132px;max-width:170px;color:#3c4043;word-break:break-word;border-left:1px solid #e2e6ec}
+.cmp-table thead th:not(:first-child){border-left:1px solid #dfe3ea}
+.cmp-table td[data-p]{cursor:pointer}
+.cmp-table td[data-p]:active{box-shadow:inset 0 0 0 999px rgba(47,111,237,.09)}
 .cmp-table td.diff{background:#fffdf5}
 .cmp-table td.best{background:#f0fdf4;color:#137333;font-weight:600}
 .cmp-table td.worst{background:#fef7f7;color:#c5221f}
@@ -140,7 +143,9 @@ textarea.finput{min-height:38px;overflow:hidden}
 .diff-tag{font-size:9px;color:#c77700;background:#ffefdb;border-radius:3px;padding:1px 4px;font-weight:600}
 .duo-cells{display:flex}
 .duo-cell{flex:1;padding:7px 12px 11px;font-size:13px;color:#3c4043;line-height:1.45;word-break:break-word;min-width:0}
-.duo-cell:first-child{border-right:1px solid #f0f1f4}
+.duo-cell:first-child{border-right:1.5px solid #dfe3ea}
+.duo-cell[data-p]{cursor:pointer}
+.duo-cell[data-p]:active{box-shadow:inset 0 0 0 999px rgba(47,111,237,.09)}
 .duo-cell.win{color:#137333;font-weight:600;background:#f6fdf8}
 .duo-cell.lose{color:#8a919b}
 .duo-cell.same{color:#5f6368}
@@ -265,7 +270,7 @@ textarea.finput{min-height:38px;overflow:hidden}
 <div class="toast" id="toast"></div>
 <script>
 /* ============================================================
-   保险对比工具 v1.7
+   保险对比工具 v1.8
    纯本地 PWA：IndexedDB 主存储 + localStorage 兜底，数据不出手机
    ============================================================ */
 
@@ -1172,7 +1177,7 @@ function renderTable() {
   var h = fb + '<div class="cmp-wrap"><div class="cmp-scroll"><table class="cmp-table"><thead><tr><th style="min-width:76px;max-width:88px">字段</th>';
   list.forEach(function(p){
     var t = TYPES[p.type] || TYPES.qt;
-    h += '<th>' + esc(p.name) + '<span class="hsub">' + esc((p.fields||{}).company || t.short) + '</span></th>';
+    h += '<th data-p="' + esc(p.id) + '" style="cursor:pointer">' + esc(p.name) + '<span class="hsub">' + esc((p.fields||{}).company || t.short) + '</span></th>';
   });
   h += '</tr></thead><tbody>';
 
@@ -1205,26 +1210,27 @@ function renderTable() {
       }
     }
 
-    h += '<tr><th>' + esc(fd.label) + '</th>';
-    vals.forEach(function(v, i){
-      var cls = '';
-      if (isDiff) cls = 'diff';
-      if (i === bestIdx) cls = 'best';
-      else if (i === worstIdx) cls = 'worst';
-      var show = v === '' ? '<span style="color:#c0c5cc">—</span>'
-                : esc(v).replace(/\n/g, '<br>');
-      h += '<td class="' + cls + '">' + show + (i === bestIdx ? '<span class="best-mark">优</span>' : '') + '</td>';
-    });
-    h += '</tr>';
+  h += '<tr><th>' + esc(fd.label) + '</th>';
+  vals.forEach(function(v, i){
+    var cls = '';
+    if (isDiff) cls = 'diff';
+    if (i === bestIdx) cls = 'best';
+    else if (i === worstIdx) cls = 'worst';
+    var show = v === '' ? '<span style="color:#c0c5cc">—</span>'
+              : esc(v).replace(/\n/g, '<br>');
+    h += '<td class="' + cls + '" data-p="' + esc(list[i].id) + '" data-k="' + esc(fd.key) + '">' + show + (i === bestIdx ? '<span class="best-mark">优</span>' : '') + '</td>';
   });
+  h += '</tr>';
+});
 
   h += '</tbody></table></div>';
-  h += '<div class="cmp-note">绿色＝该项最优，淡黄＝各产品存在差异。<br>说明：数值最有优类判断仅作参考，条款细节仍需自己核实。</div>';
+  h += '<div class="cmp-note">绿色＝该项最优，淡黄＝各产品存在差异。<br>✏️ 点击任意单元格可直接修改并保存；点产品名可进完整编辑页。</div>';
   h += '</div>';
 
   box.innerHTML = h;
   bindTypeChips(box, 'tableType', renderTable);
   initFreezeFix(box.querySelector('.cmp-scroll'));
+  bindCellEdit(box, 'table');
 }
 
 /* iOS Safari 上表格内 sticky 偶发失效的兜底：
@@ -1258,6 +1264,79 @@ function initFreezeFix(scroller) {
       rths[j].style.transform = 'translateX(' + sl + 'px)';
     }
   }, { passive: true });
+}
+
+/* 对比视图内直接编辑：点单元格弹出底部编辑框，保存后同步回产品数据 */
+function bindCellEdit(box, view) {
+  if (!box || box._cellEditBound) return;
+  box._cellEditBound = true;
+  box.addEventListener('click', function(ev){
+    var th = ev.target.closest('thead th[data-p]');
+    if (th) { state.editingId = th.dataset.p; switchPage('edit'); return; }
+    var cell = ev.target.closest('td[data-p], .duo-cell[data-p]');
+    if (cell && cell.dataset.k) openCellEditor(cell.dataset.p, cell.dataset.k, view);
+  });
+}
+
+function rerenderCompareView(view) {
+  if (view === 'table') {
+    var sc = document.querySelector('.cmp-scroll');
+    var sl = sc ? sc.scrollLeft : 0, st = sc ? sc.scrollTop : 0;
+    renderTable();
+    var sc2 = document.querySelector('.cmp-scroll');
+    if (sc2) { sc2.scrollLeft = sl; sc2.scrollTop = st; }
+  } else {
+    renderDuo();
+  }
+}
+
+function openCellEditor(pid, key, view) {
+  var p = getProduct(pid);
+  if (!p) return;
+  var fd = findField(p.type, key);
+  var label = fd ? fd.label : key;
+  var cur = valueToText((p.fields || {})[key]);
+  var m = document.getElementById('cell-modal');
+  if (!m) {
+    m = document.createElement('div');
+    m.className = 'modal';
+    m.id = 'cell-modal';
+    document.body.appendChild(m);
+  }
+  m.innerHTML = '<div class="modal-box">' +
+    '<div class="modal-head"><div class="mt">✏️ ' + esc(label) + '<span style="font-weight:400;color:#8a919b;font-size:12px;margin-left:6px">' + esc(p.name) + '</span></div><div class="mc" id="ce-cancel">取消</div></div>' +
+    '<div class="modal-body" style="padding:14px 16px">' +
+      '<textarea id="ce-input" class="finput" rows="7" style="width:100%;font-size:14px" placeholder="输入内容…"></textarea>' +
+      '<div style="font-size:11.5px;color:#9aa1ab;margin-top:7px;line-height:1.5">' +
+        (fd && fd.multi ? '该字段支持多条描述：一行一条，保存后自动分行显示。' : '保存后自动同步到产品库和所有对比视图。') +
+      '</div>' +
+    '</div>' +
+    '<div class="modal-foot"><button class="btn btn-primary" id="ce-save" style="width:100%">保存</button></div>' +
+  '</div>';
+  m.classList.add('show');
+
+  var input = m.querySelector('#ce-input');
+  input.value = cur;
+  setTimeout(function(){ input.focus(); }, 250);
+
+  var close = function(){ m.classList.remove('show'); };
+  m.querySelector('#ce-cancel').addEventListener('click', close);
+  m.addEventListener('click', function(e){ if (e.target === m) close(); });
+  m.querySelector('#ce-save').addEventListener('click', function(){
+    var txt = input.value;
+    if (fd && fd.multi) {
+      var arr = txt.split('\n').map(function(s){ return s.trim(); }).filter(function(s){ return s !== ''; });
+      if (arr.length) p.fields[key] = arr; else delete p.fields[key];
+    } else {
+      var v = txt.trim();
+      if (v !== '') p.fields[key] = v; else delete p.fields[key];
+    }
+    p.updatedAt = Date.now();
+    saveData(appData);
+    close();
+    rerenderCompareView(view);
+    toast('已保存并同步到产品');
+  });
 }
 
 function bindTypeChips(box, stateKey, rerender) {
@@ -1349,13 +1428,13 @@ function renderDuo() {
     h += '<div class="duo-row' + (rowDiff ? ' has-diff' : '') + '">' +
       '<div class="duo-label">' + esc(fd.label) + (rowDiff ? '<span class="diff-tag">异</span>' : '') + '</div>' +
       '<div class="duo-cells">' +
-        '<div class="' + cA + '">' + (sa === '' ? '<span style="color:#c0c5cc">未填</span>' : esc(sa).replace(/\n/g, '<br>')) + (onlyA ? '<span class="duo-only">仅A</span>' : '') + '</div>' +
-        '<div class="' + cB + '">' + (sb === '' ? '<span style="color:#c0c5cc">未填</span>' : esc(sb).replace(/\n/g, '<br>')) + (onlyB ? '<span class="duo-only">仅B</span>' : '') + '</div>' +
+        '<div class="' + cA + '" data-p="' + esc(A.id) + '" data-k="' + esc(fd.key) + '">' + (sa === '' ? '<span style="color:#c0c5cc">未填（点这里填写）</span>' : esc(sa).replace(/\n/g, '<br>')) + (onlyA ? '<span class="duo-only">仅A</span>' : '') + '</div>' +
+        '<div class="' + cB + '" data-p="' + esc(B.id) + '" data-k="' + esc(fd.key) + '">' + (sb === '' ? '<span style="color:#c0c5cc">未填（点这里填写）</span>' : esc(sb).replace(/\n/g, '<br>')) + (onlyB ? '<span class="duo-only">仅B</span>' : '') + '</div>' +
       '</div>' +
     '</div>';
   });
   h += '</div>';
-  h += '<div class="cmp-note">共 ' + fields.length + ' 项可比字段，其中 ' + diffCount + ' 项存在差异。<br>绿色＝该项更优（数值型字段自动判断）。</div>';
+  h += '<div class="cmp-note">共 ' + fields.length + ' 项可比字段，其中 ' + diffCount + ' 项存在差异。<br>绿色＝该项更优；✏️ 点击任意格子可直接修改并保存。</div>';
 
   box.innerHTML = h;
 
@@ -1367,6 +1446,7 @@ function renderDuo() {
     state.duoB = this.value;
     renderDuo();
   });
+  bindCellEdit(box, 'duo');
 }
 
 /* ============================================================
@@ -1538,7 +1618,7 @@ function openSettings() {
         '</div>' +
         '<div style="margin-top:14px;font-size:13px;color:#8a919b">' +
           '产品数：<b style="color:#202124">' + appData.products.length + '</b>　已填字段：<b style="color:#202124">' + totalFields + '</b>' +
-          '<br>版本：v1.7' +
+          '<br>版本：v1.8' +
         '</div>' +
       '</div>' +
       '<div style="padding:16px">' +
