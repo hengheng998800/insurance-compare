@@ -98,6 +98,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei
 .multi-wrap{flex:1;min-width:0}
 .multi-row{display:flex;align-items:flex-start;gap:4px}
 .multi-row + .multi-row{margin-top:6px;padding-top:8px;border-top:1px dashed #dfe3ea}
+.td-line + .td-line{margin-top:7px;padding-top:9px;border-top:1px dashed #dfe3ea}
 .multi-input{flex:1;min-width:0;min-height:26px;line-height:1.5}
 .multi-del{width:22px;height:26px;display:flex;align-items:center;justify-content:center;color:#c0c5cc;font-size:17px;cursor:pointer;flex-shrink:0;border-radius:5px;line-height:1}
 .multi-del:active{background:#fef2f2;color:#d93025}
@@ -219,7 +220,6 @@ textarea.finput{min-height:38px;overflow:hidden}
 .duo-only{font-size:10px;color:#d93025;margin-left:3px}
 /* 就地编辑多条模式 */
 .ce-mrow{display:flex;gap:7px;align-items:flex-start;margin-bottom:7px}
-.ce-mrow + .ce-mrow{padding-top:8px;border-top:1px dashed #dfe3ea}
 .ce-mrow textarea{flex:1;min-width:0}
 .ce-mdel{flex-shrink:0;width:30px;height:30px;border-radius:50%;background:#fdeeec;color:#d93025;font-size:13px;display:flex;align-items:center;justify-content:center;cursor:pointer;margin-top:3px;user-select:none}
 /* 两两对比顶部胜负小结 */
@@ -1025,6 +1025,15 @@ function valueToText(v) {
   if (Array.isArray(v)) return v.filter(function(x){ return x !== ''; }).join('\n');
   return String(v);
 }
+/* 值转单元格 HTML：数组逐条渲染，条与条之间浅灰虚线分隔 */
+function cellHtml(v) {
+  if (Array.isArray(v)) {
+    return v.filter(function(x){ return x !== ''; })
+            .map(function(x){ return '<div class="td-line">' + esc(x) + '</div>'; }).join('');
+  }
+  var t = valueToText(v);
+  return t === '' ? '' : esc(t).replace(/\n/g, '<br>');
+}
 /* 判断字段值是否为空 */
 function valueEmpty(v) {
   if (v === undefined || v === null) return true;
@@ -1768,13 +1777,13 @@ function renderTable() {
 
   h += '<tr><th>' + esc(fd.label) + '</th>';
   vals.forEach(function(v, i){
+    var raw = (list[i].fields || {})[fd.key];
     var j = rowJudge[list[i].id] || { level:0, reason:'' };
     var cls = '';
     if (isDiff) cls = 'diff';
     if (j.level > 0) cls += ' adv';
     else if (j.level < 0) cls += ' dis';
-    var show = v === '' ? '<span style="color:#c0c5cc">—</span>'
-              : esc(v).replace(/\n/g, '<br>');
+    var show = v === '' ? '<span style="color:#c0c5cc">—</span>' : cellHtml(raw);
     var tag = j.level > 0 ? '<span class="adv-mark" title="' + esc(j.reason) + '">优</span>'
             : (j.level < 0 ? '<span class="dis-mark">弱</span>' : '');
     // 优势理由：仅在该行唯一优势时显示，避免刷屏
@@ -2089,8 +2098,8 @@ function renderDuo() {
     h += '<div class="duo-row' + (rowDiff ? ' has-diff' : '') + '">' +
       '<div class="duo-label">' + esc(fd.label) + (rowDiff ? '<span class="diff-tag">异</span>' : '') + '</div>' +
       '<div class="duo-cells">' +
-        '<div class="' + cA + '" data-p="' + esc(A.id) + '" data-k="' + esc(fd.key) + '">' + (sa === '' ? '<span style="color:#c0c5cc">未填（点这里填写）</span>' : esc(sa).replace(/\n/g, '<br>')) + (onlyA ? '<span class="duo-only">仅A</span>' : '') + tagA + rsA + '</div>' +
-        '<div class="' + cB + '" data-p="' + esc(B.id) + '" data-k="' + esc(fd.key) + '">' + (sb === '' ? '<span style="color:#c0c5cc">未填（点这里填写）</span>' : esc(sb).replace(/\n/g, '<br>')) + (onlyB ? '<span class="duo-only">仅B</span>' : '') + tagB + rsB + '</div>' +
+        '<div class="' + cA + '" data-p="' + esc(A.id) + '" data-k="' + esc(fd.key) + '">' + (sa === '' ? '<span style="color:#c0c5cc">未填（点这里填写）</span>' : cellHtml(va)) + (onlyA ? '<span class="duo-only">仅A</span>' : '') + tagA + rsA + '</div>' +
+        '<div class="' + cB + '" data-p="' + esc(B.id) + '" data-k="' + esc(fd.key) + '">' + (sb === '' ? '<span style="color:#c0c5cc">未填（点这里填写）</span>' : cellHtml(vb)) + (onlyB ? '<span class="duo-only">仅B</span>' : '') + tagB + rsB + '</div>' +
       '</div>' +
     '</div>';
   });
