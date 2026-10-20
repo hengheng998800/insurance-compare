@@ -97,7 +97,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei
 /* 多条描述 */
 .multi-wrap{flex:1;min-width:0}
 .multi-row{display:flex;align-items:flex-start;gap:4px}
-.multi-row + .multi-row{margin-top:4px}
+.multi-row + .multi-row{margin-top:6px;padding-top:8px;border-top:1px dashed #dfe3ea}
 .multi-input{flex:1;min-width:0;min-height:26px;line-height:1.5}
 .multi-del{width:22px;height:26px;display:flex;align-items:center;justify-content:center;color:#c0c5cc;font-size:17px;cursor:pointer;flex-shrink:0;border-radius:5px;line-height:1}
 .multi-del:active{background:#fef2f2;color:#d93025}
@@ -219,6 +219,7 @@ textarea.finput{min-height:38px;overflow:hidden}
 .duo-only{font-size:10px;color:#d93025;margin-left:3px}
 /* 就地编辑多条模式 */
 .ce-mrow{display:flex;gap:7px;align-items:flex-start;margin-bottom:7px}
+.ce-mrow + .ce-mrow{padding-top:8px;border-top:1px dashed #dfe3ea}
 .ce-mrow textarea{flex:1;min-width:0}
 .ce-mdel{flex-shrink:0;width:30px;height:30px;border-radius:50%;background:#fdeeec;color:#d93025;font-size:13px;display:flex;align-items:center;justify-content:center;cursor:pointer;margin-top:3px;user-select:none}
 /* 两两对比顶部胜负小结 */
@@ -284,6 +285,19 @@ textarea.finput{min-height:38px;overflow:hidden}
 .detail-badges{display:flex;gap:6px;margin-top:9px;flex-wrap:wrap}
 .detail-sec{background:#fff;border-radius:12px;margin:10px 12px;overflow:hidden}
 .detail-sec-t{font-size:12px;font-weight:600;color:#8a919b;padding:11px 14px 8px;letter-spacing:.4px;background:#fafbfc;border-bottom:1px solid #f0f1f4}
+/* ===== 详情页思维导图式呈现 ===== */
+.mind-wrap{padding:12px 10px 4px}
+.mind-sec{display:flex;gap:10px;margin-bottom:14px}
+.mind-gtag{width:58px;flex-shrink:0;border-radius:9px;padding:9px 6px;font-size:12px;font-weight:700;text-align:center;line-height:1.35;letter-spacing:1px;height:fit-content;writing-mode:vertical-rl;max-height:150px;overflow:hidden}
+.mind-items{flex:1;min-width:0;position:relative;padding:2px 0 2px 14px;border-left:2.5px solid #e8f0fe;border-radius:1px}
+.mind-rail{position:absolute;left:-2.5px;width:2.5px;top:0;height:0}
+.mind-item{position:relative;margin-bottom:9px}
+.mind-item::before{content:'';position:absolute;left:-14px;top:17px;width:12px;height:2.5px;border-radius:2px;background:#e3e7ee}
+.mind-item:last-child{margin-bottom:2px}
+.mind-item:last-child::after{content:'';position:absolute;left:-14px;top:19.5px;bottom:-4px;width:2.5px;background:#fff}
+.mind-label{display:inline-block;background:#e8f0fe;color:#1a5fd0;font-size:11.5px;font-weight:600;padding:4px 9px;border-radius:7px;line-height:1.3}
+.mind-body{font-size:12.5px;color:#3c4043;line-height:1.55;margin-top:4px;padding-left:2px;word-break:break-word}
+.mind-body .multi-view .mv-item{padding:4px 8px;background:#fafbfc;border-radius:6px;margin-bottom:3px;border:1px solid #f0f2f5}
 .drow{display:flex;padding:10px 14px;border-top:1px solid #f5f6f8;gap:12px;font-size:13.5px;line-height:1.5}
 .drow:first-of-type{border-top:none}
 .drow .dk{color:#8a919b;width:86px;flex-shrink:0;font-size:13px}
@@ -354,7 +368,7 @@ textarea.finput{min-height:38px;overflow:hidden}
 <div class="toast" id="toast"></div>
 <script>
 /* ============================================================
-   保险对比工具 v2.2
+   保险对比工具 v2.3
    纯本地 PWA：IndexedDB 主存储 + localStorage 兜底，数据不出手机
    ============================================================ */
 
@@ -1531,14 +1545,40 @@ function renderDetail() {
     gmap[g].push(fd);
   });
 
+  // ===== 思维导图式呈现：左侧彩色分组标签 + 树状连线 + 字段胶囊 =====
+  var G_COLORS = [
+    { c:'#e8710a', bg:'#fff3e0' },  // 橙：投保规则
+    { c:'#2f6fed', bg:'#e8f0fe' },  // 蓝：必选/核心责任
+    { c:'#8430ce', bg:'#f3e8fd' },  // 紫：可选责任
+    { c:'#137333', bg:'#e6f4ea' },  // 绿：收益/领取
+    { c:'#5f6368', bg:'#f1f3f6' }   // 灰：其他
+  ];
+  function gcolor(g) {
+    if (/投保规则|投保/.test(g)) return G_COLORS[0];
+    if (/可选|附加/.test(g)) return G_COLORS[2];
+    if (/收益|领取|续保|特药/.test(g)) return G_COLORS[3];
+    if (/必选|核心|责任|基础/.test(g)) return G_COLORS[1];
+    return G_COLORS[4];
+  }
+
   groups.forEach(function(g){
     var rows = '';
     gmap[g].forEach(function(fd){
       var v = f[fd.key];
       if (valueEmpty(v)) return;
-      rows += '<div class="drow"><div class="dk">' + esc(fd.label) + '</div><div class="dv">' + renderValueHTML(v) + '</div></div>';
+      rows += '<div class="mind-item">' +
+        '<div class="mind-label">' + esc(fd.label) + '</div>' +
+        '<div class="mind-body">' + renderValueHTML(v) + '</div>' +
+      '</div>';
     });
-    if (rows) h += '<div class="detail-sec"><div class="detail-sec-t">' + esc(g) + '</div>' + rows + '</div>';
+    if (!rows) return;
+    var gc = gcolor(g);
+    h += '<div class="mind-sec">' +
+      '<div class="mind-gtag" style="color:' + gc.c + ';background:' + gc.bg + '">' + esc(g.replace(/^[一二三四五六七八九十]+、/, '')) + '</div>' +
+      '<div class="mind-items" style="border-left-color:' + gc.bg + '">' +
+        '<div class="mind-rail" style="background:' + gc.bg + '"></div>' + rows +
+      '</div>' +
+    '</div>';
   });
 
   // 未填字段提示
@@ -2239,7 +2279,7 @@ function openSettings() {
         '</div>' +
         '<div style="margin-top:14px;font-size:13px;color:#8a919b">' +
           '产品数：<b style="color:#202124">' + appData.products.length + '</b>　已填字段：<b style="color:#202124">' + totalFields + '</b>' +
-          '<br>版本：v2.2' +
+          '<br>版本：v2.3' +
         '</div>' +
       '</div>' +
       '<div style="padding:16px">' +
