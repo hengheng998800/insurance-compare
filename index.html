@@ -217,6 +217,10 @@ textarea.finput{min-height:38px;overflow:hidden}
 .duo-cell.lose{color:#8a919b}
 .duo-cell.same{color:#5f6368}
 .duo-only{font-size:10px;color:#d93025;margin-left:3px}
+/* 就地编辑多条模式 */
+.ce-mrow{display:flex;gap:7px;align-items:flex-start;margin-bottom:7px}
+.ce-mrow textarea{flex:1;min-width:0}
+.ce-mdel{flex-shrink:0;width:30px;height:30px;border-radius:50%;background:#fdeeec;color:#d93025;font-size:13px;display:flex;align-items:center;justify-content:center;cursor:pointer;margin-top:3px;user-select:none}
 /* 两两对比顶部胜负小结 */
 .duo-summary{margin:10px 12px 0;background:#fff;border-radius:11px;padding:11px 12px;box-shadow:0 1px 4px rgba(0,0,0,.06);border:1px solid #eef0f4}
 .ds-title{font-size:13.5px;font-weight:700;color:#202124;margin-bottom:9px;letter-spacing:.2px}
@@ -350,7 +354,7 @@ textarea.finput{min-height:38px;overflow:hidden}
 <div class="toast" id="toast"></div>
 <script>
 /* ============================================================
-   保险对比工具 v2.1
+   保险对比工具 v2.2
    纯本地 PWA：IndexedDB 主存储 + localStorage 兜底，数据不出手机
    ============================================================ */
 
@@ -1837,6 +1841,7 @@ function openCellEditor(pid, key, view) {
   if (!p) return;
   var fd = findField(p.type, key);
   var label = fd ? fd.label : key;
+  var isMulti = !!(fd && fd.multi);
   var cur = valueToText((p.fields || {})[key]);
   var m = document.getElementById('cell-modal');
   if (!m) {
@@ -1845,32 +1850,88 @@ function openCellEditor(pid, key, view) {
     m.id = 'cell-modal';
     document.body.appendChild(m);
   }
+
+  // 多条字段：一行一个框 + ＋增加一条（与产品编辑页一致）
+  var bodyHtml;
+  if (isMulti) {
+    var lines = Array.isArray((p.fields||{})[key]) ? (p.fields||{})[key].slice()
+              : (cur ? [cur] : ['']);
+    if (!lines.length) lines = [''];
+    bodyHtml = '<div id="ce-multi">';
+    lines.forEach(function(ln, li){
+      bodyHtml += '<div class="ce-mrow">' +
+        '<textarea class="finput ce-line" rows="2" style="width:100%;font-size:14px" placeholder="' + esc(li === 0 ? (fd.note || '填写一条描述…') : '再填一条…') + '">' + esc(ln) + '</textarea>' +
+        (lines.length > 1 ? '<div class="ce-mdel" data-i="' + li + '">✕</div>' : '') +
+      '</div>';
+    });
+    bodyHtml += '<div id="ce-add" style="font-size:13px;color:#2f6fed;font-weight:600;padding:10px 2px;cursor:pointer;text-align:center;background:#f5f8ff;border-radius:8px;margin-top:6px">＋ 增加一条</div></div>' +
+      '<div style="font-size:11.5px;color:#9aa1ab;margin-top:7px;line-height:1.5">每行一条描述，保存后同步到产品库和所有对比视图。</div>';
+  } else {
+    bodyHtml = '<textarea id="ce-input" class="finput" rows="7" style="width:100%;font-size:14px" placeholder="输入内容…"></textarea>' +
+      '<div style="font-size:11.5px;color:#9aa1ab;margin-top:7px;line-height:1.5">保存后自动同步到产品库和所有对比视图。</div>';
+  }
+
   m.innerHTML = '<div class="modal-box">' +
     '<div class="modal-head"><div class="mt">✏️ ' + esc(label) + '<span style="font-weight:400;color:#8a919b;font-size:12px;margin-left:6px">' + esc(p.name) + '</span></div><div class="mc" id="ce-cancel">取消</div></div>' +
-    '<div class="modal-body" style="padding:14px 16px">' +
-      '<textarea id="ce-input" class="finput" rows="7" style="width:100%;font-size:14px" placeholder="输入内容…"></textarea>' +
-      '<div style="font-size:11.5px;color:#9aa1ab;margin-top:7px;line-height:1.5">' +
-        (fd && fd.multi ? '该字段支持多条描述：一行一条，保存后自动分行显示。' : '保存后自动同步到产品库和所有对比视图。') +
-      '</div>' +
-    '</div>' +
+    '<div class="modal-body" style="padding:14px 16px">' + bodyHtml + '</div>' +
     '<div class="modal-foot"><button class="btn btn-primary" id="ce-save" style="width:100%">保存</button></div>' +
   '</div>';
   m.classList.add('show');
 
-  var input = m.querySelector('#ce-input');
-  input.value = cur;
-  setTimeout(function(){ input.focus(); }, 250);
-
   var close = function(){ m.classList.remove('show'); };
   m.querySelector('#ce-cancel').addEventListener('click', close);
   m.addEventListener('click', function(e){ if (e.target === m) close(); });
+
+  var collect;
+  if (isMulti) {
+    var wrap = m.querySelector('#ce-multi');
+    // ＋增加一条 / ✕ 删除（事件委托，重复渲染不叠加监听）
+    wrap.addEventListener('click', function(ev){
+      if (ev.target.id === 'ce-add') {
+        var row = document.createElement('div');
+        row.className = 'ce-mrow';
+        row.innerHTML = '<textarea class="finput ce-line" rows="2" style="width:100%;font-size:14px" placeholder="再填一条…"></textarea>' +
+          '<div class="ce-mdel">✕</div>';
+        wrap.insertBefore(row, wrap.querySelector('#ce-add'));
+        row.querySelector('textarea').focus();
+        refreshDelBtns();
+      } else if (ev.target.classList.contains('ce-mdel')) {
+        var rows = wrap.querySelectorAll('.ce-mrow');
+        if (rows.length > 1) ev.target.closest('.ce-mrow').remove();
+        else { var t = wrap.querySelector('.ce-line'); if (t) { t.value = ''; t.focus(); } }
+        refreshDelBtns();
+      }
+    });
+    function refreshDelBtns(){
+      var rows = wrap.querySelectorAll('.ce-mrow');
+      rows.forEach(function(r, i){
+        var d = r.querySelector('.ce-mdel');
+        if (d) d.style.display = rows.length > 1 ? '' : 'none';
+      });
+    }
+    collect = function(){
+      var arr = [];
+      wrap.querySelectorAll('.ce-line').forEach(function(t){
+        var v = t.value.trim();
+        if (v !== '') arr.push(v);
+      });
+      return arr;
+    };
+    var first = wrap.querySelector('.ce-line');
+    setTimeout(function(){ if (first) first.focus(); }, 250);
+  } else {
+    var input = m.querySelector('#ce-input');
+    input.value = cur;
+    setTimeout(function(){ input.focus(); }, 250);
+    collect = function(){ return input.value; };
+  }
+
   m.querySelector('#ce-save').addEventListener('click', function(){
-    var txt = input.value;
-    if (fd && fd.multi) {
-      var arr = txt.split('\n').map(function(s){ return s.trim(); }).filter(function(s){ return s !== ''; });
-      if (arr.length) p.fields[key] = arr; else delete p.fields[key];
+    var got = collect();
+    if (isMulti) {
+      if (got.length) p.fields[key] = got; else delete p.fields[key];
     } else {
-      var v = txt.trim();
+      var v = String(got).trim();
       if (v !== '') p.fields[key] = v; else delete p.fields[key];
     }
     p.updatedAt = Date.now();
@@ -2178,7 +2239,7 @@ function openSettings() {
         '</div>' +
         '<div style="margin-top:14px;font-size:13px;color:#8a919b">' +
           '产品数：<b style="color:#202124">' + appData.products.length + '</b>　已填字段：<b style="color:#202124">' + totalFields + '</b>' +
-          '<br>版本：v2.1' +
+          '<br>版本：v2.2' +
         '</div>' +
       '</div>' +
       '<div style="padding:16px">' +
