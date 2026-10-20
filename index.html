@@ -368,7 +368,7 @@ textarea.finput{min-height:38px;overflow:hidden}
 <div class="toast" id="toast"></div>
 <script>
 /* ============================================================
-   保险对比工具 v2.3
+   保险对比工具 v2.5
    纯本地 PWA：IndexedDB 主存储 + localStorage 兜底，数据不出手机
    ============================================================ */
 
@@ -1051,6 +1051,8 @@ var state = {
   currentPage: 'list',
   listType: 'all',        // 产品库筛选类型
   tableType: 'all',       // 对比表筛选类型
+  tableCo: 'all',         // 对比表筛选公司
+  tableTier: 'all',       // 对比表筛选医疗层级
   tableIds: [],           // 对比表选中的产品 id（为空＝该类型全部）
   duoA: null,
   duoB: null,
@@ -1188,7 +1190,7 @@ function renderList() {
     h += '<div class="pcard" data-id="' + p.id + '">' +
       '<div class="pcard-top">' +
         '<div style="flex:1;min-width:0">' +
-          '<div class="pcard-name">' + esc(p.name) + '</div>' +
+          '<div class="pcard-name">' + esc(p.name) + (p.tier ? ' <span style="font-size:10px;font-weight:600;color:#2f6fed;background:#e8f0fe;border-radius:4px;padding:1px 5px;vertical-align:middle">' + esc(p.tier) + '</span>' : '') + '</div>' +
           (f.company ? '<div class="pcard-company">' + esc(f.company) + '</div>' : '') +
         '</div>' +
         '<div class="pcard-badge ' + t.cls + '">' + t.icon + ' ' + t.short + '</div>' +
@@ -1347,6 +1349,13 @@ function renderEdit() {
     '<div class="fgroup-title">' + t.icon + ' ' + t.name + '</div>' +
     '<div class="frow"><div class="flabel">产品名称<span style="color:#d93025">*</span></div>' +
     '<input class="finput" id="f-name" placeholder="如 某某福终身重疾险" value="' + esc(p.name) + '"></div>' +
+    (type === 'yl' ? '<div class="frow"><div class="flabel">医疗层级<div class="fnote">用于按层级筛选对比：基础百万医疗 / 中端医疗 / 高端医疗</div></div>' +
+      '<select class="finput" id="f-tier">' +
+      ['','基础百万医疗','中端医疗','高端医疗'].map(function(o){
+        var lb = o === '' ? '未标注' : o;
+        return '<option value="' + o + '"' + ((p.tier||'') === o ? ' selected' : '') + '>' + lb + '</option>';
+      }).join('') +
+      '</select></div>' : '') +
     '</div>';
 
   // 各分组字段
@@ -1409,6 +1418,8 @@ function renderEdit() {
       type: type,
       fields: {}
     };
+    var tierEl = document.getElementById('f-tier');
+    if (tierEl) obj.tier = tierEl.value || '';
     // 先处理多条字段
     box.querySelectorAll('.multi-wrap').forEach(function(wrap){
       var k = wrap.dataset.k;
@@ -1504,6 +1515,7 @@ function renderEdit() {
       var target = getProduct(state.editingId);
       target.name = obj.name;
       target.fields = obj.fields;
+      if (obj.tier !== undefined) target.tier = obj.tier;
       target.updatedAt = Date.now();
       saveData(appData);
       toast('已修改');
@@ -1643,10 +1655,40 @@ function renderTable() {
   });
   fb += '</div>';
 
-  var scope = appData.products.filter(function(p){
-    return state.tableType === 'all' || p.type === state.tableType;
+  // 公司 / 医疗层级筛选（先取全量，再生成候选）
+  var TIERS = ['基础百万医疗','中端医疗','高端医疗'];
+  function tierOf(p){ return p.tier || '未标注'; }
+  var allYl = appData.products.filter(function(p){ return p.type === 'yl'; });
+  var coMap = {};
+  allYl.forEach(function(p){ var c = ((p.fields||{}).company||'').trim(); if (c) coMap[c] = (coMap[c]||0)+1; });
+  var coList = Object.keys(coMap).sort();
+  if (state.tableCo !== 'all' && !coMap[state.tableCo]) state.tableCo = 'all';
+  if (state.tableTier !== 'all' && TIERS.indexOf(state.tableTier) < 0 && state.tableTier !== '未标注') state.tableTier = 'all';
+
+  fb += '<div class="filter-bar" id="co-bar">';
+  fb += '<div class="chip' + (state.tableCo==='all'?' active':'') + '" data-co="all">全部公司<span class="cnt">' + allYl.length + '</span></div>';
+  coList.forEach(function(c){
+    fb += '<div class="chip' + (state.tableCo===c?' active':'') + '" data-co="' + esc(c) + '">' + esc(c) + '<span class="cnt">' + coMap[c] + '</span></div>';
   });
-  if (scope.length === 0) { box.innerHTML = fb + '<div class="empty"><p>该类型下暂无产品</p></div>'; bindTypeChips(box, 'tableType', renderTable); return; }
+  fb += '</div>';
+  fb += '<div class="filter-bar" id="tier-bar">';
+  fb += '<div class="chip' + (state.tableTier==='all'?' active':'') + '" data-tier="all">全部层级</div>';
+  TIERS.forEach(function(tr){
+    var n = allYl.filter(function(p){ return tierOf(p) === tr; }).length;
+    fb += '<div class="chip' + (state.tableTier===tr?' active':'') + '" data-tier="' + tr + '">' + tr + '<span class="cnt">' + n + '</span></div>';
+  });
+  var nU = allYl.filter(function(p){ return tierOf(p) === '未标注'; }).length;
+  if (nU) fb += '<div class="chip' + (state.tableTier==='未标注'?' active':'') + '" data-tier="未标注">未标注<span class="cnt">' + nU + '</span></div>';
+  fb += '</div>';
+
+  var scope = appData.products.filter(function(p){
+    if (state.tableType !== 'all' && p.type !== state.tableType) return false;
+    var c = ((p.fields||{}).company||'').trim();
+    if (state.tableCo !== 'all' && c !== state.tableCo) return false;
+    if (state.tableTier !== 'all' && (p.type !== 'yl' || tierOf(p) !== state.tableTier)) return false;
+    return true;
+  });
+  if (scope.length === 0) { box.innerHTML = fb + '<div class="empty"><p>该筛选条件下暂无产品</p></div>'; bindTypeChips(box, 'tableType', renderTable); bindCoTierChips(box); return; }
 
   // 清理过期的勾选（产品已删除或不在当前类型范围内）
   var scopeIds = {};
@@ -1673,6 +1715,7 @@ function renderTable() {
   if (list.length === 0) {
     box.innerHTML = fb + '<div class="empty"><p>勾选的产品都不在当前类型里</p><div class="hint">点上面的「清空」恢复全部</div></div>';
     bindTypeChips(box, 'tableType', renderTable);
+    bindCoTierChips(box);
     bindSelPills(box);
     return;
   }
@@ -1800,6 +1843,7 @@ function renderTable() {
 
   box.innerHTML = h;
   bindTypeChips(box, 'tableType', renderTable);
+  bindCoTierChips(box);
   bindSelPills(box);
   initFreezeFix(box.querySelector('.cmp-scroll'));
   bindCellEdit(box, 'table');
@@ -1992,10 +2036,25 @@ function openCellEditor(pid, key, view) {
 }
 
 function bindTypeChips(box, stateKey, rerender) {
-  box.querySelectorAll('.filter-bar .chip').forEach(function(el){
+  box.querySelectorAll('.filter-bar .chip[data-t]').forEach(function(el){
     el.addEventListener('click', function(){
       state[stateKey] = this.dataset.t;
       rerender();
+    });
+  });
+}
+/* 公司 / 医疗层级筛选条 */
+function bindCoTierChips(box) {
+  box.querySelectorAll('#co-bar .chip').forEach(function(el){
+    el.addEventListener('click', function(){
+      state.tableCo = this.dataset.co;
+      renderTable();
+    });
+  });
+  box.querySelectorAll('#tier-bar .chip').forEach(function(el){
+    el.addEventListener('click', function(){
+      state.tableTier = this.dataset.tier;
+      renderTable();
     });
   });
 }
