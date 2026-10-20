@@ -265,7 +265,7 @@ textarea.finput{min-height:38px;overflow:hidden}
 <div class="toast" id="toast"></div>
 <script>
 /* ============================================================
-   保险对比工具 v1.6
+   保险对比工具 v1.7
    纯本地 PWA：IndexedDB 主存储 + localStorage 兜底，数据不出手机
    ============================================================ */
 
@@ -1224,6 +1224,40 @@ function renderTable() {
 
   box.innerHTML = h;
   bindTypeChips(box, 'tableType', renderTable);
+  initFreezeFix(box.querySelector('.cmp-scroll'));
+}
+
+/* iOS Safari 上表格内 sticky 偶发失效的兜底：
+   首次滚动时实测左上角有没有钉住；若失效，改用 transform 补偿把表头/左列/角落拉回原位 */
+function initFreezeFix(scroller) {
+  if (!scroller || scroller._freezeInit) return;
+  scroller._freezeInit = true;
+  scroller._freezeMode = '';
+  scroller.addEventListener('scroll', function(){
+    var sl = scroller.scrollLeft, st = scroller.scrollTop;
+    var table = scroller.querySelector('.cmp-table');
+    if (!table) return;
+    if (!scroller._freezeMode) {
+      if (sl < 6 && st < 6) return;
+      var corner = table.querySelector('thead th:first-child');
+      if (corner) {
+        var c = corner.getBoundingClientRect(), b = scroller.getBoundingClientRect();
+        scroller._freezeMode = (Math.abs(c.left - b.left) < 3 && Math.abs(c.top - b.top) < 3) ? 'native' : 'js';
+      } else {
+        scroller._freezeMode = 'native';
+      }
+      if (scroller._freezeMode === 'native') return;
+    }
+    if (scroller._freezeMode !== 'js') return;
+    var ths = table.querySelectorAll('thead th');
+    for (var i = 0; i < ths.length; i++) {
+      ths[i].style.transform = (i === 0) ? 'translate(' + sl + 'px,' + st + 'px)' : 'translateY(' + st + 'px)';
+    }
+    var rths = table.querySelectorAll('tbody th');
+    for (var j = 0; j < rths.length; j++) {
+      rths[j].style.transform = 'translateX(' + sl + 'px)';
+    }
+  }, { passive: true });
 }
 
 function bindTypeChips(box, stateKey, rerender) {
@@ -1504,7 +1538,7 @@ function openSettings() {
         '</div>' +
         '<div style="margin-top:14px;font-size:13px;color:#8a919b">' +
           '产品数：<b style="color:#202124">' + appData.products.length + '</b>　已填字段：<b style="color:#202124">' + totalFields + '</b>' +
-          '<br>版本：v1.6' +
+          '<br>版本：v1.7' +
         '</div>' +
       '</div>' +
       '<div style="padding:16px">' +
