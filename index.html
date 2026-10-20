@@ -125,6 +125,44 @@ textarea.finput{min-height:38px;overflow:hidden}
 .cmp-table td.diff{background:#fffdf5}
 .cmp-table td.best{background:#f0fdf4;color:#137333;font-weight:600}
 .cmp-table td.worst{background:#fef7f7;color:#c5221f}
+/* 语义引擎标注 */
+.cmp-table td.adv{background:#eef9f1;box-shadow:inset 3px 0 0 #34a853;color:#0f6c33;font-weight:600}
+.cmp-table td.dis{background:#fdf3f3;color:#a2504a}
+.cmp-table td.adv.diff{background:#e9f7ee}
+.adv-mark{display:inline-block;font-size:9.5px;font-weight:700;background:#34a853;color:#fff;border-radius:4px;padding:1px 5px;margin-left:5px;vertical-align:middle;letter-spacing:.5px}
+.dis-mark{display:inline-block;font-size:9.5px;background:#e8a09a;color:#fff;border-radius:4px;padding:1px 5px;margin-left:5px;vertical-align:middle;letter-spacing:.5px}
+.adv-reason{display:block;font-size:10px;font-weight:400;color:#3f8f5c;margin-top:4px;line-height:1.35}
+.cmp-table thead th.top-col{background:linear-gradient(180deg,#fff6e5,#ffeccc);box-shadow:inset 0 -2px 0 #f0a500}
+
+/* ===== 优势榜 ===== */
+.verdict{margin:0 8px 10px;background:#fff;border-radius:12px;padding:12px 12px 8px;box-shadow:0 1px 5px rgba(0,0,0,.07);border:1px solid #eef0f4}
+.verdict-head{display:flex;align-items:baseline;gap:8px;margin-bottom:10px;flex-wrap:wrap}
+.verdict-head .vt{font-size:14.5px;font-weight:700;color:#202124;letter-spacing:.3px}
+.verdict-head .vs{font-size:11px;color:#9aa1ab}
+.vcard{border:1px solid #eef0f4;border-radius:10px;padding:9px 10px 10px;margin-bottom:8px;background:#fcfcfd;position:relative;transition:.15s}
+.vcard.is-top{border-color:#f0c060;background:linear-gradient(180deg,#fffdf5,#fff9ec);box-shadow:0 2px 8px rgba(240,165,0,.13)}
+.vcard:last-child{margin-bottom:2px}
+.vcard-top{display:flex;align-items:center;gap:8px}
+.vrank{width:22px;height:22px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;background:#c8ccd2}
+.vcard.r1 .vrank{background:linear-gradient(135deg,#f5b301,#e08b00)}
+.vcard.r2 .vrank{background:linear-gradient(135deg,#b8c0cc,#9aa1ab)}
+.vcard.r3 .vrank{background:linear-gradient(135deg,#d09a6a,#b57b4a)}
+.vname{flex:1;font-size:13.5px;font-weight:600;color:#202124;line-height:1.3;word-break:break-all;min-width:0}
+.crown{font-size:9.5px;background:linear-gradient(135deg,#f5b301,#e08b00);color:#fff;border-radius:4px;padding:1.5px 6px;margin-left:6px;font-weight:700;vertical-align:middle;white-space:nowrap}
+.vscore{flex-shrink:0;font-size:11px;color:#7a828c;text-align:right;line-height:1.3}
+.vscore b{font-size:17px;color:#137333;font-weight:700}
+.vscore span{font-size:10px;margin-left:1px}
+.vscore i{display:block;font-style:normal;font-size:10px;color:#b06a63}
+.vbar{position:relative;height:16px;border-radius:8px;background:#f1f3f6;margin:7px 0 6px;overflow:hidden}
+.vbar-in{height:100%;border-radius:8px;background:linear-gradient(90deg,#6ec48b,#34a853);transition:width .35s ease}
+.vcard.r2 .vbar-in,.vcard.r3 .vbar-in{background:linear-gradient(90deg,#a9b3c1,#8d97a5)}
+.vcard.rn .vbar-in{background:linear-gradient(90deg,#c9ced6,#b4bac3)}
+.vbar-t{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:9.5px;color:#3f4650;font-weight:600;letter-spacing:.3px}
+.vpros{display:flex;flex-direction:column;gap:3px;margin-top:2px}
+.vtag{font-size:10.5px;line-height:1.45;padding:3px 7px;border-radius:5px;display:block}
+.vtag.good{background:#eef9f1;color:#1c7a3e}
+.vtag.bad{background:#fdf1f0;color:#a0504a}
+.vtag.neutral{background:#f5f6f8;color:#9aa1ab}
 .cmp-table thead th .hsub{display:block;font-size:11px;color:#8a919b;font-weight:400;margin-top:2px}
 .cmp-table thead th .hdel{color:#c0c5cc;font-size:14px;margin-left:4px;cursor:pointer}
 .cmp-note{padding:8px 14px;font-size:11.5px;color:#9aa1ab;line-height:1.6}
@@ -150,6 +188,16 @@ textarea.finput{min-height:38px;overflow:hidden}
 .duo-cell.lose{color:#8a919b}
 .duo-cell.same{color:#5f6368}
 .duo-only{font-size:10px;color:#d93025;margin-left:3px}
+/* 两两对比顶部胜负小结 */
+.duo-summary{margin:10px 12px 0;background:#fff;border-radius:11px;padding:11px 12px;box-shadow:0 1px 4px rgba(0,0,0,.06);border:1px solid #eef0f4}
+.ds-title{font-size:13.5px;font-weight:700;color:#202124;margin-bottom:9px;letter-spacing:.2px}
+.ds-cols{display:flex;gap:8px}
+.ds-col{flex:1;background:#fafbfc;border-radius:8px;padding:8px 9px;font-size:11.5px;color:#5f6368;line-height:1.45;min-width:0;border:1px solid #f0f2f5}
+.ds-who{display:inline-block;background:#2f6fed;color:#fff;border-radius:4px;padding:0 5px;font-size:10px;font-weight:700;margin-right:5px}
+.ds-col:last-child .ds-who{background:#e8710a}
+.ds-num{margin-top:5px;color:#8a919b;font-size:10.5px}
+.ds-num b{color:#137333;font-size:14px;font-weight:700}
+.ds-hl{margin-top:4px;font-size:10px;color:#1c7a3e;background:#eef9f1;border-radius:4px;padding:2px 5px}
 
 /* ===== 打分排序 ===== */
 .score-head{padding:12px}
@@ -270,7 +318,7 @@ textarea.finput{min-height:38px;overflow:hidden}
 <div class="toast" id="toast"></div>
 <script>
 /* ============================================================
-   保险对比工具 v1.8
+   保险对比工具 v1.9
    纯本地 PWA：IndexedDB 主存储 + localStorage 兜底，数据不出手机
    ============================================================ */
 
@@ -494,7 +542,317 @@ var TYPE_FIELDS = {
   ]
 };
 
-/* 取某类型的全部字段（各险种完全独立，不再混入通用字段） */
+/* ============================================================
+   条款语义判断引擎
+   对每个字段按「条款常识」打分，而不是只比数字大小。
+   返回 -1(劣势) / 0(中性/不可比) / 1(优势)，权重 1~5
+   ============================================================ */
+
+// 正向词：出现即有利
+var POS_WORDS = ['不限','不占','继续有效','依然有效','含','支持','可附加','保证','宽松','终身','全额','0免赔','无免赔','不分组','额外赔','递增','返还','不限制'];
+// 负向词：出现即不利
+var NEG_WORDS = ['不支持','无此功能','无','不含','不保','终止','失效','严格','占基本保额','占保额','限制','除外','不赔','需满足','仅限','单次','不变'];
+
+function hasAny(txt, words) {
+  for (var i = 0; i < words.length; i++) if (txt.indexOf(words[i]) >= 0) return words[i];
+  return null;
+}
+
+/* 等待期：180天 → 6个月，统一成月数 */
+function waitMonths(txt) {
+  var m = String(txt).match(/(\d+(?:\.\d+)?)\s*(天|日|个月|月|年)/);
+  if (!m) return null;
+  var n = parseFloat(m[1]);
+  var u = m[2];
+  if (u === '天' || u === '日') return n / 30;
+  if (u === '年') return n * 12;
+  return n;
+}
+
+/* 赔付比例：取百分比，多个取最大 */
+function ratios(txt) {
+  var out = [], re = /(\d+(?:\.\d+)?)\s*%/g, m;
+  while ((m = re.exec(String(txt))) !== null) out.push(parseFloat(m[1]));
+  return out;
+}
+
+/* 金额统一成「万」，用于保额类比较 */
+function toWan(txt) {
+  var m = String(txt).match(/(\d+(?:\.\d+)?)\s*(万|千|元|块)?/);
+  if (!m) return null;
+  var n = parseFloat(m[1]);
+  if (m[2] === '千') return n / 10;
+  if (m[2] === '元' || m[2] === '块') return n / 10000;
+  return n;
+}
+
+/* 判断某字段上，候选产品们谁更优。
+   peers: [{id, txt}]  txt 已转成纯文本
+   返回 { [id]: {level:-1|0|1, weight:n, reason:'…'} } */
+function judgeField(fd, peers) {
+  var res = {};
+  var filled = peers.filter(function(p){ return p.txt !== ''; });
+  peers.forEach(function(p){ res[p.id] = { level:0, weight:0, reason:'' }; });
+  if (filled.length < 2) return res;   // 只有一个填了，谈不上对比
+
+  var key = fd.key;
+
+  /* ---- 规则 1：等待期（越短越好，按天数分档） ---- */
+  if (key === 'waitPeriod') {
+    var ms = filled.map(function(p){ return { id:p.id, w:waitMonths(p.txt) }; }).filter(function(o){ return o.w !== null; });
+    if (ms.length < 2) return res;
+    var min = Math.min.apply(null, ms.map(function(o){ return o.w; }));
+    ms.forEach(function(o){
+      if (o.w === min) { res[o.id] = { level:1, weight:5, reason:'等待期最短（' + Math.round(o.w*30) + '天）' }; }
+      else if (o.w >= min + 2) { res[o.id] = { level:-1, weight:3, reason:'等待期更长' }; }
+    });
+    return res;
+  }
+
+  /* ---- 规则 2：带有「是否 / 有无」性质的字段，看关键词极性 ---- */
+  /* 注意：guaranteed 不在此列，它要按年限比较，见规则 6 */
+  if (key === 'afterCritical' || key === 'waiver' || key === 'optPolicyWaiver' ||
+      key === 'review' || key === 'fullDisable' || key === 'optDeath') {
+    var scored = filled.map(function(p){
+      var pos = hasAny(p.txt, POS_WORDS);
+      var neg = hasAny(p.txt, NEG_WORDS);
+      var s = (pos && !neg) ? 1 : (neg && !pos ? -1 : 0);
+      if (key === 'optDeath') {
+        if (/不含|无/.test(p.txt)) s = -1;
+        else if (/含|包含/.test(p.txt)) s = 1;
+      }
+      return { id:p.id, s:s, txt:p.txt };
+    });
+    var posN = scored.filter(function(o){ return o.s === 1; }).length;
+    var negN = scored.filter(function(o){ return o.s === -1; }).length;
+    scored.forEach(function(o){
+      if (o.s === 1 && negN > 0) res[o.id] = { level:1, weight:4, reason:'具备该责任/功能' };
+      else if (o.s === -1 && posN > 0) res[o.id] = { level:-1, weight:3, reason:'该项缺失或受限' };
+    });
+    return res;
+  }
+
+  /* ---- 规则 3：结节关爱金是否占保额（不占更好） ---- */
+  if (key === 'noduleOccupy') {
+    filled.forEach(function(p){
+      if (/不占|不影响/.test(p.txt)) res[p.id] = { level:1, weight:4, reason:'不占用基本保额' };
+      else if (/占/.test(p.txt) && !/不占/.test(p.txt)) res[p.id] = { level:-1, weight:2, reason:'占用基本保额' };
+    });
+    return res;
+  }
+
+  /* ---- 规则 4：健康告知（宽松更好） ---- */
+  if (key === 'healthNotice') {
+    var hn = filled.map(function(p){
+      var s = 0;
+      if (/宽松|仅\d+条|少|简单|\b[1-3]条/.test(p.txt)) s = 1;
+      else if (/严格|严格|复杂|\d{2}条|多/.test(p.txt)) s = -1;
+      var cnt = String(p.txt).match(/(\d+)\s*条/);
+      return { id:p.id, s:s, cnt: cnt ? parseInt(cnt[1],10) : null };
+    });
+    var cnts = hn.filter(function(o){ return o.cnt !== null; });
+    if (cnts.length >= 2) {
+      var mn = Math.min.apply(null, cnts.map(function(o){ return o.cnt; }));
+      var mx = Math.max.apply(null, cnts.map(function(o){ return o.cnt; }));
+      if (mx !== mn) {
+        hn.forEach(function(o){
+          if (o.cnt === mn) res[o.id] = { level:1, weight:4, reason:'健告仅 ' + mn + ' 条，更宽松' };
+          else if (o.cnt === mx) res[o.id] = { level:-1, weight:2, reason:'健告 ' + mx + ' 条，较严格' };
+        });
+        return res;
+      }
+    }
+    hn.forEach(function(o){
+      if (o.s === 1) res[o.id] = { level:1, weight:3, reason:'健康告知较宽松' };
+      else if (o.s === -1) res[o.id] = { level:-1, weight:2, reason:'健康告知较严格' };
+    });
+    return res;
+  }
+
+  /* ---- 规则 5：是否限社保（不限更好） ---- */
+  if (key === 'socialLimit') {
+    filled.forEach(function(p){
+      var t = p.txt;
+      if (/不限|不限制|社保内外均可/.test(t)) {
+        res[p.id] = { level:1, weight:4, reason:'不限社保，报销范围更广' };
+      } else if (/仅限社保|限社保|社保内/.test(t)) {
+        res[p.id] = { level:-1, weight:3, reason:'限社保范围内' };
+      }
+    });
+    return res;
+  }
+
+  /* ---- 规则 6：保证续保（年限越长越好） ---- */
+  if (key === 'guaranteed') {
+    var gs = filled.map(function(p){
+      var y = String(p.txt).match(/(\d+)\s*年/);
+      var life = /终身|长期/.test(p.txt);
+      return { id:p.id, y: life ? 999 : (y ? parseInt(y[1],10) : (/不保证|无/.test(p.txt) ? 0 : null)) };
+    }).filter(function(o){ return o.y !== null; });
+    if (gs.length < 2) return res;
+    var gy = Math.max.apply(null, gs.map(function(o){ return o.y; }));
+    gs.forEach(function(o){
+      if (o.y === gy) res[o.id] = { level:1, weight:5, reason: o.y === 999 ? '终身保证续保' : '保证续保最长 ' + o.y + ' 年' };
+      else if (o.y < gy) res[o.id] = { level:-1, weight:2, reason:'保证续保期限更短' };
+    });
+    return res;
+  }
+
+  /* ---- 规则 7：赔付比例（比例高、次数多更好） ---- */
+  if (['criticalPay','mediumPay','mildPay','reimburseRate','disableRatio','medicalRate'].indexOf(key) >= 0) {
+    var rs = filled.map(function(p){
+      var r = ratios(p.txt);
+      var cnt = String(p.txt).match(/(\d+)\s*次/);
+      return { id:p.id, r: r.length ? Math.max.apply(null, r) : null, c: cnt ? parseInt(cnt[1],10) : null };
+    });
+    var withR = rs.filter(function(o){ return o.r !== null; });
+    if (withR.length >= 2) {
+      var hi = Math.max.apply(null, withR.map(function(o){ return o.r; }));
+      var lo = Math.min.apply(null, withR.map(function(o){ return o.r; }));
+      if (hi !== lo) {
+        withR.forEach(function(o){
+          if (o.r === hi) res[o.id] = { level:1, weight:5, reason:'赔付比例最高 ' + hi + '%' };
+          else res[o.id] = { level:-1, weight:2, reason:'赔付比例 ' + o.r + '%，偏低' };
+        });
+        return res;
+      }
+    }
+    // 比例相同，比次数
+    var withC = rs.filter(function(o){ return o.c !== null; });
+    if (withC.length >= 2) {
+      var hc = Math.max.apply(null, withC.map(function(o){ return o.c; }));
+      var lc = Math.min.apply(null, withC.map(function(o){ return o.c; }));
+      if (hc !== lc) {
+        withC.forEach(function(o){
+          if (o.c === hc) res[o.id] = { level:1, weight:4, reason:'可赔 ' + hc + ' 次，次数最多' };
+          else res[o.id] = { level:-1, weight:2, reason:'仅可赔 ' + o.c + ' 次' };
+        });
+        return res;
+      }
+    }
+    return res;
+  }
+
+  /* ---- 规则 8：病种数量（越多越好） ---- */
+  if (/(\d+)\s*种/.test(filled[0].txt) || filled.some(function(p){ return /\d+\s*种/.test(p.txt); })) {
+    var kinds = filled.map(function(p){
+      var m = String(p.txt).match(/(\d+)\s*种/);
+      return { id:p.id, n: m ? parseInt(m[1],10) : null };
+    }).filter(function(o){ return o.n !== null; });
+    if (kinds.length >= 2) {
+      var kn = Math.max.apply(null, kinds.map(function(o){ return o.n; }));
+      var kx = Math.min.apply(null, kinds.map(function(o){ return o.n; }));
+      if (kn !== kx) {
+        kinds.forEach(function(o){
+          if (o.n === kn) res[o.id] = { level:1, weight:3, reason:'覆盖 ' + kn + ' 种，范围最广' };
+          else res[o.id] = { level:-1, weight:1, reason:'覆盖 ' + o.n + ' 种，偏少' };
+        });
+        return res;
+      }
+    }
+  }
+
+  /* ---- 规则 9：金额类（保额越高越好 / 保费越低越好） ---- */
+  var amountKeys = ['maxSumInsured','sumInsured','accidentDeath','accidentDisable','medical',
+                    'price','deductible','medicalDeduct','payoutAmount','irr','guaranteedRate','cashValueYear','effective'];
+  if (amountKeys.indexOf(key) >= 0 && fd.better) {
+    // 保费/免赔额这类「元」级金额，用原始数值比较，不做万换算，避免显示成 0.03万
+    var isYuan = (key === 'price' || key === 'deductible' || key === 'medicalDeduct');
+    var as = filled.map(function(p){
+      var n = isYuan ? extractNum(p.txt) : toWan(p.txt);
+      return { id:p.id, n:n, raw:String(p.txt).replace(/\s+/g,'') };
+    }).filter(function(o){ return o.n !== null; });
+    if (as.length < 2) return res;
+    var mxv = Math.max.apply(null, as.map(function(o){ return o.n; }));
+    var mnv = Math.min.apply(null, as.map(function(o){ return o.n; }));
+    if (mxv === mnv) return res;
+    as.forEach(function(o){
+      var best = fd.better === 'high' ? (o.n === mxv) : (o.n === mnv);
+      var worst = fd.better === 'high' ? (o.n === mnv) : (o.n === mxv);
+      var unit = (key === 'irr' || key === 'guaranteedRate') ? '%' : '';
+      var shown = isYuan ? o.raw : (o.n + unit);
+      var word = fd.better === 'high' ? '最高' : '最低';
+      if (best) res[o.id] = { level:1, weight:5, reason: word + ' ' + shown };
+      else if (worst) res[o.id] = { level:-1, weight:2, reason:'该项不占优' };
+    });
+    return res;
+  }
+
+  /* ---- 规则 10：通用文字字段——关键词极性 + 内容详略 ---- */
+  if (fd.type === 'text' || fd.type === 'long') {
+    var texts = filled.map(function(p){
+      var pos = hasAny(p.txt, POS_WORDS);
+      var neg = hasAny(p.txt, NEG_WORDS);
+      var s = 0;
+      if (pos && !neg) s = 1;
+      else if (neg && !pos) s = -1;
+      return { id:p.id, s:s, len:p.txt.length };
+    });
+    var pN = texts.filter(function(o){ return o.s === 1; }).length;
+    var nN = texts.filter(function(o){ return o.s === -1; }).length;
+    var marked = false;
+    if (pN > 0 && nN > 0) {
+      texts.forEach(function(o){
+        if (o.s === 1) { res[o.id] = { level:1, weight:3, reason:'条款更有利' }; marked = true; }
+        else if (o.s === -1) { res[o.id] = { level:-1, weight:2, reason:'条款相对受限' }; marked = true; }
+      });
+    }
+    return res;
+  }
+
+  return res;
+}
+
+/* 综合评估一组产品，输出每个产品的优势/劣势统计 + 亮点清单 */
+function evaluateGroup(list) {
+  var out = {};
+  list.forEach(function(p){ out[p.id] = { win:0, lose:0, score:0, pros:[], cons:[], totalW:0 }; });
+  if (list.length < 2) return out;
+
+  // 按字段汇总（同类型才有可比性，混合类型用字段并集）
+  var kmap = {}, ordered = [];
+  list.forEach(function(p){
+    getFields(p.type).forEach(function(fd){
+      if (!kmap[fd.key]) { kmap[fd.key] = fd; ordered.push(fd.key); }
+    });
+  });
+
+  ordered.forEach(function(k){
+    var fd = kmap[k];
+    var peers = list.map(function(p){
+      return { id:p.id, txt: valueToText((p.fields||{})[k]) };
+    });
+    if (peers.filter(function(x){ return x.txt !== ''; }).length < 2) return;
+    var judged = judgeField(fd, peers);
+    Object.keys(judged).forEach(function(id){
+      var j = judged[id];
+      if (!j || !j.level) return;
+      var w = j.weight || 1;
+      out[id].score += j.level * w;
+      out[id].totalW += w;
+      if (j.level > 0) {
+        out[id].win++;
+        if (j.reason) out[id].pros.push({ label: fd.label, reason: j.reason, w: w });
+      } else {
+        out[id].lose++;
+        if (j.reason) out[id].cons.push({ label: fd.label, reason: j.reason, w: w });
+      }
+    });
+  });
+
+  // 亮点按权重排序，最多留 5 条
+  Object.keys(out).forEach(function(id){
+    out[id].pros.sort(function(a,b){ return b.w - a.w; });
+    out[id].cons.sort(function(a,b){ return b.w - a.w; });
+    out[id].prosTop = out[id].pros.slice(0, 5);
+    out[id].consTop = out[id].cons.slice(0, 3);
+    var tot = out[id].win + out[id].lose;
+    out[id].winRate = tot ? Math.round(out[id].win / tot * 100) : 0;
+  });
+  return out;
+}
+
+
 function getFields(type) {
   return TYPE_FIELDS[type] || TYPE_FIELDS.qt;
 }
@@ -1173,11 +1531,56 @@ function renderTable() {
     });
   });
 
+  // 智能评估这一组产品
+  var evalRes = evaluateGroup(list);
+  var ranked = list.slice().sort(function(a,b){
+    return (evalRes[b.id].score || 0) - (evalRes[a.id].score || 0);
+  });
+  var topId = ranked.length && evalRes[ranked[0].id].score > 0 ? ranked[0].id : null;
+
+  // ===== 优势榜 =====
+  var h = fb + '<div class="verdict">';
+  h += '<div class="verdict-head"><span class="vt">🏆 智能评估</span><span class="vs">按条款内容自动判断，不是只看数字</span></div>';
+  ranked.forEach(function(p, ri){
+    var e = evalRes[p.id] || { win:0, lose:0, prosTop:[], consTop:[], winRate:0, score:0 };
+    var rankCls = ri === 0 ? 'r1' : (ri === 1 ? 'r2' : (ri === 2 ? 'r3' : 'rn'));
+    var medal = ri === 0 ? '①' : (ri === 1 ? '②' : (ri === 2 ? '③' : (ri+1)));
+    h += '<div class="vcard ' + rankCls + (p.id === topId ? ' is-top' : '') + '" data-vp="' + esc(p.id) + '">';
+    h += '<div class="vcard-top">' +
+           '<div class="vrank">' + medal + '</div>' +
+           '<div class="vname">' + esc(p.name) + (p.id === topId ? '<span class="crown">综合最优</span>' : '') + '</div>' +
+           '<div class="vscore"><b>' + e.win + '</b><span>优</span>' + (e.lose ? '<i>' + e.lose + '劣</i>' : '') + '</div>' +
+         '</div>';
+    // 优势条
+    var barW = Math.min(100, Math.max(4, e.winRate));
+    h += '<div class="vbar"><div class="vbar-in" style="width:' + barW + '%"></div><span class="vbar-t">优势率 ' + e.winRate + '%</span></div>';
+    // 亮点
+    if (e.prosTop && e.prosTop.length) {
+      h += '<div class="vpros">';
+      e.prosTop.slice(0, 4).forEach(function(x){
+        h += '<span class="vtag good">✓ ' + esc(x.label) + '：' + esc(x.reason) + '</span>';
+      });
+      h += '</div>';
+    }
+    if (e.consTop && e.consTop.length && (p.id === topId || e.win <= e.lose)) {
+      h += '<div class="vpros">';
+      e.consTop.slice(0, 2).forEach(function(x){
+        h += '<span class="vtag bad">· ' + esc(x.label) + '：' + esc(x.reason) + '</span>';
+      });
+      h += '</div>';
+    }
+    if (!e.prosTop || !e.prosTop.length) {
+      h += '<div class="vpros"><span class="vtag neutral">填写更多条款后会自动给出亮点</span></div>';
+    }
+    h += '</div>';
+  });
+  h += '</div>';
+
   // 表头
-  var h = fb + '<div class="cmp-wrap"><div class="cmp-scroll"><table class="cmp-table"><thead><tr><th style="min-width:76px;max-width:88px">字段</th>';
+  h += '<div class="cmp-wrap"><div class="cmp-scroll"><table class="cmp-table"><thead><tr><th style="min-width:76px;max-width:88px">字段</th>';
   list.forEach(function(p){
     var t = TYPES[p.type] || TYPES.qt;
-    h += '<th data-p="' + esc(p.id) + '" style="cursor:pointer">' + esc(p.name) + '<span class="hsub">' + esc((p.fields||{}).company || t.short) + '</span></th>';
+    h += '<th data-p="' + esc(p.id) + '" style="cursor:pointer"' + (p.id === topId ? ' class="top-col"' : '') + '>' + esc(p.name) + '<span class="hsub">' + esc((p.fields||{}).company || t.short) + '</span></th>';
   });
   h += '</tr></thead><tbody>';
 
@@ -1199,32 +1602,30 @@ function renderTable() {
     var filledVals = vals.filter(function(v){ return v !== ''; });
     var isDiff = new Set(filledVals).size > 1;
 
-    // 找最优（仅数值型且有 better 时）
-    var bestIdx = -1, worstIdx = -1;
-    if (fd.better && filledVals.length >= 2) {
-      var nums = vals.map(function(v, i){ return { i:i, n: extractNum(v) }; }).filter(function(o){ return o.n !== null; });
-      if (nums.length >= 2 && new Set(nums.map(function(o){ return o.n; })).size > 1) {
-        nums.sort(function(a,b){ return fd.better === 'high' ? b.n - a.n : a.n - b.n; });
-        bestIdx = nums[0].i;
-        worstIdx = nums[nums.length-1].i;
-      }
-    }
+    // 用语义引擎判断本行谁优谁劣
+    var rowJudge = judgeField(fd, list.map(function(p, i){ return { id: p.id, txt: vals[i] }; }));
 
   h += '<tr><th>' + esc(fd.label) + '</th>';
   vals.forEach(function(v, i){
+    var j = rowJudge[list[i].id] || { level:0, reason:'' };
     var cls = '';
     if (isDiff) cls = 'diff';
-    if (i === bestIdx) cls = 'best';
-    else if (i === worstIdx) cls = 'worst';
+    if (j.level > 0) cls += ' adv';
+    else if (j.level < 0) cls += ' dis';
     var show = v === '' ? '<span style="color:#c0c5cc">—</span>'
               : esc(v).replace(/\n/g, '<br>');
-    h += '<td class="' + cls + '" data-p="' + esc(list[i].id) + '" data-k="' + esc(fd.key) + '">' + show + (i === bestIdx ? '<span class="best-mark">优</span>' : '') + '</td>';
+    var tag = j.level > 0 ? '<span class="adv-mark" title="' + esc(j.reason) + '">优</span>'
+            : (j.level < 0 ? '<span class="dis-mark">弱</span>' : '');
+    // 优势理由：仅在该行唯一优势时显示，避免刷屏
+    var advCount = Object.keys(rowJudge).filter(function(k){ return rowJudge[k].level > 0; }).length;
+    var reason = (j.level > 0 && advCount === 1 && j.reason) ? '<span class="adv-reason">' + esc(j.reason) + '</span>' : '';
+    h += '<td class="' + cls + '" data-p="' + esc(list[i].id) + '" data-k="' + esc(fd.key) + '">' + show + tag + reason + '</td>';
   });
   h += '</tr>';
 });
 
   h += '</tbody></table></div>';
-  h += '<div class="cmp-note">绿色＝该项最优，淡黄＝各产品存在差异。<br>✏️ 点击任意单元格可直接修改并保存；点产品名可进完整编辑页。</div>';
+  h += '<div class="cmp-note">🟢 优＝该项条款更有利　🔴 弱＝相对不利　淡黄＝各产品有差异<br>✏️ 点击任意单元格可直接修改；点产品名进完整编辑页。</div>';
   h += '</div>';
 
   box.innerHTML = h;
@@ -1379,6 +1780,25 @@ function renderDuo() {
     '<select id="duo-b">' + optHtml(state.duoB) + '</select>' +
   '</div>';
 
+  // 顶部胜负小结
+  var duoEval = evaluateGroup([A, B]);
+  var ea = duoEval[A.id] || { win:0, lose:0, prosTop:[], consTop:[] };
+  var eb = duoEval[B.id] || { win:0, lose:0, prosTop:[], consTop:[] };
+  var leadA = ea.win - eb.win;
+  var leadTxt = leadA > 0 ? ('A「' + A.name + '」领先 ' + leadA + ' 项')
+              : (leadA < 0 ? ('B「' + B.name + '」领先 ' + (-leadA) + ' 项') : '两者各有优势，不相上下');
+  h += '<div class="duo-summary">' +
+    '<div class="ds-title">📊 ' + esc(leadTxt) + '</div>' +
+    '<div class="ds-cols">' +
+      '<div class="ds-col"><span class="ds-who">A</span>' + esc(A.name) +
+        '<div class="ds-num"><b>' + ea.win + '</b> 项优势 / ' + ea.lose + ' 项劣势</div>' +
+        (ea.prosTop[0] ? '<div class="ds-hl">✓ ' + esc(ea.prosTop[0].label) + '</div>' : '') + '</div>' +
+      '<div class="ds-col"><span class="ds-who">B</span>' + esc(B.name) +
+        '<div class="ds-num"><b>' + eb.win + '</b> 项优势 / ' + eb.lose + ' 项劣势</div>' +
+        (eb.prosTop[0] ? '<div class="ds-hl">✓ ' + esc(eb.prosTop[0].label) + '</div>' : '') + '</div>' +
+    '</div>' +
+  '</div>';
+
   // 字段并集（A 与 B 类型可能不同）
   var kmap = {}, ordered = [];
   [A, B].forEach(function(p){
@@ -1406,30 +1826,29 @@ function renderDuo() {
     var sb = valueToText(vb);
     var same = sa === sb;
 
-    // 优劣判断
-    var winA = false, winB = false, onlyA = false, onlyB = false;
+    // 优劣判断：走语义引擎
+    var onlyA = false, onlyB = false;
     if (sa !== '' && sb === '') { onlyA = true; diffCount++; }
     else if (sb !== '' && sa === '') { onlyB = true; diffCount++; }
-    else if (!same) {
-      diffCount++;
-      if (fd.better) {
-        var na = extractNum(sa), nb = extractNum(sb);
-        if (na !== null && nb !== null && na !== nb) {
-          if (fd.better === 'high') { winA = na > nb; winB = nb > na; }
-          else { winA = na < nb; winB = nb < na; }
-        }
-      }
-    }
+    else if (!same) diffCount++;
+
+    var dj = judgeField(fd, [{ id: A.id, txt: sa }, { id: B.id, txt: sb }]);
+    var ja = dj[A.id] || { level:0, reason:'' }, jb = dj[B.id] || { level:0, reason:'' };
+    var winA = ja.level > 0, winB = jb.level > 0;
 
     var cA = 'duo-cell' + (winA ? ' win' : (winB ? ' lose' : (same ? ' same' : '')));
     var cB = 'duo-cell' + (winB ? ' win' : (winA ? ' lose' : (same ? ' same' : '')));
+    var tagA = winA ? '<span class="adv-mark">优</span>' : (jb.level > 0 ? '<span class="dis-mark">弱</span>' : '');
+    var tagB = winB ? '<span class="adv-mark">优</span>' : (ja.level > 0 ? '<span class="dis-mark">弱</span>' : '');
+    var rsA = (winA && ja.reason) ? '<span class="adv-reason">' + esc(ja.reason) + '</span>' : '';
+    var rsB = (winB && jb.reason) ? '<span class="adv-reason">' + esc(jb.reason) + '</span>' : '';
 
     var rowDiff = (!same) || onlyA || onlyB;
     h += '<div class="duo-row' + (rowDiff ? ' has-diff' : '') + '">' +
       '<div class="duo-label">' + esc(fd.label) + (rowDiff ? '<span class="diff-tag">异</span>' : '') + '</div>' +
       '<div class="duo-cells">' +
-        '<div class="' + cA + '" data-p="' + esc(A.id) + '" data-k="' + esc(fd.key) + '">' + (sa === '' ? '<span style="color:#c0c5cc">未填（点这里填写）</span>' : esc(sa).replace(/\n/g, '<br>')) + (onlyA ? '<span class="duo-only">仅A</span>' : '') + '</div>' +
-        '<div class="' + cB + '" data-p="' + esc(B.id) + '" data-k="' + esc(fd.key) + '">' + (sb === '' ? '<span style="color:#c0c5cc">未填（点这里填写）</span>' : esc(sb).replace(/\n/g, '<br>')) + (onlyB ? '<span class="duo-only">仅B</span>' : '') + '</div>' +
+        '<div class="' + cA + '" data-p="' + esc(A.id) + '" data-k="' + esc(fd.key) + '">' + (sa === '' ? '<span style="color:#c0c5cc">未填（点这里填写）</span>' : esc(sa).replace(/\n/g, '<br>')) + (onlyA ? '<span class="duo-only">仅A</span>' : '') + tagA + rsA + '</div>' +
+        '<div class="' + cB + '" data-p="' + esc(B.id) + '" data-k="' + esc(fd.key) + '">' + (sb === '' ? '<span style="color:#c0c5cc">未填（点这里填写）</span>' : esc(sb).replace(/\n/g, '<br>')) + (onlyB ? '<span class="duo-only">仅B</span>' : '') + tagB + rsB + '</div>' +
       '</div>' +
     '</div>';
   });
@@ -1618,7 +2037,7 @@ function openSettings() {
         '</div>' +
         '<div style="margin-top:14px;font-size:13px;color:#8a919b">' +
           '产品数：<b style="color:#202124">' + appData.products.length + '</b>　已填字段：<b style="color:#202124">' + totalFields + '</b>' +
-          '<br>版本：v1.8' +
+          '<br>版本：v1.9' +
         '</div>' +
       '</div>' +
       '<div style="padding:16px">' +
