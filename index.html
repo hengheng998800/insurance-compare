@@ -109,10 +109,14 @@ textarea.finput{min-height:38px;overflow:hidden}
 
 /* ===== 对比表 ===== */
 .cmp-wrap{padding:10px 0 20px}
-.cmp-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:thin}
+.cmp-scroll{overflow:auto;-webkit-overflow-scrolling:touch;scrollbar-width:thin;max-height:calc(100dvh - 175px);border-radius:10px;margin:0 8px;box-shadow:0 1px 4px rgba(0,0,0,.06)}
 .cmp-table{border-collapse:separate;border-spacing:0;font-size:12.5px;min-width:100%}
 .cmp-table th,.cmp-table td{padding:9px 10px;text-align:left;vertical-align:top;border-bottom:1px solid #f0f1f4;background:#fff;line-height:1.45}
 .cmp-table thead th{position:sticky;top:0;background:#fafbfc;font-weight:600;font-size:12.5px;color:#202124;border-bottom:2px solid #e8eaed;z-index:2;min-width:132px;max-width:150px}
+.cmp-table thead th:first-child{position:sticky;left:0;top:0;z-index:4;background:#f3f6fb}
+/* 分组行：一、投保规则 / 二、必选责任 … */
+.cmp-table tr.group-row th{position:sticky;left:0;background:linear-gradient(90deg,#e8f0fe,#f4f8ff);color:#1a5fd0;font-weight:700;font-size:12px;letter-spacing:.5px;padding:7px 10px;text-align:left;border-top:1px solid #d6e4ff;border-bottom:1px solid #d6e4ff;z-index:3}
+.cmp-table tr.group-row th .gcnt{font-weight:400;font-size:11px;color:#5b8def;margin-left:6px}
 .cmp-table tbody th{position:sticky;left:0;background:#fafbfc;font-weight:500;color:#5f6368;font-size:12px;min-width:84px;max-width:96px;z-index:1;border-right:1px solid #f0f1f4}
 .cmp-table td{min-width:132px;max-width:170px;color:#3c4043;word-break:break-word}
 .cmp-table td.diff{background:#fffdf5}
@@ -124,11 +128,16 @@ textarea.finput{min-height:38px;overflow:hidden}
 .best-mark{display:inline-block;font-size:10px;background:#137333;color:#fff;border-radius:3px;padding:0 3px;margin-left:3px;vertical-align:middle}
 
 /* ===== 两两对比 ===== */
+.duo-group{display:flex;align-items:center;gap:7px;padding:16px 4px 8px;font-size:13px;font-weight:700;color:#1a5fd0;letter-spacing:.5px}
+.duo-group::before{content:'';width:4px;height:15px;border-radius:2px;background:#2f6fed}
+.duo-group:first-child{padding-top:6px}
 .duo-select{display:flex;gap:8px;padding:10px 12px;background:#fff;border-bottom:1px solid #eee}
 .duo-select select{flex:1;border:1px solid #e3e5e9;border-radius:8px;padding:9px;font-size:13px;font-family:inherit;background:#fff;color:#202124;outline:none;min-width:0}
 .duo-list{padding:10px 12px}
-.duo-row{background:#fff;border-radius:10px;margin-bottom:8px;overflow:hidden;box-shadow:0 1px 2px rgba(0,0,0,.05)}
-.duo-label{font-size:11.5px;color:#8a919b;padding:8px 12px 0;font-weight:500;letter-spacing:.3px}
+.duo-row{background:#fff;border-radius:10px;margin-bottom:7px;overflow:hidden;box-shadow:0 1px 2px rgba(0,0,0,.05);border:1px solid #f0f1f4}
+.duo-row.has-diff{border-color:#ffe1a8;background:#fffdf7}
+.duo-label{font-size:11.5px;color:#8a919b;padding:8px 12px 0;font-weight:500;letter-spacing:.3px;display:flex;align-items:center;gap:5px}
+.diff-tag{font-size:9px;color:#c77700;background:#ffefdb;border-radius:3px;padding:1px 4px;font-weight:600}
 .duo-cells{display:flex}
 .duo-cell{flex:1;padding:7px 12px 11px;font-size:13px;color:#3c4043;line-height:1.45;word-break:break-word;min-width:0}
 .duo-cell:first-child{border-right:1px solid #f0f1f4}
@@ -1167,8 +1176,17 @@ function renderTable() {
   });
   h += '</tr></thead><tbody>';
 
-  // 表体
+  // 表体（按大组分段：一、投保规则 / 二、必选责任 / …）
+  var lastGroup = null;
   fields.forEach(function(fd){
+    var g = fd.group || '其他';
+    if (g !== lastGroup) {
+      // 统计该组内已填字段数
+      var cnt = 0;
+      fields.forEach(function(x){ if ((x.group||'其他') === g) cnt++; });
+      h += '<tr class="group-row"><th colspan="' + (list.length + 1) + '">' + esc(g) + '<span class="gcnt">' + cnt + ' 项</span></th></tr>';
+      lastGroup = g;
+    }
     var vals = list.map(function(p){
       return valueToText((p.fields||{})[fd.key]);
     });
@@ -1262,7 +1280,14 @@ function renderDuo() {
   // 差异统计
   var diffCount = 0;
   h += '<div class="duo-list">';
+  var lastDuoGroup = null;
   fields.forEach(function(fd){
+    // 分组标题（一、投保规则 / 二、必选责任 / …）
+    var dg = fd.group || '其他';
+    if (dg !== lastDuoGroup) {
+      h += '<div class="duo-group">' + esc(dg) + '</div>';
+      lastDuoGroup = dg;
+    }
     var va = (A.fields||{})[fd.key], vb = (B.fields||{})[fd.key];
     var sa = valueToText(va);
     var sb = valueToText(vb);
@@ -1286,8 +1311,9 @@ function renderDuo() {
     var cA = 'duo-cell' + (winA ? ' win' : (winB ? ' lose' : (same ? ' same' : '')));
     var cB = 'duo-cell' + (winB ? ' win' : (winA ? ' lose' : (same ? ' same' : '')));
 
-    h += '<div class="duo-row">' +
-      '<div class="duo-label">' + esc(fd.label) + '</div>' +
+    var rowDiff = (!same) || onlyA || onlyB;
+    h += '<div class="duo-row' + (rowDiff ? ' has-diff' : '') + '">' +
+      '<div class="duo-label">' + esc(fd.label) + (rowDiff ? '<span class="diff-tag">异</span>' : '') + '</div>' +
       '<div class="duo-cells">' +
         '<div class="' + cA + '">' + (sa === '' ? '<span style="color:#c0c5cc">未填</span>' : esc(sa).replace(/\n/g, '<br>')) + (onlyA ? '<span class="duo-only">仅A</span>' : '') + '</div>' +
         '<div class="' + cB + '">' + (sb === '' ? '<span style="color:#c0c5cc">未填</span>' : esc(sb).replace(/\n/g, '<br>')) + (onlyB ? '<span class="duo-only">仅B</span>' : '') + '</div>' +
