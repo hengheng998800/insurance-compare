@@ -1517,7 +1517,7 @@ function renderList() {
   var lf = document.getElementById('list-filter');
   var searchWasFocused = document.activeElement && document.activeElement.id === 'list-q';
   var coMap = {};
-  appData.products.forEach(function(p){ var c = ((p.fields||{}).company||'').trim(); if (c) coMap[c] = (coMap[c]||0)+1; });
+  appData.products.forEach(function(p){ var c = (function(c){return (Array.isArray(c)?c.join(""):String(c||"")).trim();})(((p.fields||{})).company); if (c) coMap[c] = (coMap[c]||0)+1; });
   var coOpts = '<option value="all">公司</option>' + Object.keys(coMap).sort().map(function(c){
     return '<option value="' + esc(c) + '"' + (state.listCo===c?' selected':'') + '>' + esc(c) + ' (' + coMap[c] + ')</option>';
   }).join('');
@@ -1538,7 +1538,7 @@ function renderList() {
   // 产品列表
   var list = appData.products.filter(function(p){
     if (state.listType !== 'all' && p.type !== state.listType) return false;
-    var c = ((p.fields||{}).company||'').trim();
+    var c = (function(c){return (Array.isArray(c)?c.join(""):String(c||"")).trim();})(((p.fields||{})).company);
     if (state.listCo !== 'all' && c !== state.listCo) return false;
     if (state.listTier !== 'all' && (p.type !== 'yl' || tierOfP(p) !== state.listTier)) return false;
     if (state.listQ) {
@@ -1618,7 +1618,7 @@ function renderList() {
   }
   var coGroups = [], coMap = {};
   list.forEach(function(p){
-    var c = ((p.fields||{}).company||'').trim() || '未标注公司';
+    var c = (function(c){return (Array.isArray(c)?c.join(""):String(c||"")).trim();})(((p.fields||{})).company) || '未标注公司';
     if (!coMap[c]) { coMap[c] = []; coGroups.push(c); }
     coMap[c].push(p);
   });
@@ -2452,7 +2452,7 @@ function renderTable() {
   function tierOf(p){ return tierName(p.tier); }
   var allYl = appData.products.filter(function(p){ return p.type === 'yl'; });
   var coMap = {};
-  allYl.forEach(function(p){ var c = ((p.fields||{}).company||'').trim(); if (c) coMap[c] = (coMap[c]||0)+1; });
+  allYl.forEach(function(p){ var c = (function(c){return (Array.isArray(c)?c.join(""):String(c||"")).trim();})(((p.fields||{})).company); if (c) coMap[c] = (coMap[c]||0)+1; });
   var coList = Object.keys(coMap).sort();
   if (state.tableCo !== 'all' && !coMap[state.tableCo]) state.tableCo = 'all';
   if (state.tableTier !== 'all' && TIERS.indexOf(state.tableTier) < 0 && state.tableTier !== '未标注') state.tableTier = 'all';
@@ -2474,7 +2474,7 @@ function renderTable() {
 
   var scope = appData.products.filter(function(p){
     if (state.tableType !== 'all' && p.type !== state.tableType) return false;
-    var c = ((p.fields||{}).company||'').trim();
+    var c = (function(c){return (Array.isArray(c)?c.join(""):String(c||"")).trim();})(((p.fields||{})).company);
     if (state.tableCo !== 'all' && c !== state.tableCo) return false;
     if (state.tableTier !== 'all' && (p.type !== 'yl' || tierOf(p) !== state.tableTier)) return false;
     return true;
@@ -2500,7 +2500,7 @@ function renderTable() {
   // 公司配色：每个公司固定一组颜色（组头深色，产品浅色）
   var coColors = {}, coCi = 0;
   scope.forEach(function(p){
-    var c = ((p.fields||{}).company||'').trim();
+    var c = (function(c){return (Array.isArray(c)?c.join(""):String(c||"")).trim();})(((p.fields||{})).company);
     if (c && !coColors[c]) coColors[c] = G_CLS[coCi++ % G_CLS.length];
   });
   var gOrder = [], gMap = {};
@@ -3543,7 +3543,7 @@ function openSettings() {
         '</div>' +
         '<div style="margin-top:12px;font-size:13px;color:#8a919b">' +
           '产品数：<b style="color:#202124">' + appData.products.length + '</b>　已填字段：<b style="color:#202124">' + totalFields + '</b>' +
-          '<br>版本：v3.9.17' +
+          '<br>版本：v3.9.17b' +
         '</div>' +
       '</div>' +
       '<div style="padding:16px">' +
