@@ -2685,18 +2685,21 @@ function openSettings() {
   var h = '<div class="modal-box">' +
     '<div class="modal-head"><div class="mt">设置与数据</div><div class="mc" id="st-close">关闭</div></div>' +
     '<div class="modal-body">' +
-      '<div style="padding:14px 16px 4px">' +
+      '<div style="padding:12px 16px 0">' +
+        '<button class="btn btn-primary" id="st-export" style="width:100%;margin-bottom:9px">📤 导出数据（先备份一份）</button>' +
+        '<button class="btn btn-primary" id="st-import" style="width:100%;margin-bottom:9px;background:linear-gradient(135deg,#22a06b,#137333)">📥 导入并合并备份（选 JSON 文件）</button>' +
+      '</div>' +
+      '<div style="padding:10px 16px 0">' +
         '<div style="background:#f5f7ff;border-radius:10px;padding:13px 14px;font-size:13px;color:#5f6368;line-height:1.7">' +
-          '数据全部保存在这台手机本地，<br>不上传、不联网、不需要账号。' +
+          '数据全部保存在这台手机本地，<br>不上传、不联网、不需要账号。<br>' +
+          '<span style="color:#c5221f;font-weight:600">⚠️ 清除 Safari 网站数据会清空产品，操作前先「导出数据」！</span>' +
         '</div>' +
-        '<div style="margin-top:14px;font-size:13px;color:#8a919b">' +
+        '<div style="margin-top:12px;font-size:13px;color:#8a919b">' +
           '产品数：<b style="color:#202124">' + appData.products.length + '</b>　已填字段：<b style="color:#202124">' + totalFields + '</b>' +
-          '<br>版本：v2.9'
+          '<br>版本：v3.4.1' +
         '</div>' +
       '</div>' +
       '<div style="padding:16px">' +
-        '<button class="btn btn-ghost" id="st-export" style="margin-bottom:9px">导出数据（JSON 备份）</button>' +
-        '<button class="btn btn-ghost" id="st-import" style="margin-bottom:9px">导入并合并备份</button>' +
         '<button class="btn btn-danger" id="st-clear">清空所有数据</button>' +
         '<input type="file" id="st-file" accept=".json,application/json" style="display:none">' +
       '</div>' +
