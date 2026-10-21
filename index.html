@@ -3572,7 +3572,8 @@ function openSettings() {
         '</div>' +
         '<div style="margin-top:12px;font-size:13px;color:#8a919b">' +
           '产品数：<b style="color:#202124">' + appData.products.length + '</b>　已填字段：<b style="color:#202124">' + totalFields + '</b>' +
-          '<br>版本：v3.9.19b' +
+          (appData.dataTag ? '<br>数据包：<b style="color:#c5221f">' + esc(appData.dataTag) + '</b>' : '') +
+          '<br>版本：v3.9.20' +
         '</div>' +
       '</div>' +
       '<div style="padding:16px">' +
@@ -3621,6 +3622,7 @@ function openSettings() {
       if (__importMode === 'replace') {
         if (!confirm('替换模式：\n\n本机现有 ' + appData.products.length + ' 个产品将被全部清除，替换为备份里的 ' + d.products.length + ' 个产品。\n\n本机数据不会保留，确定替换吗？')) return;
         appData.products = d.products.slice();
+        appData.dataTag = d.dataTag || d.tag || '';
         if (d.weights) appData.weights = JSON.parse(JSON.stringify(d.weights));
         saveData(appData);
         m.classList.remove('show');
