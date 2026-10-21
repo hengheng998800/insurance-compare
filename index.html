@@ -1212,6 +1212,9 @@ function renderAll() {
   if (state.currentPage === 'score') renderScore();
 }
 
+/* 档次名称规范化（旧数据「基础百万医疗」→「普通百万医疗」） */
+function tierName(t) { t = (t || '').trim(); return t === '基础百万医疗' ? '普通百万医疗' : (t || '未标注'); }
+
 /* ============================================================
    保险科普（按品种学习）
    ============================================================ */
@@ -1329,7 +1332,7 @@ function renderList() {
   });
 
   // 公司 / 层级 / 搜索 筛选面板
-  function tierOfP(p){ var t = p.tier || '未标注'; return t === '基础百万医疗' ? '普通百万医疗' : t; }
+  function tierOfP(p){ return tierName(p.tier); }
   var TIERS = ['普通百万医疗','中端医疗','高端医疗'];
   var lf = document.getElementById('list-filter');
   var searchWasFocused = document.activeElement && document.activeElement.id === 'list-q';
@@ -1836,7 +1839,7 @@ function renderDetail() {
       (slogan ? '<div class="poster-slogan">💡 ' + esc(slogan) + '</div>' : '') +
       '<div class="poster-badges">' +
         '<span class="pcard-badge ' + t.cls + '">' + t.icon + ' ' + t.name + '</span>' +
-        (p.tier ? '<span class="pcard-badge" style="background:#ffe9c8;color:#b25e00">' + esc(tierOfP(p)) + '</span>' : '') +
+        (p.tier ? '<span class="pcard-badge" style="background:#ffe9c8;color:#b25e00">' + esc(tierName(p.tier)) + '</span>' : '') +
         (sc !== null ? '<span class="pcard-badge" style="background:#ffd7d7;color:#c5221f">综合分 ' + sc.toFixed(0) + '</span>' : '') +
       '</div>' +
     '</div>' +
@@ -1990,7 +1993,7 @@ function renderTable() {
 
   // 公司 / 医疗层级：下拉式筛选（一排两个，不占空间）
   var TIERS = ['普通百万医疗','中端医疗','高端医疗'];
-  function tierOf(p){ var t = p.tier || '未标注'; return t === '基础百万医疗' ? '普通百万医疗' : t; }
+  function tierOf(p){ return tierName(p.tier); }
   var allYl = appData.products.filter(function(p){ return p.type === 'yl'; });
   var coMap = {};
   allYl.forEach(function(p){ var c = ((p.fields||{}).company||'').trim(); if (c) coMap[c] = (coMap[c]||0)+1; });
