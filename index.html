@@ -7,8 +7,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="保险对比">
-<link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.png">
-<link rel="manifest" href="./manifest.webmanifest">
+<link rel="apple-touch-icon" sizes="180x180" href="insurance-icon.png">
+<link rel="manifest" href="insurance-manifest.webmanifest">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 html{overflow-x:hidden;max-width:100%}
@@ -2212,16 +2212,21 @@ function renderDetail() {
     var riderChips = riders.map(function(rd, i){
       return '<span class="gc-rider" id="gc-rider-' + i + '" data-i="' + i + '">' + esc(rd.name) + '<span class="gc-price">…</span></span>';
     }).join('');
+    var noCombo = !sumList.length && planOrder.length > 0; // 医疗险：无保额/缴费期，按方案选
+    var medPlanRow = noCombo ?
+      '<div class="gc-row"><span class="gc-k">方案</span><select id="gc-plan" class="gc-sel">' +
+      planOrder.map(function(pl){ return '<option value="' + pl + '">' + pl + '</option>'; }).join('') + '</select></div>' : '';
 
     h += '<div class="g-prem">' +
-      '<div class="g-prem-head">💰 保费试算器<span class="g-prem-age">保额 / 缴费期 / 附加责任自由组合</span></div>' +
+      '<div class="g-prem-head">💰 保费试算器<span class="g-prem-age">' + (noCombo ? '官方费率表 · 选方案/年龄即可' : '保额 / 缴费期 / 附加责任自由组合') + '</span></div>' +
       '<div class="gc-row"><span class="gc-k">性别</span><div class="gc-seg"><button type="button" class="gc-gb on" data-g="男">男</button><button type="button" class="gc-gb" data-g="女">女</button></div></div>' +
       '<div class="gc-row"><span class="gc-k">年龄</span><select id="gc-age" class="gc-sel">' + ageOpts + '</select></div>' +
+      (noCombo ? medPlanRow :
       '<div class="gc-row"><span class="gc-k">保额</span><select id="gc-sum" class="gc-sel">' + sumOpts + '</select></div>' +
-      '<div class="gc-row"><span class="gc-k">缴费期间</span><select id="gc-pay" class="gc-sel">' + payOpts + '</select></div>' +
+      '<div class="gc-row"><span class="gc-k">缴费期间</span><select id="gc-pay" class="gc-sel">' + payOpts + '</select></div>') +
       (riders.length ? '<div class="gc-row" style="align-items:flex-start"><span class="gc-k" style="padding-top:7px">附加责任</span><div style="flex:1">' + riderChips + '</div></div>' : '') +
       '<div class="gc-total-row"><div><div class="gc-total-k">年交保费（估算）</div><div id="gc-detail" class="gc-detail"></div></div><div id="gc-total" class="gc-total">—</div></div>' +
-      '<div class="gc-tip">附加责任价格 = 该组合与「必选责任·30万·20年交」的差额按保额比例换算，多项可叠加；未列出的保额/缴费期组合暂无费率数据，以投保页试算为准</div>' +
+      '<div class="gc-tip">' + (noCombo ? '数据来源：官网备案费率表（基准费率·有等待期）；家庭单2人95%/3人90%/4人+85%，无理赔95%，选0免赔额另有调整因子，以投保页试算为准' : '附加责任价格 = 该组合与「必选责任·30万·20年交」的差额按保额比例换算，多项可叠加；未列出的保额/缴费期组合暂无费率数据，以投保页试算为准') + '</div>' +
       '</div>';
   }
 
@@ -2321,26 +2326,37 @@ function renderDetail() {
     });
     gcUpdate();
   } else if (document.getElementById('gc-total') && window.__calcMode === 'combo') {
+    var __noCombo = !!document.getElementById('gc-plan');
     function gcUpdate() {
-      var plan = comboPlan(calc.sum, calc.pay);
-      var base = plan ? premFor(plan, calc.age, calc.g) : null;
-      var scale = (+calc.sum || 30) / 30;
-      var total = base || 0, parts = [];
-      riders.forEach(function(rd, i){
-        var el = document.getElementById('gc-rider-' + i);
-        if (!el) return;
-        var rp = premFor(rd.plan, calc.age, calc.g);
-        var bp = premFor(calcBase, calc.age, calc.g);
-        var delta = (rp != null && bp != null) ? Math.round((rp - bp) * scale) : null;
-        var pr = el.querySelector('.gc-price');
-        if (pr) pr.innerText = delta != null ? '+' + delta.toLocaleString('zh-CN') : '暂无费率';
-        el.style.opacity = delta != null ? '' : '.45';
-        if (calc.riders[i] && delta != null && base != null) { total += delta; parts.push('+' + delta.toLocaleString('zh-CN')); }
-      });
-      document.getElementById('gc-total').innerText = base != null ? '¥' + total.toLocaleString('zh-CN') : '暂无费率';
-      document.getElementById('gc-detail').innerText =
-        (calc.g === '男' ? '男性' : '女性') + ' · ' + calc.age + '岁 · ' + calc.sum + '万保额·' + calc.pay + '年交' +
-        (base == null ? '（该组合暂无费率数据）' : (parts.length ? '（附加' + parts.join(' + ') + '）' : ''));
+      var plan, base, detailTxt;
+      if (__noCombo) {
+        var sel = document.getElementById('gc-plan');
+        plan = sel ? sel.value : null;
+        base = plan ? premFor(plan, calc.age, calc.g) : null;
+        detailTxt = (calc.g === '男' ? '男性' : '女性') + ' · ' + calc.age + '岁 · ' + plan +
+          (base == null ? '（该方案暂无此年龄费率）' : '（官方费率·有等待期）');
+      } else {
+        plan = comboPlan(calc.sum, calc.pay);
+        base = plan ? premFor(plan, calc.age, calc.g) : null;
+        var scale = (+calc.sum || 30) / 30;
+        var total = base || 0, parts = [];
+        riders.forEach(function(rd, i){
+          var el = document.getElementById('gc-rider-' + i);
+          if (!el) return;
+          var rp = premFor(rd.plan, calc.age, calc.g);
+          var bp = premFor(calcBase, calc.age, calc.g);
+          var delta = (rp != null && bp != null) ? Math.round((rp - bp) * scale) : null;
+          var pr = el.querySelector('.gc-price');
+          if (pr) pr.innerText = delta != null ? '+' + delta.toLocaleString('zh-CN') : '暂无费率';
+          el.style.opacity = delta != null ? '' : '.45';
+          if (calc.riders[i] && delta != null && base != null) { total += delta; parts.push('+' + delta.toLocaleString('zh-CN')); }
+        });
+        detailTxt = (calc.g === '男' ? '男性' : '女性') + ' · ' + calc.age + '岁 · ' + calc.sum + '万保额·' + calc.pay + '年交' +
+          (base == null ? '（该组合暂无费率数据）' : (parts.length ? '（附加' + parts.join(' + ') + '）' : ''));
+        base = base != null ? total : null;
+      }
+      document.getElementById('gc-total').innerText = base != null ? '¥' + Number(base).toLocaleString('zh-CN') : '暂无费率';
+      document.getElementById('gc-detail').innerText = detailTxt;
     }
     Array.prototype.forEach.call(document.querySelectorAll('.gc-gb'), function(btn){
       btn.addEventListener('click', function(){
@@ -2351,8 +2367,10 @@ function renderDetail() {
       });
     });
     document.getElementById('gc-age').addEventListener('change', function(){ calc.age = +this.value; gcUpdate(); });
-    document.getElementById('gc-sum').addEventListener('change', function(){ calc.sum = this.value; gcUpdate(); });
-    document.getElementById('gc-pay').addEventListener('change', function(){ calc.pay = this.value; gcUpdate(); });
+    var __planSel = document.getElementById('gc-plan');
+    if (__planSel) __planSel.addEventListener('change', gcUpdate);
+    document.getElementById('gc-sum') && document.getElementById('gc-sum').addEventListener('change', function(){ calc.sum = this.value; gcUpdate(); });
+    document.getElementById('gc-pay') && document.getElementById('gc-pay').addEventListener('change', function(){ calc.pay = this.value; gcUpdate(); });
     Array.prototype.forEach.call(document.querySelectorAll('.gc-rider'), function(chip){
       chip.addEventListener('click', function(){
         var i = chip.getAttribute('data-i');
@@ -3501,7 +3519,7 @@ function openSettings() {
         '</div>' +
         '<div style="margin-top:12px;font-size:13px;color:#8a919b">' +
           '产品数：<b style="color:#202124">' + appData.products.length + '</b>　已填字段：<b style="color:#202124">' + totalFields + '</b>' +
-          '<br>版本：v3.9.8' +
+          '<br>版本：v3.9.9' +
         '</div>' +
       '</div>' +
       '<div style="padding:16px">' +
