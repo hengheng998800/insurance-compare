@@ -80,6 +80,33 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei
 .list-overview{display:flex;gap:6px;padding:10px 12px 2px;flex-wrap:wrap}
 .ov-chip{font-size:11.5px;color:#5f6368;background:#fff;border:1px solid #d8dee7;border-radius:14px;padding:3.5px 10px}
 
+/* ===== 保险科普（按品种学习）===== */
+.know-wrap{margin:10px 12px 0;border-radius:14px;background:#fffdf6;border:1px solid #e3d9bd;box-shadow:0 1.5px 6px rgba(120,90,20,.08);overflow:hidden}
+.know-head{display:flex;align-items:center;gap:8px;padding:11px 14px;background:linear-gradient(135deg,#fff3dd,#ffe9c8);cursor:pointer;user-select:none}
+.know-head .kt{flex:1;min-width:0}
+.know-head .kt b{font-size:15px;color:#8a4b00;letter-spacing:1px}
+.know-head .kt span{display:block;font-size:11px;color:#a97b3a;margin-top:1px}
+.know-arrow{font-size:11px;color:#b25e00;transition:transform .2s}
+.know-wrap.folded .know-arrow{transform:rotate(-90deg)}
+.know-body{display:none;padding:4px 12px 12px}
+.know-wrap:not(.folded) .know-body{display:block}
+.know-sec{margin-top:10px}
+.know-sec-t{display:flex;align-items:baseline;gap:6px;padding:2px 2px 7px;border-bottom:2px dashed #eadfbd;margin-bottom:8px}
+.know-sec-t b{font-size:14.5px;color:#7a3c00}
+.know-sec-t em{font-style:normal;font-size:11px;color:#a97b3a}
+.know-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.know-card{text-align:left;border:1px solid #e8ddc0;border-radius:10px;background:#fffef9;padding:9px 10px;cursor:pointer;box-shadow:0 1px 3px rgba(120,90,20,.07);transition:transform .12s, box-shadow .12s;font-family:inherit}
+.know-card:active{transform:scale(.97);box-shadow:0 2px 8px rgba(120,90,20,.16)}
+.know-name{font-size:13px;font-weight:800;color:#5d3a00;margin-bottom:5px}
+.know-li{display:flex;gap:4px;font-size:10.5px;line-height:1.5;margin-top:2px;color:#6b5b33}
+.know-li .ic{flex-shrink:0}
+.know-li.pro .ic{color:#1d8a3e}
+.know-li.con .ic{color:#c5221f}
+.know-hint{margin:12px 2px 0;font-size:10.5px;color:#a97b3a;text-align:center}
+.learn-banner{display:flex;align-items:center;gap:8px;margin:10px 12px 0;background:#fff3dd;border:1px dashed #e0b25e;border-radius:10px;padding:8px 12px;font-size:12.5px;color:#8a4b00}
+.learn-banner b{flex:1}
+.learn-banner button{border:none;background:#b25e00;color:#fff;border-radius:12px;padding:3px 12px;font-size:12px;font-family:inherit}
+
 /* ===== 产品卡片 ===== */
 #page-list{background:#edeff3}
 .list{padding:10px 12px}
@@ -1173,6 +1200,93 @@ function renderAll() {
 }
 
 /* ============================================================
+   保险科普（按品种学习）
+   ============================================================ */
+var KNOW = [
+  { key:'yl', name:'医疗险', sub:'医保黄金搭档 · 解决看病花钱', items:[
+    { label:'普通百万医疗险', tier:'基础百万医疗', pros:['保费低 ≈300元/年','保额高、保障广'], cons:['1万免赔额','多数无外购药报销'] },
+    { label:'惠民钱（普惠型）', tier:'基础百万医疗', pros:['门槛低、保费极低 ≈几十元/年'], cons:['4万免赔额','无外购药、保障窄'] },
+    { label:'中端医疗险', tier:'中端医疗', pros:['可0免赔、含外购药','可选特需部/定点私立'], cons:['保费较高 ≈1000-2000元/年'] },
+    { label:'高端医疗险', tier:'高端医疗', pros:['0免赔、全报销','含私立/海外医疗、含门诊'], cons:['保费昂贵 ≈几千-几万/年'] }
+  ]},
+  { key:'cz', name:'重疾险', sub:'大病生活保障 · 一次性赔付', items:[
+    { label:'带事故责任', type:'cz', pros:['双重保障、有病治病没病留钱','现金价值高'], cons:['保费贵30%-50%','赔了重疾不赔身故'] },
+    { label:'不带事故责任（纯重疾）', type:'cz', pros:['性价比高、保费低、保额高'], cons:['未确诊重疾身故不赔付','现金价值低'] }
+  ]},
+  { key:'sx', name:'寿险', sub:'家庭免底 · 事故/全残赔付', items:[
+    { label:'定期寿险', type:'sx', pros:['杠杆高、保费低 ≈几百元/年','保障纯粹'], cons:['保障有期限','活着无收益'] },
+    { label:'终身寿险', type:'sx', pros:['一定会赔付、保障终身','现金价值高、可财富传承、免税等'], cons:['保费较贵','性价比低'] }
+  ]},
+  { key:'yw', name:'意外险', sub:'全员必备 · 性价比之王', items:[
+    { label:'一年期意外险', type:'yw', pros:['保费极低、杠杆高','保障灵活'], cons:['需每年续保、续保不稳定','会被风控下架、保费费年龄涨','高龄买不了高保额'] },
+    { label:'长期意外险', type:'yw', pros:['保障长期、保费固定','不用年年续保、有现金价值'], cons:['保费贵2-3倍'] }
+  ]}
+];
+state.learn = null;   // 当前从科普进入的品种 {label, type, tier}
+
+function renderLearn(box) {
+  var h = '';
+  if (state.learn) {
+    h += '<div class="learn-banner">📖 正在学习：<b>' + esc(state.learn.label) + '</b>' +
+         '<button id="learn-clear">看全部</button></div>';
+  }
+  h += '<div class="know-wrap' + ((state.knowFold) ? ' folded' : '') + '" id="know-wrap">' +
+    '<div class="know-head" id="know-head">' +
+      '<div class="kt"><b>📚 保险科普大全</b><span>想了解哪个品种？点卡片直接看对应产品</span></div>' +
+      '<span class="know-arrow">▼</span>' +
+    '</div>' +
+    '<div class="know-body">';
+  KNOW.forEach(function(sec){
+    var t = TYPES[sec.key] || TYPES.qt;
+    h += '<div class="know-sec">' +
+      '<div class="know-sec-t">' + t.icon + ' <b>' + esc(sec.name) + '</b><em>「' + esc(sec.sub) + '」</em></div>' +
+      '<div class="know-grid">';
+    sec.items.forEach(function(it){
+      h += '<button class="know-card" data-learn-type="' + sec.key + '" data-learn-tier="' + esc(it.tier || '') + '" data-learn-label="' + esc(it.label) + '">' +
+        '<div class="know-name">' + esc(it.label) + '</div>';
+      (it.pros || []).forEach(function(x){
+        h += '<div class="know-li pro"><span class="ic">✔</span><span>' + esc(x) + '</span></div>';
+      });
+      (it.cons || []).forEach(function(x){
+        h += '<div class="know-li con"><span class="ic">✘</span><span>' + esc(x) + '</span></div>';
+      });
+      h += '</button>';
+    });
+    h += '</div></div>';
+  });
+  h += '<div class="know-hint">※ 以上为简要科普，具体以条款为准 · 后续会持续补充品种</div>' +
+    '</div></div>';
+  box.insertAdjacentHTML('afterbegin', h);
+
+  var head = document.getElementById('know-head');
+  head.addEventListener('click', function(){
+    var w = document.getElementById('know-wrap');
+    w.classList.toggle('folded');
+    state.knowFold = w.classList.contains('folded');
+  });
+  box.querySelectorAll('.know-card').forEach(function(card){
+    card.addEventListener('click', function(){
+      state.learn = { label: this.dataset.learnLabel };
+      state.listType = this.dataset.learnType;
+      state.listTier = this.dataset.learnTier || 'all';
+      state.listCo = 'all';
+      state.listQ = '';
+      renderList();
+      var ov = document.querySelector('.list-overview');
+      if (ov) ov.scrollIntoView({ behavior:'smooth', block:'start' });
+      toast('已为你筛选「' + this.dataset.learnLabel + '」的产品');
+    });
+  });
+  var lc = document.getElementById('learn-clear');
+  if (lc) lc.addEventListener('click', function(){
+    state.learn = null;
+    state.listType = 'all';
+    state.listTier = 'all';
+    renderList();
+  });
+}
+
+/* ============================================================
    产品库列表
    ============================================================ */
 function renderList() {
@@ -1244,6 +1358,7 @@ function renderList() {
       '<div style="padding:0 20px"><button class="btn btn-primary" id="btn-add-empty">＋ 添加产品</button></div>';
     var be = document.getElementById('btn-add-empty');
     if (be) be.addEventListener('click', openAddModal);
+    renderLearn(box);
     return;
   }
 
@@ -1331,6 +1446,7 @@ function renderList() {
 
   h += '<div style="padding:12px 0 0"><button class="btn btn-ghost" id="btn-add-list">＋ 添加产品</button></div>';
   box.innerHTML = h;
+  renderLearn(box);
 
   // 公司头：折叠/展开
   box.querySelectorAll('.co-head').forEach(function(el){
