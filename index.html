@@ -34,23 +34,24 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei
 .nav-item span{font-size:11px;color:#b0b6bf;transition:color .2s}
 .nav-item.active svg,.nav-item.active span{color:#2f6fed}
 
-/* ===== 筛选栏 ===== */
-.filter-bar{display:flex;gap:6px;padding:10px 12px;overflow-x:auto;background:#fff;border-bottom:1px solid #eee;scrollbar-width:none;flex-shrink:0}
+/* ===== 筛选栏（v3.3 精致化）===== */
+.filter-bar{display:flex;gap:7px;padding:12px 12px 4px;overflow-x:auto;background:transparent;border-bottom:none;scrollbar-width:none;flex-shrink:0}
 .filter-bar::-webkit-scrollbar{display:none}
-.chip{padding:5px 13px;border-radius:16px;font-size:13px;white-space:nowrap;cursor:pointer;background:#f0f1f4;color:#666;transition:.2s;border:1px solid transparent}
-.chip.active{background:#2f6fed;color:#fff;border-color:#2f6fed}
-.chip .cnt{opacity:.7;font-size:11px;margin-left:2px}
+.chip{padding:6px 15px;border-radius:11px;font-size:13px;white-space:nowrap;cursor:pointer;background:#fff;color:#4a5568;transition:.18s;border:1px solid #dfe5ee;box-shadow:0 1px 2.5px rgba(30,40,60,.05);font-weight:500}
+.chip.active{background:linear-gradient(135deg,#3b82f6,#2563eb);color:#fff;border-color:transparent;box-shadow:0 2px 7px rgba(37,99,235,.32);font-weight:600}
+.chip .cnt{opacity:.65;font-size:11px;margin-left:3px}
 /* 下拉式筛选 pill（v2.6） */
 .fsel-wrap{position:relative;display:inline-flex;align-items:center}
-.fsel{appearance:none;-webkit-appearance:none;border:1px solid #e2e6ec;background:#f0f1f4;border-radius:16px;padding:5px 26px 5px 13px;font-size:13px;color:#555;outline:none;max-width:170px;font-family:inherit}
-.fsel.active{border-color:#2f6fed;color:#2f6fed;background:#e8f0fe;font-weight:600}
-.fsel-wrap::after{content:'▾';position:absolute;right:11px;font-size:11px;color:#9aa1ab;pointer-events:none}
+.fsel{appearance:none;-webkit-appearance:none;border:1px solid #dfe5ee;background:#fff;border-radius:11px;padding:8px 28px 8px 13px;font-size:13px;color:#3d4a5c;outline:none;max-width:170px;font-family:inherit;box-shadow:0 1px 2.5px rgba(30,40,60,.05);font-weight:500}
+.fsel.active{border-color:#2f6fed;color:#2f6fed;background:#eef4ff;font-weight:600}
+.fsel-wrap::after{content:'▾';position:absolute;right:12px;font-size:11px;color:#9aa1ab;pointer-events:none}
 /* 产品库筛选面板（v2.6） */
-.list-filter{display:block;padding:9px 12px;background:#fff;border-bottom:1px solid #eee;flex-shrink:0}
-.lf-row{display:flex;gap:7px;align-items:center}
-.lf-row + .lf-row{margin-top:8px}
+.list-filter{display:block;margin:9px 12px;padding:11px 12px 12px;background:#fff;border:1px solid #dfe5ee;border-radius:14px;box-shadow:0 1.5px 6px rgba(30,40,60,.07);flex-shrink:0}
+.lf-row{display:flex;gap:8px;align-items:center}
+.lf-row + .lf-row{margin-top:9px}
 .list-filter .fsel{max-width:150px;flex:1}
-.list-search{flex:1;min-width:0;width:100%;border:1px solid #e2e6ec;border-radius:16px;padding:7px 14px;font-size:13px;background:#f7f8fa;outline:none;font-family:inherit;box-sizing:border-box}
+.list-search{flex:1;min-width:0;width:100%;border:1px solid transparent;border-radius:11px;padding:9px 14px;font-size:13px;background:#f2f4f8;outline:none;font-family:inherit;box-sizing:border-box;transition:.18s}
+.list-search:focus{background:#fff;border-color:#2f6fed;box-shadow:0 0 0 3px rgba(47,111,237,.12)}
 .list-search:focus{border-color:#2f6fed;background:#fff}
 /* 勾选产品折叠（v2.6） */
 .sel-pills{transition:max-height .25s ease}
@@ -108,7 +109,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei
 .learn-banner button{border:none;background:#2f5cc0;color:#fff;border-radius:12px;padding:3px 12px;font-size:12px;font-family:inherit}
 
 /* ===== 产品卡片 ===== */
-#page-list{background:#edeff3}
+#page-list{background:#f1f4f9}
 .list{padding:10px 12px}
 .pcard{background:#fff;border-radius:12px;padding:13px 14px;margin-bottom:12px;box-shadow:0 1.5px 5px rgba(30,40,60,.08);cursor:pointer;position:relative;transition:box-shadow .15s;border:1px solid #c2ccd9}
 .pcard:active{box-shadow:0 1px 6px rgba(0,0,0,.12)}
@@ -2013,7 +2014,7 @@ function renderTable() {
   var needFold = scope.length > 6;
   fb += '<div class="sel-bar"><div class="sel-head">' +
           '<span class="sel-t">勾选要对比的产品</span>' +
-          '<span class="sel-n">' + (state.tableIds.length ? '已选 ' + state.tableIds.length + ' 个' : '未勾选＝全部 ' + scope.length + ' 个') + '</span>' +
+          '<span class="sel-n">' + (state.tableIds.length ? '已选 ' + state.tableIds.length + ' 个' : '未勾选，先选 ' + scope.length + ' 个里的几个') + '</span>' +
           (state.tableIds.length ? '<span class="sel-clear" id="sel-clear">清空</span>' : '') +
         '</div><div class="sel-pills' + (needFold ? ' collapsed' : '') + '">' +
           pillHtml +
@@ -2021,12 +2022,19 @@ function renderTable() {
         (needFold ? '<div class="sel-more" id="sel-more">展开全部 ' + scope.length + ' 个 ▾</div>' : '') +
         '</div>';
 
-  // 勾选过滤：勾了哪些就只对比哪些
+  // 勾选过滤：勾了哪些就只对比哪些（未勾选 = 不显示，等待选择）
   var list = scope.filter(function(p){
-    return state.tableIds.length === 0 || state.tableIds.indexOf(p.id) >= 0;
+    return state.tableIds.indexOf(p.id) >= 0;
   });
+  if (state.tableIds.length === 0) {
+    box.innerHTML = fb + '<div class="empty"><p>👆 在上方勾选想对比的产品</p><div class="hint">勾选几个，下面就会显示它们的对比表</div></div>';
+    bindTypeChips(box, 'tableType', renderTable);
+    bindCoTierChips(box);
+    bindSelPills(box);
+    return;
+  }
   if (list.length === 0) {
-    box.innerHTML = fb + '<div class="empty"><p>勾选的产品都不在当前类型里</p><div class="hint">点上面的「清空」恢复全部</div></div>';
+    box.innerHTML = fb + '<div class="empty"><p>勾选的产品都不在当前类型里</p><div class="hint">点上面的「清空」重新选择</div></div>';
     bindTypeChips(box, 'tableType', renderTable);
     bindCoTierChips(box);
     bindSelPills(box);
@@ -2057,50 +2065,9 @@ function renderTable() {
     });
   });
 
-  // 智能评估这一组产品
-  var evalRes = evaluateGroup(list);
-  var ranked = list.slice().sort(function(a,b){
-    return (evalRes[b.id].score || 0) - (evalRes[a.id].score || 0);
-  });
-  var topId = ranked.length && evalRes[ranked[0].id].score > 0 ? ranked[0].id : null;
-
-  // ===== 优势榜 =====
-  var h = fb + '<div class="verdict">';
-  h += '<div class="verdict-head"><span class="vt">🏆 智能评估</span><span class="vs">按条款内容自动判断，不是只看数字</span></div>';
-  ranked.forEach(function(p, ri){
-    var e = evalRes[p.id] || { win:0, lose:0, prosTop:[], consTop:[], winRate:0, score:0 };
-    var rankCls = ri === 0 ? 'r1' : (ri === 1 ? 'r2' : (ri === 2 ? 'r3' : 'rn'));
-    var medal = ri === 0 ? '①' : (ri === 1 ? '②' : (ri === 2 ? '③' : (ri+1)));
-    h += '<div class="vcard ' + rankCls + (p.id === topId ? ' is-top' : '') + '" data-vp="' + esc(p.id) + '">';
-    h += '<div class="vcard-top">' +
-           '<div class="vrank">' + medal + '</div>' +
-           '<div class="vname">' + esc(p.name) + (p.id === topId ? '<span class="crown">综合最优</span>' : '') + '</div>' +
-           '<div class="vscore"><b>' + e.win + '</b><span>优</span>' + (e.lose ? '<i>' + e.lose + '劣</i>' : '') + '</div>' +
-         '</div>';
-    // 优势条
-    var barW = Math.min(100, Math.max(4, e.winRate));
-    h += '<div class="vbar"><div class="vbar-in" style="width:' + barW + '%"></div><span class="vbar-t">优势率 ' + e.winRate + '%</span></div>';
-    // 亮点
-    if (e.prosTop && e.prosTop.length) {
-      h += '<div class="vpros">';
-      e.prosTop.slice(0, 4).forEach(function(x){
-        h += '<span class="vtag good">✓ ' + esc(x.label) + '：' + esc(x.reason) + '</span>';
-      });
-      h += '</div>';
-    }
-    if (e.consTop && e.consTop.length && (p.id === topId || e.win <= e.lose)) {
-      h += '<div class="vpros">';
-      e.consTop.slice(0, 2).forEach(function(x){
-        h += '<span class="vtag bad">· ' + esc(x.label) + '：' + esc(x.reason) + '</span>';
-      });
-      h += '</div>';
-    }
-    if (!e.prosTop || !e.prosTop.length) {
-      h += '<div class="vpros"><span class="vtag neutral">填写更多条款后会自动给出亮点</span></div>';
-    }
-    h += '</div>';
-  });
-  h += '</div>';
+  var topId = null;
+  // ===== 表格（v3.3：优势榜已按需求移除，只看勾选的产品）=====
+  var h = fb;
 
   // 表头
   h += '<div class="cmp-wrap"><div class="cmp-scroll"><table class="cmp-table"><thead><tr><th style="min-width:76px;max-width:88px">产品名称 <span style="color:#c0c5cc">→</span></th>';
