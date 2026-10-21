@@ -421,8 +421,28 @@ textarea.finput{min-height:38px;overflow:hidden}
 .g-thead span:last-child{flex:1;background:#128a4b;border-radius:0 6px 6px 0;padding:4px 8px;font-weight:700}
 .g-tr{display:flex;border-top:1px dashed #dcefe2;padding:10px 12px 8px}
 .g-thead + .g-tr{border-top:none}
-.g-td-name{flex:0 0 96px;font-size:12px;font-weight:800;color:#0d6b3d;line-height:1.5}
-.g-td-val{flex:1;font-size:12px;color:#243b2e;line-height:1.65}
+.g-td-name{flex:0 0 96px;font-size:12px;font-weight:800;color:#0d6b3d;line-height:1.5;padding-right:8px}
+.g-td-val{flex:1;font-size:12px;color:#243b2e;line-height:1.65;border-left:1px solid #dcefe2;padding-left:10px}
+.g-tr-stack{flex-wrap:wrap}
+.g-tr-stack .g-td-name{flex:0 0 100%;margin-bottom:2px}
+.g-tr-stack .g-td-val{border-left:none;padding-left:0}
+/* 保费试算器 */
+.gc-row{display:flex;align-items:center;gap:10px;margin-bottom:9px}
+.gc-k{flex:0 0 52px;font-size:11px;opacity:.85}
+.gc-seg{display:flex;background:rgba(255,255,255,.15);border-radius:18px;padding:2px}
+.gc-gb{border:none;background:transparent;color:#fff;font-size:12px;padding:5px 18px;border-radius:16px;cursor:pointer}
+.gc-gb.on{background:#fff;color:#0b5c33;font-weight:800}
+.gc-sel{flex:1;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);color:#fff;border-radius:8px;padding:6px 8px;font-size:12px;-webkit-appearance:none;appearance:none}
+.gc-sel option{color:#1c2b22}
+.gc-rider{display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,.13);border:1px solid rgba(255,255,255,.28);border-radius:16px;padding:5px 10px;font-size:11px;margin:0 6px 6px 0;cursor:pointer}
+.gc-rider.on{background:#fff;color:#0b5c33;font-weight:700}
+.gc-rider .gc-price{font-size:10px;opacity:.85}
+.gc-total-row{display:flex;justify-content:space-between;align-items:center;background:rgba(255,255,255,.15);border-radius:12px;padding:10px 12px;margin-top:2px}
+.gc-total-k{font-size:11px;opacity:.9}
+.gc-detail{font-size:9.5px;opacity:.75;max-width:210px;line-height:1.5;margin-top:2px}
+.gc-total{font-size:26px;font-weight:800;letter-spacing:.5px;flex:0 0 auto}
+.gc-tip{font-size:9px;opacity:.65;margin-top:8px;line-height:1.5}
+.gc-divider{font-size:12.5px;font-weight:800;margin-bottom:10px;opacity:.95}
 .g-line-sub{color:#4a6b57;font-size:11px;margin-top:2px}
 .g-pct{display:inline-block;background:#e6f6ec;color:#0d8a4f;font-weight:800;border-radius:6px;padding:0 4px;font-size:11.5px}
 .g-red{color:#d64545;font-weight:700}
@@ -2061,7 +2081,8 @@ function renderDetail() {
     if (isResp) inner += '<div class="g-thead"><span>保障责任</span><span>保障内容</span></div>';
     items.forEach(function(fd){
       var lines = gLines(f[fd.key]);
-      inner += '<div class="g-tr"><div class="g-td-name">' + esc(fd.label) + '</div><div class="g-td-val">';
+      var stack = fd.label.length > 7 ? ' g-tr-stack' : '';
+      inner += '<div class="g-tr' + stack + '"><div class="g-td-name">' + esc(fd.label) + '</div><div class="g-td-val">';
       lines.forEach(function(ln, li){
         inner += '<div class="g-line' + (/^[①②③④⑤⑥⑦⑧⑨⑩⑪⑫]/.test(ln.trim()) && li > 0 ? ' g-line-sub' : '') + '">' + gHl(ln) + '</div>';
       });
@@ -2074,13 +2095,11 @@ function renderDetail() {
     h += gCard((g.replace(/^[一二三四五六七八九十]+、/, '') === '其他' ? '其他说明' : g.replace(/^[一二三四五六七八九十]+、/, '')), pill, inner);
   });
 
-  // —— 保费试算（从 rates 解析）——
+  // —— 保费试算（交互式测算器 + 方案一览）——
   if (Array.isArray(p.rates) && p.rates.length) {
-    var age = 30;
-    var cands = p.rates.filter(function(r){ return r.min <= age && age <= r.max; });
-    if (!cands.length) { age = p.rates[0].min; cands = p.rates.filter(function(r){ return r.min <= age && age <= r.max; }); }
-    var byPlan = {}, planOrder = [];
-    cands.forEach(function(r){
+    var ages = [], planOrder = [], byPlan = {};
+    p.rates.forEach(function(r){
+      if (ages.indexOf(r.min) < 0) ages.push(r.min);
       var pl = r.plan || '标准方案';
       if (!byPlan[pl]) { byPlan[pl] = {}; planOrder.push(pl); }
       if (r.gender === '男') byPlan[pl].m = r.premium;
@@ -2092,18 +2111,55 @@ function renderDetail() {
       }
       if (r.note) byPlan[pl].note = r.note;
     });
-    if (planOrder.length) {
-      var planCards = '';
-      planOrder.forEach(function(pl){
-        var b = byPlan[pl];
-        planCards += '<div class="g-prem-card"><div class="g-prem-plan">' + esc(pl) + '</div>' +
-          (b.note ? '<div class="g-prem-note">' + esc(b.note) + '</div>' : '') +
-          '<div class="g-prem-row"><span>👨 男性</span><b>' + (b.m ? '¥' + Number(b.m).toLocaleString('zh-CN') : '—') + '</b></div>' +
-          '<div class="g-prem-row"><span>👩 女性</span><b>' + (b.w ? '¥' + Number(b.w).toLocaleString('zh-CN') : '—') + '</b></div></div>';
-      });
-      var headNote = (byPlan[planOrder[0]].note || '');
-      h += '<div class="g-prem">' +
-        '<div class="g-prem-head">💰 保费试算<span class="g-prem-age">' + esc(headNote) + ' · ' + age + '岁</span></div>' +
+    ages.sort(function(a,b){ return a - b; });
+    function premFor(pl, age, gender) {
+      var hit = p.rates.filter(function(r){ return r.min <= age && age <= r.max && (r.plan || '标准方案') === pl && r.gender === gender; });
+      if (hit.length) return hit[0].premium;
+      var any = p.rates.filter(function(r){ return r.min <= age && age <= r.max && (r.plan || '标准方案') === pl; });
+      if (any.length && !any[0].gender) {
+        var pm2 = String((any[0].note || '') + ' ' + (any[0].premium || '')).match(/男\s*(\d+)\D*?女\s*(\d+)/);
+        if (pm2) return gender === '男' ? +pm2[1] : +pm2[2];
+        return any[0].premium;
+      }
+      return null;
+    }
+    var basePlans = planOrder.filter(function(pl){ return pl.indexOf('+') < 0; });
+    var calcBase = basePlans.indexOf('必选责任') >= 0 ? '必选责任' : basePlans[0];
+    var riders = planOrder.filter(function(pl){ return pl.indexOf('必选+') === 0; }).map(function(pl){
+      return { name: pl.replace(/^必选\+/, ''), plan: pl };
+    });
+    var calcAge = ages.indexOf(30) >= 0 ? 30 : ages[Math.floor(ages.length / 2)];
+    var calc = { g: '男', age: calcAge, plan: calcBase, riders: {} };
+    var headNote = (byPlan[calcBase].note || '');
+
+    var ageOpts = ages.map(function(a){ return '<option value="' + a + '"' + (a === calc.age ? ' selected' : '') + '>' + a + '岁</option>'; }).join('');
+    var planOpts = basePlans.map(function(pl){ return '<option' + (pl === calc.plan ? ' selected' : '') + '>' + esc(pl) + '</option>'; }).join('');
+    var riderChips = riders.map(function(rd, i){
+      return '<span class="gc-rider" id="gc-rider-' + i + '" data-i="' + i + '">' + esc(rd.name) + '<span class="gc-price">…</span></span>';
+    }).join('');
+
+    h += '<div class="g-prem">' +
+      '<div class="g-prem-head">💰 保费试算器<span class="g-prem-age">点选条件 · 实时测算' + (headNote ? ' · ' + esc(headNote) : '') + '</span></div>' +
+      '<div class="gc-row"><span class="gc-k">性别</span><div class="gc-seg"><button type="button" class="gc-gb on" data-g="男">男</button><button type="button" class="gc-gb" data-g="女">女</button></div></div>' +
+      '<div class="gc-row"><span class="gc-k">年龄</span><select id="gc-age" class="gc-sel">' + ageOpts + '</select></div>' +
+      '<div class="gc-row"><span class="gc-k">主方案</span><select id="gc-plan" class="gc-sel">' + planOpts + '</select></div>' +
+      (riders.length ? '<div class="gc-row" style="align-items:flex-start"><span class="gc-k" style="padding-top:7px">附加责任</span><div style="flex:1">' + riderChips + '</div></div>' : '') +
+      '<div class="gc-total-row"><div><div class="gc-total-k">年交保费（估算）</div><div id="gc-detail" class="gc-detail"></div></div><div id="gc-total" class="gc-total">—</div></div>' +
+      '<div class="gc-tip">附加责任价格 = 该组合与「必选责任」的差额估算，多项叠加为近似值，具体以投保页试算为准</div>' +
+      '</div>';
+
+    // 方案保费一览（静态卡）
+    var planCards = '';
+    planOrder.forEach(function(pl){
+      var b = byPlan[pl];
+      planCards += '<div class="g-prem-card"><div class="g-prem-plan">' + esc(pl) + '</div>' +
+        (b.note ? '<div class="g-prem-note">' + esc(b.note) + '</div>' : '') +
+        '<div class="g-prem-row"><span>👨 男性</span><b>' + (b.m ? '¥' + Number(b.m).toLocaleString('zh-CN') : '—') + '</b></div>' +
+        '<div class="g-prem-row"><span>👩 女性</span><b>' + (b.w ? '¥' + Number(b.w).toLocaleString('zh-CN') : '—') + '</b></div></div>';
+    });
+    if (planCards) {
+      h += '<div class="g-prem" style="padding-top:12px">' +
+        '<div class="gc-divider">📋 各方案保费一览（' + calc.age + '岁）</div>' +
         '<div class="g-prem-grid">' + planCards + '</div></div>';
     }
   }
@@ -2115,14 +2171,14 @@ function renderDetail() {
     h += gCard('产品亮点', '', '<div class="g-hl-wrap">' + hlRows + '</div>');
   }
 
-  // —— 温老师怎么看 ——
+  // —— 实战点评（网络专业点评汇总）——
   if (Array.isArray(f.insights) && f.insights.length) {
     var inCards = '';
     f.insights.forEach(function(it){
       inCards += '<div class="g-ins"><div class="g-ins-side"><span class="g-ins-ch">' + esc((it.t || '评').charAt(0)) + '</span></div>' +
         '<div><div class="g-ins-title">' + esc(it.title || '') + '</div><div class="g-ins-desc">' + gHl(it.desc || '') + '</div></div></div>';
     });
-    h += gCard('温老师怎么看', '实战点评', '<div class="g-ins-grid">' + inCards + '</div>');
+    h += gCard('实战点评', '优势与特点', '<div class="g-ins-grid">' + inCards + '</div>');
   }
 
   // —— 健康告知（可折叠，融入绿色系）——
@@ -2158,6 +2214,48 @@ function renderDetail() {
   '</div>';
 
   box.innerHTML = h;
+
+  // —— 保费试算器交互 ——
+  if (Array.isArray(p.rates) && p.rates.length && document.getElementById('gc-total')) {
+    function gcUpdate() {
+      var base = premFor(calc.plan, calc.age, calc.g);
+      var total = base || 0, parts = [];
+      var canRide = (calc.plan === calcBase);
+      riders.forEach(function(rd, i){
+        var el = document.getElementById('gc-rider-' + i);
+        if (!el) return;
+        var rp = premFor(rd.plan, calc.age, calc.g);
+        var bp = premFor(calcBase, calc.age, calc.g);
+        var delta = (rp != null && bp != null) ? rp - bp : null;
+        var pr = el.querySelector('.gc-price');
+        if (pr) pr.innerText = delta != null ? '+' + delta.toLocaleString('zh-CN') : '暂无费率';
+        el.style.opacity = (canRide && delta != null) ? '' : '.45';
+        if (calc.riders[i] && canRide && delta != null) { total += delta; parts.push('+' + delta.toLocaleString('zh-CN')); }
+      });
+      document.getElementById('gc-total').innerText = base != null ? '¥' + total.toLocaleString('zh-CN') : '—';
+      document.getElementById('gc-detail').innerText =
+        (calc.g === '男' ? '男性' : '女性') + ' · ' + calc.age + '岁 · ' + calc.plan + (parts.length ? '（附加' + parts.join(' + ') + '）' : '');
+    }
+    Array.prototype.forEach.call(document.querySelectorAll('.gc-gb'), function(btn){
+      btn.addEventListener('click', function(){
+        Array.prototype.forEach.call(document.querySelectorAll('.gc-gb'), function(x){ x.classList.remove('on'); });
+        btn.classList.add('on');
+        calc.g = btn.getAttribute('data-g');
+        gcUpdate();
+      });
+    });
+    document.getElementById('gc-age').addEventListener('change', function(){ calc.age = +this.value; gcUpdate(); });
+    document.getElementById('gc-plan').addEventListener('change', function(){ calc.plan = this.value; gcUpdate(); });
+    Array.prototype.forEach.call(document.querySelectorAll('.gc-rider'), function(chip){
+      chip.addEventListener('click', function(){
+        var i = chip.getAttribute('data-i');
+        calc.riders[i] = !calc.riders[i];
+        chip.classList.toggle('on', !!calc.riders[i]);
+        gcUpdate();
+      });
+    });
+    gcUpdate();
+  }
 
   document.getElementById('btn-edit-current').addEventListener('click', function(){
     state.editingId = p.id;
@@ -3296,7 +3394,7 @@ function openSettings() {
         '</div>' +
         '<div style="margin-top:12px;font-size:13px;color:#8a919b">' +
           '产品数：<b style="color:#202124">' + appData.products.length + '</b>　已填字段：<b style="color:#202124">' + totalFields + '</b>' +
-          '<br>版本：v3.9.3' +
+          '<br>版本：v3.9.4' +
         '</div>' +
       '</div>' +
       '<div style="padding:16px">' +
