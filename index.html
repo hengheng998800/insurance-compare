@@ -1657,6 +1657,8 @@ function renderList() {
     function __lineOf(p){
       if (p.line) return p.line;
       var n = String(p.name||'').replace(/（[^）]*）/g,'').replace(/\([^)]*\)/g,'');
+      var di = n.indexOf('·');
+      if (di > 0) return n.slice(0, di);   // 带·的名字按品牌姓归堆（如 众民保·xxx → 众民保）
       var m = n.match(/^([^\s·]+?)[\s·]*(?:20\d{2}|PLUS|plus|\d+号|版).*$/);
       return (m ? m[1] : n).replace(/[·\s]+$/,'') || p.name;
     }
@@ -3570,7 +3572,7 @@ function openSettings() {
         '</div>' +
         '<div style="margin-top:12px;font-size:13px;color:#8a919b">' +
           '产品数：<b style="color:#202124">' + appData.products.length + '</b>　已填字段：<b style="color:#202124">' + totalFields + '</b>' +
-          '<br>版本：v3.9.19' +
+          '<br>版本：v3.9.19b' +
         '</div>' +
       '</div>' +
       '<div style="padding:16px">' +
