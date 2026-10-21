@@ -410,7 +410,7 @@ textarea.finput{min-height:38px;overflow:hidden}
 <div class="toast" id="toast"></div>
 <script>
 /* ============================================================
-   保险对比工具 v2.9.1
+   保险对比工具 v2.9.2
    纯本地 PWA：IndexedDB 主存储 + localStorage 兜底，数据不出手机
    ============================================================ */
 
@@ -2015,32 +2015,83 @@ function bindSelPills(box) {
 function initFreezeFix(scroller) {
   if (!scroller || scroller._freezeInit) return;
   scroller._freezeInit = true;
-  scroller._freezeMode = '';
-  scroller.addEventListener('scroll', function(){
+  scroller._freezeMode = 'auto';
+  scroller._jsTouched = false;
+
+  // 进入 JS 补偿模式：先把 sticky 降级为 static（每个表头只做一次）
+  function enterJs(table) {
+    if (scroller._jsTouched) return;
+    scroller._jsTouched = true;
+    scroller._freezeMode = 'js';
+    var all = table.querySelectorAll('thead th, tbody th');
+    for (var i = 0; i < all.length; i++) {
+      all[i].style.position = 'static';
+    }
+  }
+
+  function paint() {
+    if (scroller._jsTouched) {
+      // 表格被重新渲染过（表头数量变化）→ 重新标记
+      var t2 = scroller.querySelector('.cmp-table');
+      if (t2 && t2.querySelectorAll('thead th').length !== scroller._thCount) {
+        scroller._jsTouched = false;
+        enterJs(t2);
+      }
+    }
     var sl = scroller.scrollLeft, st = scroller.scrollTop;
     var table = scroller.querySelector('.cmp-table');
     if (!table) return;
-    if (!scroller._freezeMode) {
-      if (sl < 6 && st < 6) return;
-      var corner = table.querySelector('thead th:first-child');
-      if (corner) {
-        var c = corner.getBoundingClientRect(), b = scroller.getBoundingClientRect();
-        scroller._freezeMode = (Math.abs(c.left - b.left) < 3 && Math.abs(c.top - b.top) < 3) ? 'native' : 'js';
-      } else {
-        scroller._freezeMode = 'native';
+    if (scroller._freezeMode === 'js') {
+      var ths = table.querySelectorAll('thead th');
+      var rths = table.querySelectorAll('tbody th');
+      for (var i = 0; i < ths.length; i++) {
+        ths[i].style.transform = (i === 0) ? 'translate(' + sl + 'px,' + st + 'px)' : 'translateY(' + st + 'px)';
       }
-      if (scroller._freezeMode === 'native') return;
+      for (var j = 0; j < rths.length; j++) rths[j].style.transform = 'translateX(' + sl + 'px)';
+      scroller._thCount = ths.length;
+    } else if (sl < 6 && st < 6) {
+      var th3 = table.querySelectorAll('thead th'), r3 = table.querySelectorAll('tbody th');
+      for (var k = 0; k < th3.length; k++) th3[k].style.transform = '';
+      for (var m = 0; m < r3.length; m++) r3[m].style.transform = '';
     }
-    if (scroller._freezeMode !== 'js') return;
-    var ths = table.querySelectorAll('thead th');
-    for (var i = 0; i < ths.length; i++) {
-      ths[i].style.transform = (i === 0) ? 'translate(' + sl + 'px,' + st + 'px)' : 'translateY(' + st + 'px)';
+  }
+
+  // 实测：滚过之后左列/表头是否真的钉住了（iOS 上 sticky 常被 transform 破坏）
+  function verify() {
+    var table = scroller.querySelector('.cmp-table');
+    if (!table) return;
+    var sl = scroller.scrollLeft, st = scroller.scrollTop;
+    var corner = table.querySelector('thead th:first-child');
+    var bodyTh = table.querySelector('tbody tr:not(.group-row) th');
+    if (!corner) return;
+    var cb = corner.getBoundingClientRect(), sb = scroller.getBoundingClientRect();
+    var driftX = sl > 6 ? Math.abs(cb.left - sb.left) : 0;
+    var driftY = st > 6 ? Math.abs(cb.top - sb.top) : 0;
+    var bDriftX = 0;
+    if (bodyTh) {
+      var bb = bodyTh.getBoundingClientRect();
+      bDriftX = sl > 6 ? Math.abs(bb.left - sb.left) : 0;
     }
-    var rths = table.querySelectorAll('tbody th');
-    for (var j = 0; j < rths.length; j++) {
-      rths[j].style.transform = 'translateX(' + sl + 'px)';
+    if (scroller._freezeMode !== 'js' && (driftX > 4 || driftY > 4 || bDriftX > 4)) {
+      enterJs(table);
+      paint();
     }
+  }
+
+  var raf = 0;
+  scroller.addEventListener('scroll', function(){
+    if (raf) return;
+    raf = requestAnimationFrame(function(){
+      raf = 0;
+      if (scroller._freezeMode === 'js') paint();
+      verify();
+    });
   }, { passive: true });
+
+  scroller.addEventListener('touchend', function(){
+    setTimeout(function(){ if (scroller._freezeMode === 'js') paint(); verify(); }, 150);
+  }, { passive: true });
+  scroller._freezePaint = paint;
 }
 
 /* 对比视图内直接编辑：点单元格弹出底部编辑框，保存后同步回产品数据 */
