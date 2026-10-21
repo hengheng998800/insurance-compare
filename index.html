@@ -3530,6 +3530,7 @@ function openSettings() {
       '<div style="padding:12px 16px 0">' +
         '<button class="btn btn-primary" id="st-export" style="width:100%;margin-bottom:9px">📤 导出数据（先备份一份）</button>' +
         '<button class="btn btn-primary" id="st-import" style="width:100%;margin-bottom:9px;background:linear-gradient(135deg,#22a06b,#137333)">📥 导入并合并备份（选 JSON 文件）</button>' +
+        '<button class="btn" id="st-replace" style="width:100%;margin-bottom:9px;background:#fff3f0;color:#c5221f;border:1.5px solid #f3c1b8">🔄 导入并替换（清掉本机产品库后导入）</button>' +
       '</div>' +
       '<div style="padding:10px 16px 0">' +
         '<div style="background:#f5f7ff;border-radius:10px;padding:13px 14px;font-size:13px;color:#5f6368;line-height:1.7">' +
@@ -3538,7 +3539,7 @@ function openSettings() {
         '</div>' +
         '<div style="margin-top:12px;font-size:13px;color:#8a919b">' +
           '产品数：<b style="color:#202124">' + appData.products.length + '</b>　已填字段：<b style="color:#202124">' + totalFields + '</b>' +
-          '<br>版本：v3.9.14' +
+          '<br>版本：v3.9.15' +
         '</div>' +
       '</div>' +
       '<div style="padding:16px">' +
@@ -3560,7 +3561,13 @@ function openSettings() {
     exportData();
   });
 
+  var __importMode = 'merge';
   m.querySelector('#st-import').addEventListener('click', function(){
+    __importMode = 'merge';
+    m.querySelector('#st-file').click();
+  });
+  m.querySelector('#st-replace').addEventListener('click', function(){
+    __importMode = 'replace';
     m.querySelector('#st-file').click();
   });
   m.querySelector('#st-file').addEventListener('change', function(){
@@ -3577,6 +3584,17 @@ function openSettings() {
         return;
       }
       if (!d || !Array.isArray(d.products)) { toast('文件格式不对'); return; }
+
+      if (__importMode === 'replace') {
+        if (!confirm('替换模式：\n\n本机现有 ' + appData.products.length + ' 个产品将被全部清除，替换为备份里的 ' + d.products.length + ' 个产品。\n\n本机数据不会保留，确定替换吗？')) return;
+        appData.products = d.products.slice();
+        if (d.weights) appData.weights = JSON.parse(JSON.stringify(d.weights));
+        saveData(appData);
+        m.classList.remove('show');
+        renderAll();
+        toast('已替换：现有 ' + appData.products.length + ' 个产品');
+        return;
+      }
 
       // 合并预览：按 id 判断新增 / 更新 / 保持不变
       var cur = {};
