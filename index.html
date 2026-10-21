@@ -328,6 +328,30 @@ textarea.finput{min-height:38px;overflow:hidden}
 .detail-badges{display:flex;gap:6px;margin-top:9px;flex-wrap:wrap}
 .detail-sec{background:#fff;border-radius:12px;margin:10px 12px;overflow:hidden}
 .detail-sec-t{font-size:12px;font-weight:600;color:#8a919b;padding:11px 14px 8px;letter-spacing:.4px;background:#fafbfc;border-bottom:1px solid #f0f1f4}
+/* ===== 海报式详情页（v3.0）：白纸画布 + 大标题横幅 + 彩色分支 + 重点标红 ===== */
+.poster{margin:10px;border-radius:16px;background:#fff;border:1px solid #c2ccd9;box-shadow:0 2px 10px rgba(30,40,60,.12);overflow:hidden}
+.poster-hero{background:linear-gradient(135deg,#4a6cf7 0%,#3b5bdb 55%,#364fc7 100%);color:#fff;padding:24px 16px 18px;text-align:center}
+.poster-ribbon{display:inline-block;background:repeating-linear-gradient(45deg,rgba(255,255,255,.15) 0 8px,rgba(255,255,255,0) 8px 16px);border:1px dashed rgba(255,255,255,.5);border-radius:6px;font-size:10.5px;letter-spacing:3px;padding:2px 10px;margin-bottom:8px;opacity:.85}
+.poster-title{font-size:23px;font-weight:800;letter-spacing:1px;text-shadow:0 2px 6px rgba(0,0,0,.28);word-break:break-all}
+.poster-co{display:inline-block;margin-top:9px;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.5);border-radius:14px;padding:2px 13px;font-size:12px;font-weight:600}
+.poster-badges{margin-top:10px}
+.poster-badges .pcard-badge{box-shadow:0 1px 4px rgba(0,0,0,.15)}
+.poster-slogan{margin-top:10px;background:rgba(255,255,255,.14);border-radius:8px;padding:6px 10px;font-size:11.5px;line-height:1.5}
+.poster-body{padding:16px 10px 8px}
+.mp-sec{display:flex;gap:9px;margin-bottom:18px}
+.mp-gtag{min-width:44px;max-width:56px;flex-shrink:0;border-radius:8px;color:#fff;font-weight:700;font-size:12px;padding:11px 6px;text-align:center;writing-mode:vertical-rl;letter-spacing:2px;height:fit-content;box-shadow:0 2px 6px rgba(0,0,0,.18)}
+.mp-items{flex:1;min-width:0;position:relative;padding:2px 0 2px 13px;border-left:2.5px solid;border-radius:1px}
+.mp-item{position:relative;margin-bottom:11px}
+.mp-item:last-child{margin-bottom:2px}
+.mp-item::before{content:'';position:absolute;left:-13px;top:15px;width:11px;height:2.5px;border-radius:2px;background:currentColor;opacity:.55}
+.mp-item:last-child::after{content:'';position:absolute;left:-13px;top:17.5px;bottom:-6px;width:2.5px;background:#fff}
+.mp-tag{display:inline-block;font-size:11.5px;font-weight:700;padding:4px 10px;border-radius:7px;line-height:1.3;box-shadow:0 1px 2px rgba(0,0,0,.06)}
+.mp-val{font-size:12.5px;line-height:1.65;margin-top:3px;word-break:break-word}
+.mp-main{font-weight:600;color:#1f2329}
+.mp-line{padding:1.5px 0;color:#6b7280}
+.mp-red{color:#d93025;font-weight:600}
+.mp-foot{background:#364fc7;color:#fff;text-align:center;font-size:11.5px;padding:10px 14px;line-height:1.7;letter-spacing:.5px}
+
 /* ===== 详情页思维导图式呈现 ===== */
 .mind-wrap{padding:12px 10px 4px}
 .mind-sec{display:flex;gap:10px;margin-bottom:14px}
@@ -1643,16 +1667,26 @@ function renderDetail() {
   var f = p.fields || {};
 
   var sc = calcScore(p);
-  var h = '<div class="detail-hero">' +
-    '<div class="detail-name">' + esc(p.name) + '</div>' +
-    (f.company ? '<div class="detail-co">' + esc(f.company) + '</div>' : '') +
-    '<div class="detail-badges">' +
-      '<span class="pcard-badge ' + t.cls + '">' + t.icon + ' ' + t.name + '</span>' +
-      (sc !== null ? '<span class="pcard-badge" style="background:#e8f0fe;color:#1a73e8">综合分 ' + sc.toFixed(1) + '</span>' : '') +
-    '</div>' +
-  '</div>';
 
-  // 按组显示已填字段
+  // ===== 海报式呈现 =====
+  var slogan = '';
+  var noteTxt = valueToText(f.note || '');
+  if (noteTxt) { var nl = noteTxt.split('\n')[0]; if (nl.length <= 42) slogan = nl; }
+
+  var h = '<div class="poster">' +
+    '<div class="poster-hero">' +
+      '<div class="poster-ribbon">产品全景图</div>' +
+      '<div class="poster-title">' + esc(p.name) + '</div>' +
+      (f.company ? '<div class="poster-co">' + esc(f.company) + '</div>' : '') +
+      (slogan ? '<div class="poster-slogan">💡 ' + esc(slogan) + '</div>' : '') +
+      '<div class="poster-badges">' +
+        '<span class="pcard-badge ' + t.cls + '">' + t.icon + ' ' + t.name + '</span>' +
+        (p.tier ? '<span class="pcard-badge" style="background:#ffe9c8;color:#b25e00">' + esc(p.tier) + '</span>' : '') +
+        (sc !== null ? '<span class="pcard-badge" style="background:#ffd7d7;color:#c5221f">综合分 ' + sc.toFixed(0) + '</span>' : '') +
+      '</div>' +
+    '</div>' +
+    '<div class="poster-body">';
+
   var groups = [], gmap = {};
   fields.forEach(function(fd){
     var g = fd.group || '其他';
@@ -1660,13 +1694,12 @@ function renderDetail() {
     gmap[g].push(fd);
   });
 
-  // ===== 思维导图式呈现：左侧彩色分组标签 + 树状连线 + 字段胶囊 =====
   var G_COLORS = [
-    { c:'#e8710a', bg:'#fff3e0' },  // 橙：投保规则
-    { c:'#2f6fed', bg:'#e8f0fe' },  // 蓝：必选/核心责任
-    { c:'#8430ce', bg:'#f3e8fd' },  // 紫：可选责任
-    { c:'#137333', bg:'#e6f4ea' },  // 绿：收益/领取
-    { c:'#5f6368', bg:'#f1f3f6' }   // 灰：其他
+    { c:'#e8710a', bg:'#fff3e0' },
+    { c:'#2f6fed', bg:'#e8f0fe' },
+    { c:'#8430ce', bg:'#f3e8fd' },
+    { c:'#137333', bg:'#e6f4ea' },
+    { c:'#5f6368', bg:'#f1f3f6' }
   ];
   function gcolor(g) {
     if (/投保规则|投保/.test(g)) return G_COLORS[0];
@@ -1676,25 +1709,41 @@ function renderDetail() {
     return G_COLORS[4];
   }
 
+  function mpValue(v) {
+    var lines = Array.isArray(v) ? v.filter(function(x){ return x !== ''; })
+                                 : valueToText(v).split('\n');
+    if (!lines.length) return '';
+    var out = '<div class="mp-main">' + esc(lines[0]) + '</div>';
+    for (var i = 1; i < lines.length; i++) {
+      var red = /除外|不赔|不予|需要注意|注意|间隔|额外赔|额外|岁前|写入合同|不冲突|仅限|不超过|限额|限赔|视同|而身故/.test(lines[i]);
+      out += '<div class="mp-line' + (red ? ' mp-red' : '') + '">' + (red ? '❗ ' : '') + esc(lines[i]) + '</div>';
+    }
+    return out;
+  }
+
   groups.forEach(function(g){
     var rows = '';
     gmap[g].forEach(function(fd){
       var v = f[fd.key];
       if (valueEmpty(v)) return;
-      rows += '<div class="mind-item">' +
-        '<div class="mind-label">' + esc(fd.label) + '</div>' +
-        '<div class="mind-body">' + renderValueHTML(v) + '</div>' +
+      if (fd.key === 'note' && slogan) return;
+      var gc = gcolor(g);
+      rows += '<div class="mp-item" style="color:' + gc.c + '">' +
+        '<div class="mp-tag" style="color:' + gc.c + ';background:' + gc.bg + '">' + esc(fd.label) + '</div>' +
+        '<div class="mp-val">' + mpValue(v) + '</div>' +
       '</div>';
     });
     if (!rows) return;
     var gc = gcolor(g);
-    h += '<div class="mind-sec">' +
-      '<div class="mind-gtag" style="color:' + gc.c + ';background:' + gc.bg + '">' + esc(g.replace(/^[一二三四五六七八九十]+、/, '')) + '</div>' +
-      '<div class="mind-items" style="border-left-color:' + gc.bg + '">' +
-        '<div class="mind-rail" style="background:' + gc.bg + '"></div>' + rows +
-      '</div>' +
+    h += '<div class="mp-sec">' +
+      '<div class="mp-gtag" style="background:' + gc.c + '">' + esc(g.replace(/^[一二三四五六七八九十]+、/, '')) + '</div>' +
+      '<div class="mp-items" style="border-left-color:' + gc.bg + '">' + rows + '</div>' +
     '</div>';
   });
+
+  h += '</div>' +
+    '<div class="mp-foot">以上为产品责任简述，具体以保险合同 &amp; 条款为准<br>保障看得见，选择不迷路 ✦</div>' +
+  '</div>';
 
   // 未填字段提示
   var filled = Object.keys(f).length;
