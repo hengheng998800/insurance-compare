@@ -2145,23 +2145,8 @@ function renderDetail() {
       '<div class="gc-row"><span class="gc-k">主方案</span><select id="gc-plan" class="gc-sel">' + planOpts + '</select></div>' +
       (riders.length ? '<div class="gc-row" style="align-items:flex-start"><span class="gc-k" style="padding-top:7px">附加责任</span><div style="flex:1">' + riderChips + '</div></div>' : '') +
       '<div class="gc-total-row"><div><div class="gc-total-k">年交保费（估算）</div><div id="gc-detail" class="gc-detail"></div></div><div id="gc-total" class="gc-total">—</div></div>' +
-      '<div class="gc-tip">附加责任价格 = 该组合与「必选责任」的差额估算，多项叠加为近似值，具体以投保页试算为准</div>' +
+      '<div class="gc-tip">附加责任价格 = 该组合与「必选责任」的差额按保额比例换算，多项可叠加，具体以投保页试算为准</div>' +
       '</div>';
-
-    // 方案保费一览（静态卡）
-    var planCards = '';
-    planOrder.forEach(function(pl){
-      var b = byPlan[pl];
-      planCards += '<div class="g-prem-card"><div class="g-prem-plan">' + esc(pl) + '</div>' +
-        (b.note ? '<div class="g-prem-note">' + esc(b.note) + '</div>' : '') +
-        '<div class="g-prem-row"><span>👨 男性</span><b>' + (b.m ? '¥' + Number(b.m).toLocaleString('zh-CN') : '—') + '</b></div>' +
-        '<div class="g-prem-row"><span>👩 女性</span><b>' + (b.w ? '¥' + Number(b.w).toLocaleString('zh-CN') : '—') + '</b></div></div>';
-    });
-    if (planCards) {
-      h += '<div class="g-prem" style="padding-top:12px">' +
-        '<div class="gc-divider">📋 各方案保费一览（' + calc.age + '岁）</div>' +
-        '<div class="g-prem-grid">' + planCards + '</div></div>';
-    }
   }
 
   // —— 产品亮点（总体备注）——
@@ -2219,18 +2204,22 @@ function renderDetail() {
   if (Array.isArray(p.rates) && p.rates.length && document.getElementById('gc-total')) {
     function gcUpdate() {
       var base = premFor(calc.plan, calc.age, calc.g);
+      // 附加差额按主方案保额比例换算（差额基准：必选责任组 30万）
+      var sumM = String(calc.plan).match(/(\d+(?:\.\d+)?)\s*万/);
+      var noteM = String(headNote).match(/(\d+(?:\.\d+)?)\s*万/);
+      var baseSum = sumM ? +sumM[1] : (noteM ? +noteM[1] : 30);
+      var scale = baseSum / 30;
       var total = base || 0, parts = [];
-      var canRide = (calc.plan === calcBase);
       riders.forEach(function(rd, i){
         var el = document.getElementById('gc-rider-' + i);
         if (!el) return;
         var rp = premFor(rd.plan, calc.age, calc.g);
         var bp = premFor(calcBase, calc.age, calc.g);
-        var delta = (rp != null && bp != null) ? rp - bp : null;
+        var delta = (rp != null && bp != null) ? Math.round((rp - bp) * scale) : null;
         var pr = el.querySelector('.gc-price');
         if (pr) pr.innerText = delta != null ? '+' + delta.toLocaleString('zh-CN') : '暂无费率';
-        el.style.opacity = (canRide && delta != null) ? '' : '.45';
-        if (calc.riders[i] && canRide && delta != null) { total += delta; parts.push('+' + delta.toLocaleString('zh-CN')); }
+        el.style.opacity = delta != null ? '' : '.45';
+        if (calc.riders[i] && delta != null) { total += delta; parts.push('+' + delta.toLocaleString('zh-CN')); }
       });
       document.getElementById('gc-total').innerText = base != null ? '¥' + total.toLocaleString('zh-CN') : '—';
       document.getElementById('gc-detail').innerText =
@@ -3394,7 +3383,7 @@ function openSettings() {
         '</div>' +
         '<div style="margin-top:12px;font-size:13px;color:#8a919b">' +
           '产品数：<b style="color:#202124">' + appData.products.length + '</b>　已填字段：<b style="color:#202124">' + totalFields + '</b>' +
-          '<br>版本：v3.9.4' +
+          '<br>版本：v3.9.5' +
         '</div>' +
       '</div>' +
       '<div style="padding:16px">' +
