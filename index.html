@@ -419,6 +419,60 @@ textarea.finput{min-height:38px;overflow:hidden}
 
 /* 隐藏 */
 .hide{display:none!important}
+
+/* ===== 家庭方案（v3.8）===== */
+.fam-hero{margin:12px 12px 14px;padding:18px 18px 16px;border-radius:18px;background:linear-gradient(135deg,#1e3a8a,#2563eb 55%,#3b82f6);color:#fff;position:relative;overflow:hidden;box-shadow:0 8px 22px rgba(30,58,138,.30)}
+.fam-hero::after{content:'';position:absolute;right:-34px;top:-34px;width:130px;height:130px;border-radius:50%;background:rgba(255,255,255,.09)}
+.fam-hero::before{content:'';position:absolute;right:22px;bottom:-44px;width:90px;height:90px;border-radius:50%;background:rgba(255,255,255,.07)}
+.fam-hero .fh-label{font-size:11.5px;letter-spacing:2px;opacity:.82;font-weight:600}
+.fam-hero .fh-total{font-size:34px;font-weight:800;margin-top:4px;letter-spacing:.5px;text-shadow:0 2px 6px rgba(0,0,0,.18)}
+.fam-hero .fh-total em{font-style:normal;font-size:14px;font-weight:600;opacity:.85;margin-left:3px}
+.fam-hero .fh-sub{display:flex;gap:8px;margin-top:11px;flex-wrap:wrap}
+.fam-hero .fh-chip{font-size:11px;padding:4px 11px;border-radius:999px;background:rgba(255,255,255,.16);backdrop-filter:blur(3px);font-weight:500}
+.fam-head{display:flex;align-items:center;justify-content:space-between;margin:0 16px 10px}
+.fam-head .ft{font-size:13px;font-weight:800;color:#1f2a44;letter-spacing:1px}
+.fam-edit-btn{font-size:11.5px;font-weight:700;color:#2563eb;background:#e8effd;border:1px solid #c6d8fa;border-radius:999px;padding:5px 13px;cursor:pointer}
+.fam-edit-btn.on{background:#2563eb;color:#fff;border-color:#2563eb}
+.fam-member{margin:0 12px 13px;border-radius:16px;overflow:hidden;box-shadow:0 2px 9px rgba(30,45,80,.10);border:1px solid rgba(30,45,80,.06)}
+.fam-m-head{display:flex;align-items:center;gap:10px;padding:11px 13px;position:relative}
+.fam-avatar{width:37px;height:37px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:19px;flex-shrink:0;color:#fff;box-shadow:0 2px 6px rgba(30,45,80,.20)}
+.fam-m-info{flex:1;min-width:0}
+.fam-m-name{font-size:15.5px;font-weight:800;color:#1f2a44}
+.fam-m-meta{font-size:11px;color:#7a8698;margin-top:1px}
+.fam-m-sum{text-align:right;flex-shrink:0}
+.fam-m-sum .v{font-size:16.5px;font-weight:800;color:#c0392b}
+.fam-m-sum .v em{font-style:normal;font-size:10.5px;font-weight:600;color:#d0705f}
+.fam-m-sum .l{font-size:9.5px;color:#9aa4b2;margin-top:0}
+.fam-m-body{background:rgba(255,255,255,.62);padding:9px 11px 11px;position:relative}
+.fam-m-body::before{content:'';position:absolute;left:22px;top:0;bottom:11px;width:2px;border-radius:2px;opacity:.5}
+.fam-item{display:flex;align-items:center;gap:8px;background:#fff;border-radius:11px;padding:8px 11px;margin:0 0 7px 16px;box-shadow:0 1px 3.5px rgba(30,45,80,.08);position:relative}
+.fam-item::before{content:'';position:absolute;left:-16px;top:50%;width:13px;height:2px;border-radius:2px;opacity:.5}
+.fam-tag{flex-shrink:0;font-size:10px;font-weight:800;color:#fff;border-radius:7px;padding:3.5px 8px;letter-spacing:.5px}
+.fam-i-main{flex:1;min-width:0}
+.fam-i-name{font-size:12.5px;font-weight:700;color:#26324a;line-height:1.35}
+.fam-i-note{font-size:10.5px;color:#8a94a6;margin-top:1px;line-height:1.4}
+.fam-i-pre{flex-shrink:0;font-size:14px;font-weight:800;color:#c0392b}
+.fam-i-pre em{font-style:normal;font-size:9.5px;font-weight:600;color:#d0705f}
+.fam-del{flex-shrink:0;width:22px;height:22px;border-radius:50%;background:#fee2e2;color:#dc2626;font-size:13px;line-height:22px;text-align:center;cursor:pointer;font-weight:700}
+.fam-m-del,.fam-add-item{flex-shrink:0;font-size:10.5px;font-weight:700;border-radius:999px;padding:4px 10px;cursor:pointer}
+.fam-m-del{background:#fee2e2;color:#dc2626}
+.fam-add-item{background:#e8effd;color:#2563eb}
+.fam-add-member{display:block;margin:4px 12px 20px;width:calc(100% - 24px);padding:13px;border-radius:14px;border:1.6px dashed #9db8e8;background:#f4f8ff;color:#2563eb;font-size:13.5px;font-weight:700;cursor:pointer}
+.fam-empty{margin:26px 24px;text-align:center;color:#8a94a6;font-size:13px;line-height:1.9}
+.fam-empty .big{font-size:40px;margin-bottom:6px}
+.fm-input{width:100%;box-sizing:border-box;padding:10px 12px;border:1px solid #dfe5ee;border-radius:11px;font-size:14px;background:#f7f9fc;margin-bottom:10px;-webkit-appearance:none;appearance:none}
+.fm-input:focus{outline:none;border-color:#2f6fed;background:#fff;box-shadow:0 0 0 3px rgba(47,111,237,.10)}
+.fm-label{font-size:12px;font-weight:700;color:#5a6578;margin:4px 0 6px}
+.fm-row{display:flex;gap:9px}
+.fm-row .fm-input{flex:1;min-width:0}
+.fm-btn{width:100%;padding:12px;border:none;border-radius:12px;font-size:14.5px;font-weight:800;color:#fff;background:linear-gradient(135deg,#3b82f6,#2563eb);cursor:pointer;box-shadow:0 3px 9px rgba(37,99,235,.30)}
+/* 成员六色 */
+.fam-c0{background:linear-gradient(135deg,#dbeafe,#eff6ff)} .fam-c0 .fam-m-body::before,.fam-c0 .fam-item::before{background:#3b82f6} .fam-c0 .fam-avatar{background:linear-gradient(135deg,#60a5fa,#2563eb)}
+.fam-c1{background:linear-gradient(135deg,#fef3c7,#fffbeb)} .fam-c1 .fam-m-body::before,.fam-c1 .fam-item::before{background:#f59e0b} .fam-c1 .fam-avatar{background:linear-gradient(135deg,#fbbf24,#d97706)}
+.fam-c2{background:linear-gradient(135deg,#dcfce7,#f0fdf4)} .fam-c2 .fam-m-body::before,.fam-c2 .fam-item::before{background:#22c55e} .fam-c2 .fam-avatar{background:linear-gradient(135deg,#4ade80,#16a34a)}
+.fam-c3{background:linear-gradient(135deg,#fce7f3,#fdf2f8)} .fam-c3 .fam-m-body::before,.fam-c3 .fam-item::before{background:#ec4899} .fam-c3 .fam-avatar{background:linear-gradient(135deg,#f472b6,#db2777)}
+.fam-c4{background:linear-gradient(135deg,#ede9fe,#f5f3ff)} .fam-c4 .fam-m-body::before,.fam-c4 .fam-item::before{background:#8b5cf6} .fam-c4 .fam-avatar{background:linear-gradient(135deg,#a78bfa,#7c3aed)}
+.fam-c5{background:linear-gradient(135deg,#ffedd5,#fff7ed)} .fam-c5 .fam-m-body::before,.fam-c5 .fam-item::before{background:#f97316} .fam-c5 .fam-avatar{background:linear-gradient(135deg,#fb923c,#ea580c)}
 </style>
 </head>
 <body>
@@ -454,6 +508,8 @@ textarea.finput{min-height:38px;overflow:hidden}
     <div class="page" id="page-duo"></div>
     <!-- 打分排序 -->
     <div class="page" id="page-score"></div>
+    <!-- 家庭方案 -->
+    <div class="page" id="page-fam"></div>
     <!-- 添加/编辑 -->
     <div class="page" id="page-edit"></div>
     <!-- 详情 -->
@@ -476,6 +532,10 @@ textarea.finput{min-height:38px;overflow:hidden}
     <div class="nav-item" data-page="score">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
       <span>打分排序</span>
+    </div>
+    <div class="nav-item" data-page="fam">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5L12 3l9 7.5"></path><path d="M5 9.5V21h14V9.5"></path><circle cx="9" cy="13" r="1.6"></circle><circle cx="15" cy="13" r="1.6"></circle><path d="M7.5 18c.6-1.6 2-2.4 4.5-2.4s3.9.8 4.5 2.4"></path></svg>
+      <span>家庭方案</span>
     </div>
   </div>
 </div>
@@ -1036,6 +1096,7 @@ function getDefaultData() {
     version: 1,
     products: [],     // [{id, type, name, fields:{...}, createdAt, updatedAt}]
     weights: {},      // 打分权重 { 'cz.price': 3, ... }
+    family: { members: [] }, // 家庭方案成员 [{id, name, age, note, items:[{id,type,prodName,prodNote,premium}]}]
     _savedAt: 0
   };
 }
@@ -1046,7 +1107,10 @@ function loadData() {
     var raw = localStorage.getItem(STORAGE_KEY);
     if (raw) {
       var d = JSON.parse(raw);
-      if (d && Array.isArray(d.products)) return d;
+      if (d && Array.isArray(d.products)) {
+        if (!d.family || !Array.isArray(d.family.members)) d.family = { members: [] };
+        return d;
+      }
     }
   } catch(e) {}
   return getDefaultData();
@@ -1198,7 +1262,7 @@ function switchPage(page) {
   document.getElementById('bottom-nav').style.display = isSub ? 'none' : 'flex';
   document.getElementById('btn-back').style.display = isSub ? 'flex' : 'none';
 
-  var titles = { list:'保险对比', table:'对比表', duo:'两两对比', score:'打分排序', edit:'填写条款', detail:'产品详情' };
+  var titles = { list:'保险对比', table:'对比表', duo:'两两对比', score:'打分排序', fam:'家庭方案', edit:'填写条款', detail:'产品详情' };
   document.getElementById('page-title').textContent = titles[page] || '保险对比';
 
   document.getElementById('pages').scrollTop = 0;
@@ -1207,6 +1271,7 @@ function switchPage(page) {
   if (page === 'table') renderTable();
   if (page === 'duo') renderDuo();
   if (page === 'score') renderScore();
+  if (page === 'fam') renderFam();
   if (page === 'detail') renderDetail();
   if (page === 'edit') renderEdit();
 }
@@ -2708,6 +2773,194 @@ function renderScore() {
   });
 }
 
+
+/* ============================================================
+   家庭方案（v3.8）
+   ============================================================ */
+var FAM_ICONS = { '爸爸':'👨','妈妈':'👩','老公':'🤵','老婆':'👰','自己':'🧑','儿子':'👦','女儿':'👧','爷爷':'👴','奶奶':'👵','外公':'👴','外婆':'👵','宝宝':'👶' };
+var FAM_EDIT = false;
+
+function famUid(){ return 'f' + Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
+function famMembers(){ return (appData.family && appData.family.members) ? appData.family.members : []; }
+function famTagColor(t){ return {cz:'linear-gradient(135deg,#ef5350,#b71c1c)',yl:'linear-gradient(135deg,#3b82f6,#1d4ed8)',yw:'linear-gradient(135deg,#f59f00,#d9480f)',sx:'linear-gradient(135deg,#9163dd,#5e35b1)',nj:'linear-gradient(135deg,#2bb673,#0d8a4f)',qt:'linear-gradient(135deg,#8a94a6,#5c6b84)'}[t] || 'linear-gradient(135deg,#8a94a6,#5c6b84)'; }
+function famFmt(n){ n = Number(n)||0; return n.toLocaleString('zh-CN'); }
+
+function renderFam() {
+  var box = document.getElementById('page-fam');
+  var ms = famMembers();
+  var total = 0, itemCount = 0;
+  ms.forEach(function(m){ (m.items||[]).forEach(function(it){ total += Number(it.premium)||0; itemCount++; }); });
+
+  var h = '';
+  // 总览卡
+  h += '<div class="fam-hero">' +
+    '<div class="fh-label">FAMILY PLAN · 家庭保障方案</div>' +
+    '<div class="fh-total">' + famFmt(total) + '<em>元/年</em></div>' +
+    '<div class="fh-sub">' +
+      '<span class="fh-chip">👨‍👩‍👧‍👦 ' + ms.length + ' 位成员</span>' +
+      '<span class="fh-chip">🧾 ' + itemCount + ' 份保障</span>' +
+      (ms.length ? '<span class="fh-chip">👤 人均 ' + famFmt(Math.round(total/ms.length)) + ' 元/年</span>' : '') +
+    '</div></div>';
+
+  h += '<div class="fam-head"><div class="ft">家庭成员保障明细</div>' +
+    '<span class="fam-edit-btn' + (FAM_EDIT ? ' on' : '') + '" id="fam-edit-toggle">' + (FAM_EDIT ? '✓ 完成管理' : '✏️ 管理方案') + '</span></div>';
+
+  if (!ms.length) {
+    h += '<div class="fam-empty"><div class="big">🏠</div>还没有家庭成员<br>点下面「＋ 添加成员」，为爸爸、妈妈、老公、自己、孩子<br>分别配置保障，模拟全家的年度保费概况</div>' +
+      '<button class="fam-add-member" id="fam-add-member">＋ 添加成员</button>';
+    box.innerHTML = h;
+    var ab = document.getElementById('fam-add-member');
+    if (ab) ab.onclick = function(){ famMemberModal(null); };
+    var tg0 = document.getElementById('fam-edit-toggle');
+    if (tg0) tg0.onclick = function(){ FAM_EDIT = !FAM_EDIT; renderFam(); };
+    return;
+  }
+
+  ms.forEach(function(m, mi){
+    var cls = 'fam-c' + (mi % 6);
+    var sum = 0; (m.items||[]).forEach(function(it){ sum += Number(it.premium)||0; });
+    var icon = FAM_ICONS[(m.name||'').replace(/的$/,'')] || '🧑';
+    h += '<div class="fam-member ' + cls + '">' +
+      '<div class="fam-m-head">' +
+        '<div class="fam-avatar">' + icon + '</div>' +
+        '<div class="fam-m-info"><div class="fam-m-name">' + esc(m.name || '成员') + '</div>' +
+          '<div class="fam-m-meta">' + (m.age ? m.age + '岁' : '') + (m.note ? ' · ' + esc(m.note) : '') + '</div></div>' +
+        (FAM_EDIT ? '<span class="fam-add-item" data-mi="' + mi + '">＋保障</span><span class="fam-m-del" data-mi="' + mi + '">删除</span>' :
+                    '<div class="fam-m-sum"><div class="v">' + famFmt(sum) + '<em> 元/年</em></div><div class="l">个人小计</div></div>') +
+      '</div>';
+    if ((m.items||[]).length) {
+      h += '<div class="fam-m-body">';
+      m.items.forEach(function(it, ii){
+        var t = TYPES[it.type] || TYPES.qt;
+        h += '<div class="fam-item">' +
+          '<span class="fam-tag" style="background:' + famTagColor(it.type) + '">' + esc(t.short) + '</span>' +
+          '<div class="fam-i-main"><div class="fam-i-name">' + esc(it.prodName || '未填产品') + '</div>' +
+            (it.prodNote ? '<div class="fam-i-note">' + esc(it.prodNote) + '</div>' : '') + '</div>' +
+          '<div class="fam-i-pre">' + famFmt(it.premium) + '<em> 元/年</em></div>' +
+          (FAM_EDIT ? '<span class="fam-del" data-mi="' + mi + '" data-ii="' + ii + '">✕</span>' : '') +
+        '</div>';
+      });
+      h += '</div>';
+    } else {
+      h += '<div class="fam-m-body"><div style="margin-left:16px;font-size:11.5px;color:#9aa4b2;padding:2px 0 4px">暂无保障，' + (FAM_EDIT ? '点右上「＋保障」添加' : '进入「管理方案」后添加') + '</div></div>';
+    }
+    h += '</div>';
+  });
+
+  h += '<button class="fam-add-member" id="fam-add-member" style="' + (FAM_EDIT ? '' : 'padding:10px;font-size:12.5px;opacity:.85') + '">＋ 添加成员</button>';
+
+  box.innerHTML = h;
+
+  var tg = document.getElementById('fam-edit-toggle');
+  if (tg) tg.onclick = function(){ FAM_EDIT = !FAM_EDIT; renderFam(); };
+  var ab2 = document.getElementById('fam-add-member');
+  if (ab2) ab2.onclick = function(){ famMemberModal(null); };
+  box.querySelectorAll('.fam-add-item').forEach(function(el){
+    el.onclick = function(){ famItemModal(parseInt(el.dataset.mi,10), -1); };
+  });
+  box.querySelectorAll('.fam-m-del').forEach(function(el){
+    el.onclick = function(){
+      var mi = parseInt(el.dataset.mi,10);
+      if (!confirm('删除成员「' + famMembers()[mi].name + '」及其全部保障？')) return;
+      appData.family.members.splice(mi,1); saveData(appData); renderFam(); toast('已删除');
+    };
+  });
+  box.querySelectorAll('.fam-del').forEach(function(el){
+    el.onclick = function(){
+      var mi = parseInt(el.dataset.mi,10), ii = parseInt(el.dataset.ii,10);
+      appData.family.members[mi].items.splice(ii,1); saveData(appData); renderFam();
+    };
+  });
+}
+
+/* ---- 成员编辑弹窗 ---- */
+function famMemberModal(mi) {
+  var old = document.getElementById('fam-modal'); if (old) old.remove();
+  var m = document.createElement('div'); m.className = 'modal'; m.id = 'fam-modal';
+  var isEdit = mi !== null && mi !== undefined && mi >= 0;
+  var mem = isEdit ? famMembers()[mi] : { name:'', age:'', note:'' };
+  m.innerHTML = '<div class="modal-box">' +
+    '<div class="modal-head"><div class="mt">' + (isEdit ? '✏️ 编辑成员' : '👤 添加成员') + '</div><div class="mc" id="fm-cancel">取消</div></div>' +
+    '<div class="modal-body" style="padding:14px 16px">' +
+      '<div class="fm-label">称呼（如：爸爸 / 老公 / 自己 / 女儿）</div>' +
+      '<input class="fm-input" id="fm-name" value="' + esc(mem.name||'') + '" placeholder="爸爸">' +
+      '<div class="fm-row">' +
+        '<div style="flex:1"><div class="fm-label">年龄</div><input class="fm-input" id="fm-age" type="number" inputmode="numeric" value="' + esc(mem.age||'') + '" placeholder="30"></div>' +
+        '<div style="flex:2"><div class="fm-label">备注（职业 / 身体状况等）</div><input class="fm-input" id="fm-note" value="' + esc(mem.note||'') + '" placeholder="如：有甲状腺结节"></div>' +
+      '</div>' +
+    '</div>' +
+    '<div class="modal-foot"><button class="fm-btn" id="fm-save">' + (isEdit ? '保存修改' : '添加成员') + '</button></div>' +
+  '</div>';
+  document.body.appendChild(m);
+  requestAnimationFrame(function(){ m.classList.add('show'); });
+  document.getElementById('fm-cancel').onclick = function(){ m.classList.remove('show'); setTimeout(function(){ m.remove(); }, 200); };
+  m.onclick = function(e){ if (e.target === m) { m.classList.remove('show'); setTimeout(function(){ m.remove(); }, 200); } };
+  document.getElementById('fm-save').onclick = function(){
+    var name = document.getElementById('fm-name').value.trim();
+    if (!name) { toast('请填写称呼'); return; }
+    mem.name = name;
+    mem.age = document.getElementById('fm-age').value.trim();
+    mem.note = document.getElementById('fm-note').value.trim();
+    if (!isEdit) { mem.id = famUid(); mem.items = []; appData.family.members.push(mem); }
+    saveData(appData);
+    m.classList.remove('show'); setTimeout(function(){ m.remove(); }, 200);
+    renderFam(); toast(isEdit ? '已保存' : '已添加「' + name + '」');
+  };
+}
+
+/* ---- 保障条目编辑弹窗 ---- */
+function famItemModal(mi, ii) {
+  var old = document.getElementById('fam-modal'); if (old) old.remove();
+  var m = document.createElement('div'); m.className = 'modal'; m.id = 'fam-modal';
+  var mem = famMembers()[mi];
+  var isEdit = ii >= 0;
+  var it = isEdit ? mem.items[ii] : { type:'yl', prodName:'', prodNote:'', premium:'' };
+  var typeOpts = '';
+  Object.keys(TYPES).forEach(function(k){ typeOpts += '<option value="' + k + '"' + (it.type===k?' selected':'') + '>' + TYPES[k].icon + ' ' + TYPES[k].name + '</option>'; });
+  // 产品库选项（按类型过滤）
+  var prodOpts = '<option value="">— 手动填写 —</option>';
+  appData.products.forEach(function(p){
+    prodOpts += '<option value="' + esc(p.name) + '"' + (p.name===it.prodName?' selected':'') + '>' + esc(p.name) + (TYPES[p.type]?'（'+TYPES[p.type].short+'）':'') + '</option>';
+  });
+  m.innerHTML = '<div class="modal-box">' +
+    '<div class="modal-head"><div class="mt">' + (isEdit?'✏️ 编辑保障':'➕ 添加保障') + '<span style="font-weight:400;color:#8a919b;font-size:12px;margin-left:6px">' + esc(mem.name) + '</span></div><div class="mc" id="fm-cancel">取消</div></div>' +
+    '<div class="modal-body" style="padding:14px 16px">' +
+      '<div class="fm-label">险种</div>' +
+      '<select class="fm-input" id="fi-type">' + typeOpts + '</select>' +
+      '<div class="fm-label">从产品库选择（自动带出产品名）</div>' +
+      '<select class="fm-input" id="fi-pick">' + prodOpts + '</select>' +
+      '<div class="fm-label">产品名称</div>' +
+      '<input class="fm-input" id="fi-name" value="' + esc(it.prodName||'') + '" placeholder="如：达尔文12号">' +
+      '<div class="fm-row">' +
+        '<div style="flex:1"><div class="fm-label">年保费（元）</div><input class="fm-input" id="fi-premium" type="number" inputmode="numeric" value="' + esc(it.premium!==undefined&&it.premium!==null?it.premium:'') + '" placeholder="4362"></div>' +
+        '<div style="flex:2"><div class="fm-label">保障说明</div><input class="fm-input" id="fi-note" value="' + esc(it.prodNote||'') + '" placeholder="如：30万保终身 / 600万保额"></div>' +
+      '</div>' +
+    '</div>' +
+    '<div class="modal-foot"><button class="fm-btn" id="fi-save">' + (isEdit?'保存修改':'添加保障') + '</button></div>' +
+  '</div>';
+  document.body.appendChild(m);
+  requestAnimationFrame(function(){ m.classList.add('show'); });
+  var close = function(){ m.classList.remove('show'); setTimeout(function(){ m.remove(); }, 200); };
+  document.getElementById('fm-cancel').onclick = close;
+  m.onclick = function(e){ if (e.target === m) close(); };
+  document.getElementById('fi-pick').onchange = function(){
+    var v = this.value; if (v) document.getElementById('fi-name').value = v;
+  };
+  document.getElementById('fi-save').onclick = function(){
+    var obj = {
+      id: isEdit ? it.id : famUid(),
+      type: document.getElementById('fi-type').value,
+      prodName: document.getElementById('fi-name').value.trim(),
+      prodNote: document.getElementById('fi-note').value.trim(),
+      premium: Number(document.getElementById('fi-premium').value) || 0
+    };
+    if (!obj.prodName) { toast('请填写产品名称'); return; }
+    if (isEdit) mem.items[ii] = obj; else { if (!mem.items) mem.items = []; mem.items.push(obj); }
+    saveData(appData);
+    close(); renderFam(); toast(isEdit ? '已保存' : '已添加保障');
+  };
+}
+
 /* ============================================================
    导出 / 导入 / 设置
    ============================================================ */
@@ -2759,7 +3012,7 @@ function openSettings() {
         '</div>' +
         '<div style="margin-top:12px;font-size:13px;color:#8a919b">' +
           '产品数：<b style="color:#202124">' + appData.products.length + '</b>　已填字段：<b style="color:#202124">' + totalFields + '</b>' +
-          '<br>版本：v3.7' +
+          '<br>版本：v3.8' +
         '</div>' +
       '</div>' +
       '<div style="padding:16px">' +
