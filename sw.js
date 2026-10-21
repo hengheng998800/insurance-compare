@@ -1,5 +1,5 @@
 // 保险对比 Service Worker —— 离线缓存
-// 导航请求：stale-while-revalidate（先秒开缓存，后台更新）；静态资源：cache-first
+// 导航请求：network-first（优先最新版本，断网才用缓存）；静态资源：cache-first
 const CACHE = 'ins-compare-v56';
 const APP_SHELL = [
   './',
@@ -41,7 +41,7 @@ self.addEventListener('fetch', function (e) {
             if (res && res.status === 200) c.put(req, res.clone());
             return res;
           }).catch(function () { return cached; });
-          return cached || network;
+          return network.catch(function () { return cached; });
         });
       })
     );
