@@ -2129,7 +2129,7 @@ function renderDetail() {
     (function(){ var k0 = pkPays[0]; var n0 = (f.perK['必选'][k0]||{})['男'] || (f.perK['必选'][k0]||{})['女']; if (Array.isArray(n0) && n0.length) __perkAgeMax = n0.length - 1; })();
     var pkAges = []; for (var ai = 0; ai <= __perkAgeMax; ai++) pkAges.push(ai);
     var calcAge2 = Math.min(30, __perkAgeMax);
-    var calc = { g: '男', age: calcAge2, sum: '30', pay: (pkPays.filter(function(x){ return x.indexOf('20') >= 0; })[0] || pkPays[0]), riders: {} };
+    var calc = { g: '男', age: calcAge2, sum: '30', pay: (pkPays.indexOf('20年·20年交') >= 0 ? '20年·20年交' : (pkPays.filter(function(x){ return x.indexOf('20') >= 0; })[0] || pkPays[0])), riders: {} };
     var RIDER_BASE = '必选';
 
     function perKAt(planKey, pay, g, age) {
@@ -2140,7 +2140,7 @@ function renderDetail() {
     }
     var ageOpts2 = pkAges.map(function(a){ return '<option value="' + a + '"' + (a === calc.age ? ' selected' : '') + '>' + a + '岁</option>'; }).join('');
     var sumOpts2 = pkSums.map(function(s){ return '<option value="' + s + '"' + (s === calc.sum ? ' selected' : '') + '>' + s + '万保额</option>'; }).join('');
-    function payLabel(py){ return /年交$|^趸交$/.test(py) ? py : py + '年交'; }
+    function payLabel(py){ return /年交$|周岁$|^趸交$/.test(py) ? py : py + '年交'; }
     var payOpts2 = pkPays.map(function(py){ return '<option value="' + py + '"' + (py === calc.pay ? ' selected' : '') + '>' + payLabel(py) + '</option>'; }).join('');
     var riderChips2 = RIDER_DEFS.map(function(rd, i){
       return '<span class="gc-rider" id="gc-rider-' + i + '" data-i="' + i + '">' + esc(rd.name) + '<span class="gc-price">…</span></span>';
@@ -3526,7 +3526,7 @@ function openSettings() {
         '</div>' +
         '<div style="margin-top:12px;font-size:13px;color:#8a919b">' +
           '产品数：<b style="color:#202124">' + appData.products.length + '</b>　已填字段：<b style="color:#202124">' + totalFields + '</b>' +
-          '<br>版本：v3.9.11' +
+          '<br>版本：v3.9.12' +
         '</div>' +
       '</div>' +
       '<div style="padding:16px">' +
