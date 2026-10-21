@@ -2142,23 +2142,46 @@ function renderDetail() {
       return { name: pl.replace(/^必选\+/, ''), plan: pl };
     });
     var calcAge = ages.indexOf(30) >= 0 ? 30 : ages[Math.floor(ages.length / 2)];
-    var calc = { g: '男', age: calcAge, plan: calcBase, riders: {} };
-    var headNote = (byPlan[calcBase].note || '');
+    var calc = { g: '男', age: calcAge, sum: null, pay: null, riders: {} };
+
+    // 保额×缴费期 组合（从各基础方案的 note 解析）
+    var combos = {};
+    basePlans.forEach(function(pl){
+      var note = byPlan[pl].note || '';
+      var sm = note.match(/(\d+(?:\.\d+)?)\s*万/);
+      var pm = note.match(/(\d+)\s*年交/);
+      if (sm && pm) {
+        var key = sm[1] + '|' + pm[1];
+        if (!combos[key]) combos[key] = { sum: sm[1], pay: pm[1], plan: pl };
+      }
+    });
+    var sumList = [], payList = [];
+    Object.keys(combos).forEach(function(k){
+      if (sumList.indexOf(combos[k].sum) < 0) sumList.push(combos[k].sum);
+      if (payList.indexOf(combos[k].pay) < 0) payList.push(combos[k].pay);
+    });
+    sumList.sort(function(a,b){ return +a - +b; });
+    payList.sort(function(a,b){ return +a - +b; });
+    if (combos['30|20']) { calc.sum = '30'; calc.pay = '20'; }
+    else { var k0 = Object.keys(combos)[0]; if (k0) { calc.sum = combos[k0].sum; calc.pay = combos[k0].pay; } }
+    function comboPlan(s, py) { var c = combos[s + '|' + py]; return c ? c.plan : null; }
 
     var ageOpts = ages.map(function(a){ return '<option value="' + a + '"' + (a === calc.age ? ' selected' : '') + '>' + a + '岁</option>'; }).join('');
-    var planOpts = basePlans.map(function(pl){ return '<option' + (pl === calc.plan ? ' selected' : '') + '>' + esc(pl) + '</option>'; }).join('');
+    var sumOpts = sumList.map(function(s){ return '<option value="' + s + '"' + (s === calc.sum ? ' selected' : '') + '>' + s + '万保额</option>'; }).join('');
+    var payOpts = payList.map(function(py){ return '<option value="' + py + '"' + (py === calc.pay ? ' selected' : '') + '>' + py + '年交</option>'; }).join('');
     var riderChips = riders.map(function(rd, i){
       return '<span class="gc-rider" id="gc-rider-' + i + '" data-i="' + i + '">' + esc(rd.name) + '<span class="gc-price">…</span></span>';
     }).join('');
 
     h += '<div class="g-prem">' +
-      '<div class="g-prem-head">💰 保费试算器<span class="g-prem-age">点选条件 · 实时测算' + (headNote ? ' · ' + esc(headNote) : '') + '</span></div>' +
+      '<div class="g-prem-head">💰 保费试算器<span class="g-prem-age">保额 / 缴费期 / 附加责任自由组合</span></div>' +
       '<div class="gc-row"><span class="gc-k">性别</span><div class="gc-seg"><button type="button" class="gc-gb on" data-g="男">男</button><button type="button" class="gc-gb" data-g="女">女</button></div></div>' +
       '<div class="gc-row"><span class="gc-k">年龄</span><select id="gc-age" class="gc-sel">' + ageOpts + '</select></div>' +
-      '<div class="gc-row"><span class="gc-k">主方案</span><select id="gc-plan" class="gc-sel">' + planOpts + '</select></div>' +
+      '<div class="gc-row"><span class="gc-k">保额</span><select id="gc-sum" class="gc-sel">' + sumOpts + '</select></div>' +
+      '<div class="gc-row"><span class="gc-k">缴费期间</span><select id="gc-pay" class="gc-sel">' + payOpts + '</select></div>' +
       (riders.length ? '<div class="gc-row" style="align-items:flex-start"><span class="gc-k" style="padding-top:7px">附加责任</span><div style="flex:1">' + riderChips + '</div></div>' : '') +
       '<div class="gc-total-row"><div><div class="gc-total-k">年交保费（估算）</div><div id="gc-detail" class="gc-detail"></div></div><div id="gc-total" class="gc-total">—</div></div>' +
-      '<div class="gc-tip">附加责任价格 = 该组合与「必选责任」的差额按保额比例换算，多项可叠加，具体以投保页试算为准</div>' +
+      '<div class="gc-tip">附加责任价格 = 该组合与「必选责任·30万·20年交」的差额按保额比例换算，多项可叠加；未列出的保额/缴费期组合暂无费率数据，以投保页试算为准</div>' +
       '</div>';
   }
 
@@ -2216,12 +2239,9 @@ function renderDetail() {
   // —— 保费试算器交互 ——
   if (Array.isArray(p.rates) && p.rates.length && document.getElementById('gc-total')) {
     function gcUpdate() {
-      var base = premFor(calc.plan, calc.age, calc.g);
-      // 附加差额按主方案保额比例换算（差额基准：必选责任组 30万）
-      var sumM = String(calc.plan).match(/(\d+(?:\.\d+)?)\s*万/);
-      var noteM = String(headNote).match(/(\d+(?:\.\d+)?)\s*万/);
-      var baseSum = sumM ? +sumM[1] : (noteM ? +noteM[1] : 30);
-      var scale = baseSum / 30;
+      var plan = comboPlan(calc.sum, calc.pay);
+      var base = plan ? premFor(plan, calc.age, calc.g) : null;
+      var scale = (+calc.sum || 30) / 30;
       var total = base || 0, parts = [];
       riders.forEach(function(rd, i){
         var el = document.getElementById('gc-rider-' + i);
@@ -2232,11 +2252,12 @@ function renderDetail() {
         var pr = el.querySelector('.gc-price');
         if (pr) pr.innerText = delta != null ? '+' + delta.toLocaleString('zh-CN') : '暂无费率';
         el.style.opacity = delta != null ? '' : '.45';
-        if (calc.riders[i] && delta != null) { total += delta; parts.push('+' + delta.toLocaleString('zh-CN')); }
+        if (calc.riders[i] && delta != null && base != null) { total += delta; parts.push('+' + delta.toLocaleString('zh-CN')); }
       });
-      document.getElementById('gc-total').innerText = base != null ? '¥' + total.toLocaleString('zh-CN') : '—';
+      document.getElementById('gc-total').innerText = base != null ? '¥' + total.toLocaleString('zh-CN') : '暂无费率';
       document.getElementById('gc-detail').innerText =
-        (calc.g === '男' ? '男性' : '女性') + ' · ' + calc.age + '岁 · ' + calc.plan + (parts.length ? '（附加' + parts.join(' + ') + '）' : '');
+        (calc.g === '男' ? '男性' : '女性') + ' · ' + calc.age + '岁 · ' + calc.sum + '万保额·' + calc.pay + '年交' +
+        (base == null ? '（该组合暂无费率数据）' : (parts.length ? '（附加' + parts.join(' + ') + '）' : ''));
     }
     Array.prototype.forEach.call(document.querySelectorAll('.gc-gb'), function(btn){
       btn.addEventListener('click', function(){
@@ -2247,7 +2268,8 @@ function renderDetail() {
       });
     });
     document.getElementById('gc-age').addEventListener('change', function(){ calc.age = +this.value; gcUpdate(); });
-    document.getElementById('gc-plan').addEventListener('change', function(){ calc.plan = this.value; gcUpdate(); });
+    document.getElementById('gc-sum').addEventListener('change', function(){ calc.sum = this.value; gcUpdate(); });
+    document.getElementById('gc-pay').addEventListener('change', function(){ calc.pay = this.value; gcUpdate(); });
     Array.prototype.forEach.call(document.querySelectorAll('.gc-rider'), function(chip){
       chip.addEventListener('click', function(){
         var i = chip.getAttribute('data-i');
@@ -3396,7 +3418,7 @@ function openSettings() {
         '</div>' +
         '<div style="margin-top:12px;font-size:13px;color:#8a919b">' +
           '产品数：<b style="color:#202124">' + appData.products.length + '</b>　已填字段：<b style="color:#202124">' + totalFields + '</b>' +
-          '<br>版本：v3.9.6' +
+          '<br>版本：v3.9.7' +
         '</div>' +
       '</div>' +
       '<div style="padding:16px">' +
