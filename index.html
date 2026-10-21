@@ -473,6 +473,17 @@ textarea.finput{min-height:38px;overflow:hidden}
 .fam-c3{background:linear-gradient(135deg,#fce7f3,#fdf2f8)} .fam-c3 .fam-m-body::before,.fam-c3 .fam-item::before{background:#ec4899} .fam-c3 .fam-avatar{background:linear-gradient(135deg,#f472b6,#db2777)}
 .fam-c4{background:linear-gradient(135deg,#ede9fe,#f5f3ff)} .fam-c4 .fam-m-body::before,.fam-c4 .fam-item::before{background:#8b5cf6} .fam-c4 .fam-avatar{background:linear-gradient(135deg,#a78bfa,#7c3aed)}
 .fam-c5{background:linear-gradient(135deg,#ffedd5,#fff7ed)} .fam-c5 .fam-m-body::before,.fam-c5 .fam-item::before{background:#f97316} .fam-c5 .fam-avatar{background:linear-gradient(135deg,#fb923c,#ea580c)}
+
+/* v3.9 核保提示 & 健康 chips */
+.fam-m-health{font-size:10.5px;color:#b06a00;background:#fff7e6;border:1px solid #f3ddb0;border-radius:8px;padding:2px 8px;margin-top:4px;display:inline-block;max-width:100%}
+.fam-uw{font-size:10.5px;line-height:1.55;border-radius:8px;padding:5px 9px;margin-top:5px}
+.fam-uw-b{background:#fdecec;color:#b3261e;border:1px solid #f5c6c2;font-weight:600}
+.fam-uw-c{background:#fff7e6;color:#9a6b00;border:1px solid #f3ddb0}
+.fam-uw-ok{background:#e8f7ee;color:#0d8a4f;border:1px solid #bfe8d2;margin-bottom:10px}
+.fm-chips{display:flex;flex-wrap:wrap;gap:6px;margin:-4px 0 12px}
+.fm-chip{font-size:11px;padding:4px 11px;border-radius:999px;background:#f2f5fa;color:#5a6578;border:1px solid #e2e8f1;cursor:pointer}
+.fm-chip.on{background:#2563eb;color:#fff;border-color:#2563eb}
+.fm-rate-hint{font-size:11px;color:#0d8a4f;margin:-6px 0 10px}
 </style>
 </head>
 <body>
@@ -2774,6 +2785,63 @@ function renderScore() {
 }
 
 
+
+/* ============================================================
+   智能核保 & 费率匹配（v3.9）
+   产品可挂：rates:[{min,max,premium,note}]  health:[{cond,level,note}]
+   ============================================================ */
+/* 常见健康异常关键词归一化 */
+var HEALTH_CANON = [
+  { key:'甲状腺结节', alias:['甲结节','甲状腺结节','甲状腺肿'] },
+  { key:'乳腺结节',   alias:['乳腺结节','乳房结节','乳腺增生结节'] },
+  { key:'肺结节',     alias:['肺结节','肺部结节','磨玻璃结节','磨玻璃影'] },
+  { key:'乙肝',       alias:['乙肝','乙肝携带','乙型肝炎','小三阳','大三阳'] },
+  { key:'高血压',     alias:['高血压','血压高','血压偏高'] },
+  { key:'糖尿病',     alias:['糖尿病','血糖高','血糖偏高'] },
+  { key:'尿酸高',     alias:['尿酸高','高尿酸','痛风'] },
+  { key:'脂肪肝',     alias:['脂肪肝'] },
+  { key:'肾结石',     alias:['肾结石','尿潜血'] },
+  { key:'胆囊息肉',   alias:['胆囊息肉','胆息肉'] },
+  { key:'胃部疾病',   alias:['胃炎','胃溃疡','胃息肉'] },
+  { key:'住院史',     alias:['住院','手术史','动过手术'] }
+];
+function healthKeysOf(text) {
+  var t = (text||''), out = [];
+  HEALTH_CANON.forEach(function(c){
+    for (var i=0;i<c.alias.length;i++){ if (t.indexOf(c.alias[i])>=0){ out.push(c.key); break; } }
+  });
+  return out;
+}
+/* 匹配产品健康规则：返回 {level:'block'|'caution', hits:[{cond,note}]} 或 null */
+function healthCheck(product, member) {
+  if (!product || !Array.isArray(product.health) || !product.health.length) return null;
+  var keys = healthKeysOf(member.health || '');
+  if (!keys.length) return null;
+  var worst = null, hits = [];
+  product.health.forEach(function(r){
+    keys.forEach(function(k){
+      if ((r.cond||'').indexOf(k) >= 0) {
+        hits.push(r);
+        var lv = r.level || 'caution';
+        if (!worst || (worst === 'caution' && lv === 'block')) worst = lv;
+      }
+    });
+  });
+  return hits.length ? { level: worst, hits: hits } : null;
+}
+/* 按年龄匹配费率 */
+function rateFor(product, age) {
+  if (!product || !Array.isArray(product.rates) || !product.rates.length) return null;
+  age = Number(age); if (!age && age !== 0) return null;
+  for (var i=0;i<product.rates.length;i++){
+    var r = product.rates[i];
+    var min = (r.min===undefined||r.min===null||r.min==='') ? 0 : Number(r.min);
+    var max = (r.max===undefined||r.max===null||r.max==='') ? 200 : Number(r.max);
+    if (age >= min && age <= max) return r;
+  }
+  return null;
+}
+
 /* ============================================================
    家庭方案（v3.8）
    ============================================================ */
@@ -2824,7 +2892,8 @@ function renderFam() {
       '<div class="fam-m-head">' +
         '<div class="fam-avatar">' + icon + '</div>' +
         '<div class="fam-m-info"><div class="fam-m-name">' + esc(m.name || '成员') + '</div>' +
-          '<div class="fam-m-meta">' + (m.age ? m.age + '岁' : '') + (m.note ? ' · ' + esc(m.note) : '') + '</div></div>' +
+          '<div class="fam-m-meta">' + (m.age ? m.age + '岁' : '') + (m.note ? ' · ' + esc(m.note) : '') + '</div>' +
+          (FAM_EDIT ? '' : (m.health ? '<div class="fam-m-health">🩺 ' + esc(m.health) + '</div>' : '')) + '</div>' +
         (FAM_EDIT ? '<span class="fam-add-item" data-mi="' + mi + '">＋保障</span><span class="fam-m-del" data-mi="' + mi + '">删除</span>' :
                     '<div class="fam-m-sum"><div class="v">' + famFmt(sum) + '<em> 元/年</em></div><div class="l">个人小计</div></div>') +
       '</div>';
@@ -2832,10 +2901,20 @@ function renderFam() {
       h += '<div class="fam-m-body">';
       m.items.forEach(function(it, ii){
         var t = TYPES[it.type] || TYPES.qt;
+        var prod = null;
+        for (var pi=0; pi<appData.products.length; pi++){ if (appData.products[pi].name === it.prodName){ prod = appData.products[pi]; break; } }
+        var hc = healthCheck(prod, m);
+        var hcHtml = '';
+        if (hc) {
+          var isBlock = hc.level === 'block';
+          hcHtml = '<div class="fam-uw ' + (isBlock ? 'fam-uw-b' : 'fam-uw-c') + '">' + (isBlock ? '⛔' : '⚠️') + ' ' +
+            hc.hits.map(function(x){ return esc(x.note || x.cond); }).join('；') +
+            (isBlock ? '' : '（以智能核保/人工核保结论为准）') + '</div>';
+        }
         h += '<div class="fam-item">' +
           '<span class="fam-tag" style="background:' + famTagColor(it.type) + '">' + esc(t.short) + '</span>' +
           '<div class="fam-i-main"><div class="fam-i-name">' + esc(it.prodName || '未填产品') + '</div>' +
-            (it.prodNote ? '<div class="fam-i-note">' + esc(it.prodNote) + '</div>' : '') + '</div>' +
+            (it.prodNote ? '<div class="fam-i-note">' + esc(it.prodNote) + '</div>' : '') + hcHtml + '</div>' +
           '<div class="fam-i-pre">' + famFmt(it.premium) + '<em> 元/年</em></div>' +
           (FAM_EDIT ? '<span class="fam-del" data-mi="' + mi + '" data-ii="' + ii + '">✕</span>' : '') +
         '</div>';
@@ -2886,7 +2965,14 @@ function famMemberModal(mi) {
       '<input class="fm-input" id="fm-name" value="' + esc(mem.name||'') + '" placeholder="爸爸">' +
       '<div class="fm-row">' +
         '<div style="flex:1"><div class="fm-label">年龄</div><input class="fm-input" id="fm-age" type="number" inputmode="numeric" value="' + esc(mem.age||'') + '" placeholder="30"></div>' +
-        '<div style="flex:2"><div class="fm-label">备注（职业 / 身体状况等）</div><input class="fm-input" id="fm-note" value="' + esc(mem.note||'') + '" placeholder="如：有甲状腺结节"></div>' +
+        '<div style="flex:2"><div class="fm-label">备注（职业等）</div><input class="fm-input" id="fm-note" value="' + esc(mem.note||'') + '" placeholder="如：办公室文员"></div>' +
+      '</div>' +
+      '<div class="fm-label">健康情况（用于自动核保提示）</div>' +
+      '<input class="fm-input" id="fm-health" value="' + esc(mem.health||'') + '" placeholder="如：甲状腺结节 2 级、乙肝携带">' +
+      '<div class="fm-chips">' +
+        ['甲状腺结节','乳腺结节','肺结节','乙肝','高血压','糖尿病','尿酸高','脂肪肝','肾结石','胆囊息肉','胃炎/胃溃疡','住院/手术史'].map(function(t){
+          return '<span class="fm-chip" data-t="' + t + '">' + t + '</span>';
+        }).join('') +
       '</div>' +
     '</div>' +
     '<div class="modal-foot"><button class="fm-btn" id="fm-save">' + (isEdit ? '保存修改' : '添加成员') + '</button></div>' +
@@ -2895,12 +2981,23 @@ function famMemberModal(mi) {
   requestAnimationFrame(function(){ m.classList.add('show'); });
   document.getElementById('fm-cancel').onclick = function(){ m.classList.remove('show'); setTimeout(function(){ m.remove(); }, 200); };
   m.onclick = function(e){ if (e.target === m) { m.classList.remove('show'); setTimeout(function(){ m.remove(); }, 200); } };
+  m.querySelectorAll('.fm-chip').forEach(function(ch){
+    ch.onclick = function(){
+      var inp = document.getElementById('fm-health');
+      var cur = inp.value.trim();
+      var t = ch.dataset.t;
+      if (cur.indexOf(t) >= 0) { return; }
+      inp.value = cur ? cur + '、' + t : t;
+      ch.classList.add('on');
+    };
+  });
   document.getElementById('fm-save').onclick = function(){
     var name = document.getElementById('fm-name').value.trim();
     if (!name) { toast('请填写称呼'); return; }
     mem.name = name;
     mem.age = document.getElementById('fm-age').value.trim();
     mem.note = document.getElementById('fm-note').value.trim();
+    mem.health = document.getElementById('fm-health') ? document.getElementById('fm-health').value.trim() : (mem.health||'');
     if (!isEdit) { mem.id = famUid(); mem.items = []; appData.family.members.push(mem); }
     saveData(appData);
     m.classList.remove('show'); setTimeout(function(){ m.remove(); }, 200);
@@ -2923,11 +3020,12 @@ function famItemModal(mi, ii) {
     prodOpts += '<option value="' + esc(p.name) + '"' + (p.name===it.prodName?' selected':'') + '>' + esc(p.name) + (TYPES[p.type]?'（'+TYPES[p.type].short+'）':'') + '</option>';
   });
   m.innerHTML = '<div class="modal-box">' +
-    '<div class="modal-head"><div class="mt">' + (isEdit?'✏️ 编辑保障':'➕ 添加保障') + '<span style="font-weight:400;color:#8a919b;font-size:12px;margin-left:6px">' + esc(mem.name) + '</span></div><div class="mc" id="fm-cancel">取消</div></div>' +
+    '<div class="modal-head"><div class="mt">' + (isEdit?'✏️ 编辑保障':'➕ 添加保障') + '<span style="font-weight:400;color:#8a919b;font-size:12px;margin-left:6px">' + esc(mem.name) + (mem.age? ' · '+mem.age+'岁':'') + '</span></div><div class="mc" id="fm-cancel">取消</div></div>' +
     '<div class="modal-body" style="padding:14px 16px">' +
+      '<div id="fi-uw" style="display:none"></div>' +
       '<div class="fm-label">险种</div>' +
       '<select class="fm-input" id="fi-type">' + typeOpts + '</select>' +
-      '<div class="fm-label">从产品库选择（自动带出产品名）</div>' +
+      '<div class="fm-label">从产品库选择（自动带出产品名与该年龄保费）</div>' +
       '<select class="fm-input" id="fi-pick">' + prodOpts + '</select>' +
       '<div class="fm-label">产品名称</div>' +
       '<input class="fm-input" id="fi-name" value="' + esc(it.prodName||'') + '" placeholder="如：达尔文12号">' +
@@ -2943,9 +3041,41 @@ function famItemModal(mi, ii) {
   var close = function(){ m.classList.remove('show'); setTimeout(function(){ m.remove(); }, 200); };
   document.getElementById('fm-cancel').onclick = close;
   m.onclick = function(e){ if (e.target === m) close(); };
+  function famProdByName(n){ for (var i=0;i<appData.products.length;i++){ if (appData.products[i].name === n) return appData.products[i]; } return null; }
+  function famUwPreview(name){
+    var prod = famProdByName(name);
+    var box = document.getElementById('fi-uw');
+    // 健康核保预检
+    var hc = healthCheck(prod, mem);
+    if (hc) {
+      var isBlock = hc.level === 'block';
+      box.style.display = 'block';
+      box.className = 'fam-uw ' + (isBlock ? 'fam-uw-b' : 'fam-uw-c');
+      box.innerHTML = (isBlock ? '⛔' : '⚠️') + ' <b>核保提示：</b>' + hc.hits.map(function(x){ return esc(x.note || x.cond); }).join('；');
+    } else { box.style.display = 'none'; }
+    // 费率自动匹配
+    var r = rateFor(prod, mem.age);
+    var pre = document.getElementById('fi-premium');
+    if (r) {
+      pre.value = r.premium;
+      var tip = document.getElementById('fi-rate-tip');
+      if (!tip) {
+        tip = document.createElement('div');
+        tip.id = 'fi-rate-tip'; tip.className = 'fam-uw fam-uw-ok';
+        pre.parentNode.parentNode.insertBefore(tip, pre.parentNode);
+      }
+      tip.style.display = 'block';
+      tip.innerHTML = '💰 已按 ' + esc(mem.name) + ' ' + esc(mem.age) + '岁 自动填入保费' + (r.note ? '（' + esc(r.note) + '）' : '') + '，可手动修改';
+    } else {
+      var tip2 = document.getElementById('fi-rate-tip'); if (tip2) tip2.style.display = 'none';
+    }
+  }
   document.getElementById('fi-pick').onchange = function(){
     var v = this.value; if (v) document.getElementById('fi-name').value = v;
+    famUwPreview(v);
   };
+  // 编辑态初始也预检一次
+  if (isEdit && it.prodName) famUwPreview(it.prodName);
   document.getElementById('fi-save').onclick = function(){
     var obj = {
       id: isEdit ? it.id : famUid(),
@@ -3012,7 +3142,7 @@ function openSettings() {
         '</div>' +
         '<div style="margin-top:12px;font-size:13px;color:#8a919b">' +
           '产品数：<b style="color:#202124">' + appData.products.length + '</b>　已填字段：<b style="color:#202124">' + totalFields + '</b>' +
-          '<br>版本：v3.8' +
+          '<br>版本：v3.9' +
         '</div>' +
       '</div>' +
       '<div style="padding:16px">' +
