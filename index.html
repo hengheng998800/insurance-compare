@@ -80,6 +80,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei
 .p-row .pr-score.hi{color:#137333}.p-row .pr-score.mid{color:#b25e00}.p-row .pr-score.lo{color:#c5221f}
 .list-overview{display:flex;gap:6px;padding:10px 12px 2px;flex-wrap:wrap}
 .ov-chip{font-size:11.5px;color:#5f6368;background:#fff;border:1px solid #d8dee7;border-radius:14px;padding:3.5px 10px}
+.ov-chip{cursor:pointer;user-select:none;transition:all .15s}
+.ov-chip.on{background:#1a56b0;color:#fff;border-color:#1a56b0;font-weight:700}
 
 /* ===== 保险科普（按品种学习）—— 蓝白高端风 ===== */
 .know-wrap{margin:2px 0 12px;border-radius:14px;background:#fff;border:1px solid #d3dbe6;box-shadow:0 2px 8px rgba(30,40,60,.08);overflow:hidden}
@@ -1408,6 +1410,7 @@ var KNOW = [
   ]}
 ];
 state.learn = null;   // 当前从科普进入的品种 {label, type, tier}
+state.knowFold = true;   // 科普大全默认收起，点击展开
 
 function renderLearn(box) {
   var h = '';
@@ -1554,14 +1557,14 @@ function renderList() {
 
   var h = '';
 
-  // 概览条
+  // 概览条（统计基于全部产品，点击可切换筛选）
   var kindCounts = {};
-  list.forEach(function(p){ kindCounts[p.type] = (kindCounts[p.type]||0)+1; });
+  appData.products.forEach(function(p){ kindCounts[p.type] = (kindCounts[p.type]||0)+1; });
   h += '<div class="list-overview">';
-  h += '<span class="ov-chip">📦 共 ' + list.length + ' 款</span>';
+  h += '<span class="ov-chip' + (state.listType==='all'?' on':'') + '" data-t="all">📦 共 ' + appData.products.length + ' 款</span>';
   Object.keys(kindCounts).forEach(function(t){
     var tt = TYPES[t] || TYPES.qt;
-    h += '<span class="ov-chip">' + tt.icon + ' ' + tt.short + ' ' + kindCounts[t] + '</span>';
+    h += '<span class="ov-chip' + (state.listType===t?' on':'') + '" data-t="' + t + '">' + tt.icon + ' ' + tt.short + ' ' + kindCounts[t] + '</span>';
   });
   h += '</div>';
 
@@ -1656,6 +1659,16 @@ function renderList() {
   h += '<div style="padding:12px 0 0"><button class="btn btn-ghost" id="btn-add-list">＋ 添加产品</button></div>';
   box.innerHTML = h;
   renderLearn(box);
+
+  // 概览条：点击筛选类型
+  box.querySelectorAll('.ov-chip').forEach(function(el){
+    el.addEventListener('click', function(){
+      state.listType = el.getAttribute('data-t') || 'all';
+      renderList();
+      var nb = document.getElementById('type-filter');
+      if (nb) nb.scrollIntoView({ behavior:'smooth', block:'start' });
+    });
+  });
 
   // 公司头：折叠/展开
   box.querySelectorAll('.co-head').forEach(function(el){
@@ -3383,7 +3396,7 @@ function openSettings() {
         '</div>' +
         '<div style="margin-top:12px;font-size:13px;color:#8a919b">' +
           '产品数：<b style="color:#202124">' + appData.products.length + '</b>　已填字段：<b style="color:#202124">' + totalFields + '</b>' +
-          '<br>版本：v3.9.5' +
+          '<br>版本：v3.9.6' +
         '</div>' +
       '</div>' +
       '<div style="padding:16px">' +
