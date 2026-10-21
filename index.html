@@ -1542,7 +1542,7 @@ function renderList() {
     if (state.listCo !== 'all' && c !== state.listCo) return false;
     if (state.listTier !== 'all' && (p.type !== 'yl' || tierOfP(p) !== state.listTier)) return false;
     if (state.listQ) {
-      var hay = (p.name + ' ' + ((p.fields||{}).company||'')).toLowerCase();
+      var hay = (p.name + ' ' + (Array.isArray((p.fields||{}).company)?(p.fields||{}).company.join(''):String((p.fields||{}).company||''))).toLowerCase();
       if (hay.indexOf(state.listQ.toLowerCase()) < 0) return false;
     }
     return true;
