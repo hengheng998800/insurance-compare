@@ -92,7 +92,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei
 .know-body{display:none;padding:4px 12px 12px;background:#fbfcfe}
 .know-wrap:not(.folded) .know-body{display:block}
 .know-sec{margin-top:12px}
-.know-sec-t{display:flex;align-items:baseline;gap:6px;padding:2px 2px 7px;border-bottom:1.5px solid #dfe6f0;margin-bottom:9px}
+.know-sec-t{display:flex;align-items:center;gap:8px;padding:2px 2px 7px;border-bottom:1.5px solid #dfe6f0;margin-bottom:9px}
+.know-ico{width:30px;height:30px;border-radius:9px;display:inline-flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;box-shadow:0 1.5px 4px rgba(30,40,60,.14)}
+.ico-yl{background:linear-gradient(135deg,#e8f1ff,#d3e4fd)}
+.ico-cz{background:linear-gradient(135deg,#feeaea,#fbd9d9)}
+.ico-sx{background:linear-gradient(135deg,#f1e9fd,#e4d5fa)}
+.ico-yw{background:linear-gradient(135deg,#fff1df,#ffe4c2)}
 .know-sec-t b{font-size:14.5px;color:#173a73}
 .know-sec-t em{font-style:normal;font-size:11px;color:#6d84ab}
 .know-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
@@ -1244,7 +1249,7 @@ function renderLearn(box) {
   KNOW.forEach(function(sec){
     var t = TYPES[sec.key] || TYPES.qt;
     h += '<div class="know-sec">' +
-      '<div class="know-sec-t">' + t.icon + ' <b>' + esc(sec.name) + '</b><em>「' + esc(sec.sub) + '」</em></div>' +
+      '<div class="know-sec-t"><span class="know-ico ico-' + sec.key + '">' + t.icon + '</span><b>' + esc(sec.name) + '</b><em>「' + esc(sec.sub) + '」</em></div>' +
       '<div class="know-grid">';
     sec.items.forEach(function(it){
       h += '<button class="know-card' + (it.base ? ' base' : '') + '" data-learn-type="' + (it.base ? '' : sec.key) + '" data-learn-tier="' + esc(it.tier || '') + '" data-learn-label="' + esc(it.label) + '">' +
