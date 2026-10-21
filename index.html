@@ -1547,8 +1547,9 @@ function renderList() {
     }
     return true;
   });
-  // 按更新时间倒序
-  list.sort(function(a,b){ return (b.updatedAt||0) - (a.updatedAt||0); });
+  // 按版本年份从新到旧（2026 在 2025 上面），同年份再按更新时间倒序
+  function prodYear(p){ var m=String(p.name||'').match(/20\d{2}/); return m?parseInt(m[m.length-1],10):0; }
+  list.sort(function(a,b){ var ya=prodYear(a),yb=prodYear(b); return yb!==ya ? yb-ya : (b.updatedAt||0)-(a.updatedAt||0); });
 
   var box = document.getElementById('product-list');
   if (list.length === 0) {
@@ -1646,8 +1647,9 @@ function renderList() {
         '<div class="co-arrow">▼</div>' +
       '</div>' +
       '<div class="co-body">';
-    // 组内按更新时间倒序
-    pros_.slice().sort(function(a,b){ return (b.updatedAt||0)-(a.updatedAt||0); }).forEach(function(p){
+    // 组内按版本年份从新到旧（新的在上，旧的在下），同年份再按更新时间倒序
+    function __prodYear(p){ var m=String(p.name||'').match(/20\d{2}/); return m?parseInt(m[m.length-1],10):0; }
+    pros_.slice().sort(function(a,b){ var ya=__prodYear(a),yb=__prodYear(b); return yb!==ya ? yb-ya : (b.updatedAt||0)-(a.updatedAt||0); }).forEach(function(p){
       var t = TYPES[p.type] || TYPES.qt;
       var sc = calcScore(p);
       var scoreHtml = '';
@@ -3543,7 +3545,7 @@ function openSettings() {
         '</div>' +
         '<div style="margin-top:12px;font-size:13px;color:#8a919b">' +
           '产品数：<b style="color:#202124">' + appData.products.length + '</b>　已填字段：<b style="color:#202124">' + totalFields + '</b>' +
-          '<br>版本：v3.9.17b' +
+          '<br>版本：v3.9.18' +
         '</div>' +
       '</div>' +
       '<div style="padding:16px">' +
