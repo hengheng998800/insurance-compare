@@ -69,6 +69,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei
 .co-arrow{color:#b0b6bf;font-size:12px;transition:transform .2s;flex-shrink:0}
 .co-card.folded .co-arrow{transform:rotate(-90deg)}
 .co-body{display:block}
+.line-div{display:flex;align-items:center;gap:10px;padding:9px 14px 3px}
+.line-div::before,.line-div::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,transparent,#c9d4e4)}
+.line-div::after{background:linear-gradient(90deg,#c9d4e4,transparent)}
+.line-div-txt{font-size:11px;font-weight:700;color:#5b6b80;letter-spacing:1px;padding:2px 10px;border-radius:10px;background:#eef2f8;flex-shrink:0}
 .co-card.folded .co-body{display:none}
 .p-row{display:flex;align-items:center;gap:9px;padding:9px 13px;border-top:1px solid #edf0f4;cursor:pointer}
 .p-row:active{background:#f5f8ff}
@@ -1647,9 +1651,29 @@ function renderList() {
         '<div class="co-arrow">▼</div>' +
       '</div>' +
       '<div class="co-body">';
-    // 组内按版本年份从新到旧（新的在上，旧的在下），同年份再按更新时间倒序
+    // 组内分堆：同一产品线一堆（如「众民保」「尊享e生」），堆间加分隔条；
+    // 堆序从高端到低端，堆内按版本年份从新到旧
     function __prodYear(p){ var m=String(p.name||'').match(/20\d{2}/); return m?parseInt(m[m.length-1],10):0; }
+    function __lineOf(p){
+      if (p.line) return p.line;
+      var n = String(p.name||'').replace(/（[^）]*）/g,'').replace(/\([^)]*\)/g,'');
+      var m = n.match(/^([^\s·]+?)[\s·]*(?:20\d{2}|PLUS|plus|\d+号|版).*$/);
+      return (m ? m[1] : n).replace(/[·\s]+$/,'') || p.name;
+    }
+    var __TIER_RANK = {'高端医疗':4,'中端医疗':3,'中高端医疗':3,'普通百万医疗':2,'百万医疗':2,'惠民保':1};
+    function __lineRank(rows){ var m=0; rows.forEach(function(p){ m=Math.max(m, __TIER_RANK[tierOfP(p)]||0); }); return m; }
+    var __lines = [], __lineMap = {};
     pros_.slice().sort(function(a,b){ var ya=__prodYear(a),yb=__prodYear(b); return yb!==ya ? yb-ya : (b.updatedAt||0)-(a.updatedAt||0); }).forEach(function(p){
+      var ln = __lineOf(p);
+      if (!__lineMap[ln]) { __lineMap[ln] = []; __lines.push({name:ln, rows:__lineMap[ln]}); }
+      __lineMap[ln].push(p);
+    });
+    __lines.sort(function(a,b){ var ra=__lineRank(a.rows),rb=__lineRank(b.rows); return rb!==ra ? rb-ra : __prodYear(b.rows[0])-__prodYear(a.rows[0]); });
+    __lines.forEach(function(L){
+      if (__lines.length > 1) {
+        h += '<div class="line-div"><span class="line-div-txt">' + esc(L.name) + '</span></div>';
+      }
+      L.rows.forEach(function(p){
       var t = TYPES[p.type] || TYPES.qt;
       var sc = calcScore(p);
       var scoreHtml = '';
@@ -1664,6 +1688,7 @@ function renderList() {
         '<span class="pr-badge">' + t.icon + ' ' + t.short + '</span>' +
         scoreHtml +
       '</div>';
+      });
     });
     h += '</div></div>';
   });
@@ -3545,7 +3570,7 @@ function openSettings() {
         '</div>' +
         '<div style="margin-top:12px;font-size:13px;color:#8a919b">' +
           '产品数：<b style="color:#202124">' + appData.products.length + '</b>　已填字段：<b style="color:#202124">' + totalFields + '</b>' +
-          '<br>版本：v3.9.18' +
+          '<br>版本：v3.9.19' +
         '</div>' +
       '</div>' +
       '<div style="padding:16px">' +
