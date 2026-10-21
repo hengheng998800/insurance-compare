@@ -1215,8 +1215,8 @@ var KNOW = [
   { key:'yl', name:'医疗险', sub:'医保黄金搭档 · 解决看病花钱', items:[
     { label:'职工医保', base:true, pros:['单位+个人共同缴费，个人负担小','报销比例高（住院约70%-90%）','有个人账户，可买药/看门诊'], cons:['缴费相对较高','退休前需持续缴纳'] },
     { label:'居民医保', base:true, pros:['缴费极低 ≈400元/年','交一年保一年，人人可保','老人小孩都能参加'], cons:['报销比例较低（约50%-70%）','无个人账户'] },
-    { label:'普通百万医疗险', tier:'基础百万医疗', pros:['保费低 ≈300元/年','保额高、保障广'], cons:['1万免赔额','多数无外购药报销'] },
-    { label:'惠民钱（普惠型）', tier:'基础百万医疗', pros:['门槛低、保费极低 ≈几十元/年'], cons:['4万免赔额','无外购药、保障窄'] },
+    { label:'普通百万医疗险', tier:'普通百万医疗', pros:['保费低 ≈300元/年','保额高、保障广'], cons:['1万免赔额','多数无外购药报销'] },
+    { label:'惠民钱（普惠型）', tier:'普通百万医疗', pros:['门槛低、保费极低 ≈几十元/年'], cons:['4万免赔额','无外购药、保障窄'] },
     { label:'中端医疗险', tier:'中端医疗', pros:['可0免赔、含外购药','可选特需部/定点私立'], cons:['保费较高 ≈1000-2000元/年'] },
     { label:'高端医疗险', tier:'高端医疗', pros:['0免赔、全报销','含私立/海外医疗、含门诊'], cons:['保费昂贵 ≈几千-几万/年'] }
   ]},
@@ -1325,8 +1325,8 @@ function renderList() {
   });
 
   // 公司 / 层级 / 搜索 筛选面板
-  function tierOfP(p){ return p.tier || '未标注'; }
-  var TIERS = ['基础百万医疗','中端医疗','高端医疗'];
+  function tierOfP(p){ var t = p.tier || '未标注'; return t === '基础百万医疗' ? '普通百万医疗' : t; }
+  var TIERS = ['普通百万医疗','中端医疗','高端医疗'];
   var lf = document.getElementById('list-filter');
   var searchWasFocused = document.activeElement && document.activeElement.id === 'list-q';
   var coMap = {};
@@ -1471,7 +1471,7 @@ function renderList() {
       h += '<div class="p-row" data-id="' + p.id + '">' +
         '<span class="dot" style="background:' + pal.c + '"></span>' +
         '<span class="pr-name">' + esc(p.name) + '</span>' +
-        (p.tier ? '<span class="pr-tier">' + esc(p.tier) + '</span>' : '') +
+        (p.tier ? '<span class="pr-tier">' + esc(tierOfP(p)) + '</span>' : '') +
         '<span class="pr-badge">' + t.icon + ' ' + t.short + '</span>' +
         scoreHtml +
       '</div>';
@@ -1618,9 +1618,9 @@ function renderEdit() {
     '<div class="fgroup-title">' + t.icon + ' ' + t.name + '</div>' +
     '<div class="frow"><div class="flabel">产品名称<span style="color:#d93025">*</span></div>' +
     '<input class="finput" id="f-name" placeholder="如 某某福终身重疾险" value="' + esc(p.name) + '"></div>' +
-    (type === 'yl' ? '<div class="frow"><div class="flabel">医疗档次<div class="fnote">用于按档次筛选对比：基础百万医疗 / 中端医疗 / 高端医疗</div></div>' +
+    (type === 'yl' ? '<div class="frow"><div class="flabel">医疗档次<div class="fnote">用于按档次筛选对比：普通百万医疗 / 中端医疗 / 高端医疗</div></div>' +
       '<select class="finput" id="f-tier">' +
-      ['','基础百万医疗','中端医疗','高端医疗'].map(function(o){
+      ['','普通百万医疗','中端医疗','高端医疗'].map(function(o){
         var lb = o === '' ? '未标注' : o;
         return '<option value="' + o + '"' + ((p.tier||'') === o ? ' selected' : '') + '>' + lb + '</option>';
       }).join('') +
@@ -1832,7 +1832,7 @@ function renderDetail() {
       (slogan ? '<div class="poster-slogan">💡 ' + esc(slogan) + '</div>' : '') +
       '<div class="poster-badges">' +
         '<span class="pcard-badge ' + t.cls + '">' + t.icon + ' ' + t.name + '</span>' +
-        (p.tier ? '<span class="pcard-badge" style="background:#ffe9c8;color:#b25e00">' + esc(p.tier) + '</span>' : '') +
+        (p.tier ? '<span class="pcard-badge" style="background:#ffe9c8;color:#b25e00">' + esc(tierOfP(p)) + '</span>' : '') +
         (sc !== null ? '<span class="pcard-badge" style="background:#ffd7d7;color:#c5221f">综合分 ' + sc.toFixed(0) + '</span>' : '') +
       '</div>' +
     '</div>' +
@@ -1950,8 +1950,8 @@ function renderTable() {
   fb += '</div>';
 
   // 公司 / 医疗层级：下拉式筛选（一排两个，不占空间）
-  var TIERS = ['基础百万医疗','中端医疗','高端医疗'];
-  function tierOf(p){ return p.tier || '未标注'; }
+  var TIERS = ['普通百万医疗','中端医疗','高端医疗'];
+  function tierOf(p){ var t = p.tier || '未标注'; return t === '基础百万医疗' ? '普通百万医疗' : t; }
   var allYl = appData.products.filter(function(p){ return p.type === 'yl'; });
   var coMap = {};
   allYl.forEach(function(p){ var c = ((p.fields||{}).company||'').trim(); if (c) coMap[c] = (coMap[c]||0)+1; });
