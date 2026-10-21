@@ -2301,7 +2301,7 @@ function renderDetail() {
         if (!el) return;
         var rp = perKAt(rd.key, calc.pay, calc.g, calc.age);
         var bp = basePerK;
-        var delta = (rp != null && bp != null) ? Math.round((rp - bp) * unit) : null;
+        var delta = (rp != null && bp != null) ? (rd.full ? Math.round(rp * unit) : Math.round((rp - bp) * unit)) : null;
         var pr = el.querySelector('.gc-price');
         if (pr) pr.innerText = delta != null ? '+' + delta.toLocaleString('zh-CN') : '暂无费率';
         el.style.opacity = delta != null ? '' : '.45';
@@ -3526,7 +3526,7 @@ function openSettings() {
         '</div>' +
         '<div style="margin-top:12px;font-size:13px;color:#8a919b">' +
           '产品数：<b style="color:#202124">' + appData.products.length + '</b>　已填字段：<b style="color:#202124">' + totalFields + '</b>' +
-          '<br>版本：v3.9.10' +
+          '<br>版本：v3.9.11' +
         '</div>' +
       '</div>' +
       '<div style="padding:16px">' +
