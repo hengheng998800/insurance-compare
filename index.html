@@ -61,7 +61,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei
 .co-card{background:#fff;border:1px solid #c2ccd9;border-radius:12px;margin-bottom:12px;box-shadow:0 1.5px 5px rgba(30,40,60,.08);overflow:hidden}
 .co-head{display:flex;align-items:center;gap:10px;padding:11px 13px;cursor:pointer}
 .co-logo{width:34px;height:34px;border-radius:8px;object-fit:contain;background:#f4f6f9;border:1px solid #e5e9ef;flex-shrink:0}
-.co-logo-fb{width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:#fff;flex-shrink:0}
+.co-logo-fb{width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;color:#fff;flex-shrink:0;box-shadow:inset 0 -6px 12px rgba(0,0,0,.18), 0 1px 3px rgba(30,40,60,.2);letter-spacing:0;text-shadow:0 1px 2px rgba(0,0,0,.25)}
 .co-name{font-size:14.5px;font-weight:700;color:#1f2329;flex:1;min-width:0;word-break:break-all}
 .co-name .co-cnt{font-size:11.5px;font-weight:600;color:#8a919b;margin-left:5px}
 .co-kind{font-size:11px;color:#8a919b;margin-top:2px}
@@ -80,32 +80,32 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei
 .list-overview{display:flex;gap:6px;padding:10px 12px 2px;flex-wrap:wrap}
 .ov-chip{font-size:11.5px;color:#5f6368;background:#fff;border:1px solid #d8dee7;border-radius:14px;padding:3.5px 10px}
 
-/* ===== 保险科普（按品种学习）===== */
-.know-wrap{margin:10px 12px 0;border-radius:14px;background:#fffdf6;border:1px solid #e3d9bd;box-shadow:0 1.5px 6px rgba(120,90,20,.08);overflow:hidden}
-.know-head{display:flex;align-items:center;gap:8px;padding:11px 14px;background:linear-gradient(135deg,#fff3dd,#ffe9c8);cursor:pointer;user-select:none}
+/* ===== 保险科普（按品种学习）—— 蓝白高端风 ===== */
+.know-wrap{margin:10px 12px 0;border-radius:14px;background:#fff;border:1px solid #d3dbe6;box-shadow:0 2px 8px rgba(30,40,60,.08);overflow:hidden}
+.know-head{display:flex;align-items:center;gap:8px;padding:12px 14px;background:linear-gradient(135deg,#eef4ff,#e2ebfb);cursor:pointer;user-select:none;border-bottom:1px solid #e3e9f2}
 .know-head .kt{flex:1;min-width:0}
-.know-head .kt b{font-size:15px;color:#8a4b00;letter-spacing:1px}
-.know-head .kt span{display:block;font-size:11px;color:#a97b3a;margin-top:1px}
-.know-arrow{font-size:11px;color:#b25e00;transition:transform .2s}
+.know-head .kt b{font-size:15px;color:#1a4a9e;letter-spacing:1px}
+.know-head .kt span{display:block;font-size:11px;color:#6d84ab;margin-top:1px}
+.know-arrow{font-size:11px;color:#3b66b5;transition:transform .2s}
 .know-wrap.folded .know-arrow{transform:rotate(-90deg)}
-.know-body{display:none;padding:4px 12px 12px}
+.know-body{display:none;padding:4px 12px 12px;background:#fbfcfe}
 .know-wrap:not(.folded) .know-body{display:block}
-.know-sec{margin-top:10px}
-.know-sec-t{display:flex;align-items:baseline;gap:6px;padding:2px 2px 7px;border-bottom:2px dashed #eadfbd;margin-bottom:8px}
-.know-sec-t b{font-size:14.5px;color:#7a3c00}
-.know-sec-t em{font-style:normal;font-size:11px;color:#a97b3a}
+.know-sec{margin-top:12px}
+.know-sec-t{display:flex;align-items:baseline;gap:6px;padding:2px 2px 7px;border-bottom:1.5px solid #dfe6f0;margin-bottom:9px}
+.know-sec-t b{font-size:14.5px;color:#173a73}
+.know-sec-t em{font-style:normal;font-size:11px;color:#6d84ab}
 .know-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.know-card{text-align:left;border:1px solid #e8ddc0;border-radius:10px;background:#fffef9;padding:9px 10px;cursor:pointer;box-shadow:0 1px 3px rgba(120,90,20,.07);transition:transform .12s, box-shadow .12s;font-family:inherit}
-.know-card:active{transform:scale(.97);box-shadow:0 2px 8px rgba(120,90,20,.16)}
-.know-name{font-size:13px;font-weight:800;color:#5d3a00;margin-bottom:5px}
-.know-li{display:flex;gap:4px;font-size:10.5px;line-height:1.5;margin-top:2px;color:#6b5b33}
+.know-card{text-align:left;border:1px solid #dbe3ee;border-radius:10px;background:#fff;padding:9px 10px;cursor:pointer;box-shadow:0 1px 3px rgba(30,40,60,.06);transition:transform .12s, box-shadow .12s;font-family:inherit}
+.know-card:active{transform:scale(.97);box-shadow:0 2px 8px rgba(30,60,120,.15)}
+.know-name{font-size:13px;font-weight:800;color:#1a3a6b;margin-bottom:5px}
+.know-li{display:flex;gap:4px;font-size:10.5px;line-height:1.5;margin-top:2px;color:#5c6b84}
 .know-li .ic{flex-shrink:0}
 .know-li.pro .ic{color:#1d8a3e}
 .know-li.con .ic{color:#c5221f}
-.know-hint{margin:12px 2px 0;font-size:10.5px;color:#a97b3a;text-align:center}
-.learn-banner{display:flex;align-items:center;gap:8px;margin:10px 12px 0;background:#fff3dd;border:1px dashed #e0b25e;border-radius:10px;padding:8px 12px;font-size:12.5px;color:#8a4b00}
+.know-hint{margin:12px 2px 0;font-size:10.5px;color:#93a0b4;text-align:center}
+.learn-banner{display:flex;align-items:center;gap:8px;margin:10px 12px 0;background:#eef4ff;border:1px dashed #9db8e3;border-radius:10px;padding:8px 12px;font-size:12.5px;color:#1a4a9e}
 .learn-banner b{flex:1}
-.learn-banner button{border:none;background:#b25e00;color:#fff;border-radius:12px;padding:3px 12px;font-size:12px;font-family:inherit}
+.learn-banner button{border:none;background:#2f5cc0;color:#fff;border-radius:12px;padding:3px 12px;font-size:12px;font-family:inherit}
 
 /* ===== 产品卡片 ===== */
 #page-list{background:#edeff3}
@@ -1390,6 +1390,20 @@ function renderList() {
     '阳光人寿':'sinosig.com', '华贵保险':'huaguicloud.com', '信泰保险':'sinatay.com',
     '瑞华保险':'rhhealth.com.cn', '中荷人寿':'bnc-caicedo.com', '招商信诺':'cignacmb.com'
   };
+  /* 内嵌 logo（base64 dataURI，离线可用、优先于 clearbit）—— 发来的 logo 图片会填到 CO_LOGO_EMBED */
+  var CO_LOGO_EMBED = {
+    /* '众安财产': 'data:image/png;base64,...', */
+  };
+  function coLogoHtml(c, pal, initial) {
+    if (CO_LOGO_EMBED[c]) {
+      return '<img class="co-logo" src="' + CO_LOGO_EMBED[c] + '" alt="' + esc(c) + '">';
+    }
+    var dom = CO_DOMAIN[c];
+    return dom
+      ? '<img class="co-logo" src="https://logo.clearbit.com/' + dom + '" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'">' +
+        '<div class="co-logo-fb" style="background:' + pal.c + ';display:none">' + initial + '</div>'
+      : '<div class="co-logo-fb" style="background:' + pal.c + '">' + initial + '</div>';
+  }
   var coGroups = [], coMap = {};
   list.forEach(function(p){
     var c = ((p.fields||{}).company||'').trim() || '未标注公司';
@@ -1408,12 +1422,8 @@ function renderList() {
     pros_.forEach(function(p){ kindDist[p.type] = (kindDist[p.type]||0)+1; });
     var kindTxt = Object.keys(kindDist).map(function(t){ return (TYPES[t]||TYPES.qt).short + ' ' + kindDist[t]; }).join(' · ');
     var pal = COMPANY_PALETTE[ci % COMPANY_PALETTE.length];
-    var dom = CO_DOMAIN[c];
     var initial = esc(c.charAt(0));
-    var logo = dom
-      ? '<img class="co-logo" src="https://logo.clearbit.com/' + dom + '" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'">' +
-        '<div class="co-logo-fb" style="background:' + pal.c + ';display:none">' + initial + '</div>'
-      : '<div class="co-logo-fb" style="background:' + pal.c + '">' + initial + '</div>';
+    var logo = coLogoHtml(c, pal, initial);
     var folded = (state.listFold || []).indexOf(c) >= 0;
     h += '<div class="co-card' + (folded ? ' folded' : '') + '" data-co="' + esc(c) + '">' +
       '<div class="co-head">' + logo +
