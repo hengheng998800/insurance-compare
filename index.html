@@ -209,8 +209,9 @@ textarea.finput{min-height:38px;overflow:hidden}
 .sel-t{font-size:12px;font-weight:600;color:#5f6368}
 .sel-n{font-size:10.5px;color:#2f6fed;background:#eef3ff;border-radius:8px;padding:1px 7px;font-weight:600}
 .sel-clear{font-size:11px;color:#8a919b;margin-left:auto;text-decoration:underline;cursor:pointer;padding:2px 4px}
-.sel-pills{display:flex;flex-wrap:wrap;gap:6px}
+.sel-pills{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
 .sel-pill{font-size:11.5px;color:#5f6368;background:#f5f6f8;border:1.5px solid transparent;border-radius:16px;padding:5px 11px;cursor:pointer;line-height:1.3;word-break:break-all;max-width:100%}
+.sel-group{font-size:11px;font-weight:700;border-radius:6px;padding:2.5px 8px;margin:5px 2px 1px;align-self:flex-start}
 .sel-pill:active{background:#eef3ff}
 .sel-pill.on{color:#1a5fd0;background:#e8f0fe;border-color:#2f6fed;font-weight:600}
 .best-mark{display:inline-block;font-size:10px;background:#137333;color:#fff;border-radius:3px;padding:0 3px;margin-left:3px;vertical-align:middle}
@@ -386,7 +387,7 @@ textarea.finput{min-height:38px;overflow:hidden}
 <div class="toast" id="toast"></div>
 <script>
 /* ============================================================
-   保险对比工具 v2.7.1
+   保险对比工具 v2.8
    纯本地 PWA：IndexedDB 主存储 + localStorage 兜底，数据不出手机
    ============================================================ */
 
@@ -1747,21 +1748,50 @@ function renderTable() {
   scope.forEach(function(p){ scopeIds[p.id] = true; });
   state.tableIds = state.tableIds.filter(function(id){ return scopeIds[id]; });
 
-  // ===== 产品勾选条（超过 6 个折叠，点"展开全部"再看全部）=====
-  var pillArr = scope.map(function(p){
-    var on = state.tableIds.indexOf(p.id) >= 0;
-    return '<div class="sel-pill' + (on ? ' on' : '') + '" data-sel="' + esc(p.id) + '">' +
-            (on ? '✓ ' : '') + esc(p.name) + '</div>';
+  // ===== 产品勾选条（按产品系列分组，组内按年份从旧到新；超过 6 个折叠）=====
+  var G_CLS = [
+    {c:'#b25e00',bg:'#fff3e0'},{c:'#1a56b0',bg:'#e8f0fe'},{c:'#7a2fbf',bg:'#f3e8fd'},
+    {c:'#137333',bg:'#e6f4ea'},{c:'#c5221f',bg:'#fce8e6'},{c:'#5f6368',bg:'#f1f3f6'}
+  ];
+  function seriesOf(name){
+    var m = name.match(/(众民保|尊享e生|明爱安保|欣生人生|好医保|蓝医保|长相安|医安心|e享保|百万医疗|中高端|臻选)/);
+    if (m) return m[1];
+    var s = name.replace(/（[^）]*）|\([^)]*\)/g, '').replace(/20\d{2}[\s\S]*$/, '').replace(/[（(].*/, '').trim();
+    return s || name;
+  }
+  var gOrder = [], gMap = {};
+  scope.forEach(function(p){
+    var s = seriesOf(p.name);
+    if (!gMap[s]) { gMap[s] = []; gOrder.push(s); }
+    gMap[s].push(p);
   });
-  var needFold = pillArr.length > 6;
+  gOrder.forEach(function(s){
+    gMap[s].sort(function(a, b){
+      var ya = (a.name.match(/20\d{2}/) || [9999])[0] * 1;
+      var yb = (b.name.match(/20\d{2}/) || [9999])[0] * 1;
+      if (ya !== yb) return ya - yb;
+      return a.name.length - b.name.length || a.name.localeCompare(b.name, 'zh');
+    });
+  });
+  var pillHtml = '';
+  gOrder.forEach(function(s, gi){
+    var cls = G_CLS[gi % G_CLS.length];
+    if (gOrder.length > 1) pillHtml += '<div class="sel-group" style="color:' + cls.c + ';background:' + cls.bg + '">' + esc(s) + '</div>';
+    gMap[s].forEach(function(p){
+      var on = state.tableIds.indexOf(p.id) >= 0;
+      pillHtml += '<div class="sel-pill' + (on ? ' on' : '') + '" data-sel="' + esc(p.id) + '">' +
+              (on ? '✓ ' : '') + esc(p.name) + '</div>';
+    });
+  });
+  var needFold = scope.length > 6;
   fb += '<div class="sel-bar"><div class="sel-head">' +
           '<span class="sel-t">勾选要对比的产品</span>' +
           '<span class="sel-n">' + (state.tableIds.length ? '已选 ' + state.tableIds.length + ' 个' : '未勾选＝全部 ' + scope.length + ' 个') + '</span>' +
           (state.tableIds.length ? '<span class="sel-clear" id="sel-clear">清空</span>' : '') +
         '</div><div class="sel-pills' + (needFold ? ' collapsed' : '') + '">' +
-          pillArr.join('') +
+          pillHtml +
         '</div>' +
-        (needFold ? '<div class="sel-more" id="sel-more">展开全部 ' + pillArr.length + ' 个 ▾</div>' : '') +
+        (needFold ? '<div class="sel-more" id="sel-more">展开全部 ' + scope.length + ' 个 ▾</div>' : '') +
         '</div>';
 
   // 勾选过滤：勾了哪些就只对比哪些
