@@ -7,8 +7,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="保险对比">
-<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
-<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.png">
+<link rel="manifest" href="./manifest.webmanifest">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 html{overflow-x:hidden;max-width:100%}
@@ -374,22 +374,28 @@ textarea.finput{min-height:38px;overflow:hidden}
 .poster-badges .pcard-badge{box-shadow:0 1px 4px rgba(0,0,0,.15)}
 .poster-slogan{margin-top:10px;background:rgba(255,255,255,.14);border-radius:8px;padding:6px 10px;font-size:11.5px;line-height:1.5}
 .poster-body{padding:16px 10px 8px}
-.mp-sec{display:flex;gap:9px;margin-bottom:18px}
-.mp-gtag{min-width:44px;max-width:56px;flex-shrink:0;border-radius:8px;color:#fff;font-weight:700;font-size:12px;padding:11px 6px;text-align:center;writing-mode:vertical-rl;letter-spacing:2px;height:fit-content;box-shadow:0 2px 6px rgba(0,0,0,.18)}
-.mp-items{flex:1;min-width:0;position:relative;padding:2px 0 2px 13px;border-left:2.5px solid;border-radius:1px}
-.mp-item{position:relative;margin-bottom:11px}
-.mp-item:last-child{margin-bottom:2px}
-.mp-item::before{content:'';position:absolute;left:-13px;top:15px;width:11px;height:2.5px;border-radius:2px;background:currentColor;opacity:.55}
-.mp-item:last-child::after{content:'';position:absolute;left:-13px;top:17.5px;bottom:-6px;width:2.5px;background:#fff}
-.mp-tag{display:inline-block;font-size:11.5px;font-weight:700;padding:4px 10px;border-radius:7px;line-height:1.3;box-shadow:0 1px 2px rgba(0,0,0,.06)}
-.mp-val{font-size:12.5px;line-height:1.65;margin-top:3px;word-break:break-word}
-.mp-main{font-weight:600;color:#1f2329}
-.mp-line{padding:1.5px 0;color:#6b7280}
+.bp-sec{position:relative;display:flex;gap:0;margin-bottom:20px;padding:4px 8px 4px 10px}
+.bp-sec + .bp-sec{margin-top:6px}
+.bp-rail{flex-shrink:0;display:flex;align-items:flex-start;padding-top:2px}
+.bp-badge{writing-mode:vertical-rl;letter-spacing:4px;color:#fff;font-weight:800;font-size:13px;padding:14px 7px;border-radius:12px;box-shadow:0 3px 9px rgba(30,40,60,.22);text-shadow:0 1px 2px rgba(0,0,0,.2)}
+.bp-branch{flex:1;min-width:0;position:relative;padding-left:22px;padding-bottom:4px}
+.bp-spine{position:absolute;left:8px;top:14px;bottom:6px;width:2.5px;border-radius:2px;opacity:.75}
+.bp-node{position:relative;margin:0 0 9px 0;background:#fff;border-radius:12px;padding:9px 12px;box-shadow:0 1px 4px rgba(30,45,80,.09);border:1px solid rgba(30,45,80,.07)}
+.bp-node::before{content:'';position:absolute;left:-14px;top:18px;width:14px;height:2.5px;border-radius:2px;background:currentColor;opacity:.6}
+.bp-node:last-child{margin-bottom:2px}
+.bp-head{display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:800;color:#1f2a44;margin-bottom:4px}
+.bp-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.bp-body{font-size:12.5px;line-height:1.7;color:#3d4a5c;padding-left:13px}
+.bp-group{position:relative;display:flex;gap:6px;align-items:stretch;margin-bottom:9px}
+.bp-group-nodes{flex:1;min-width:0}
+.bp-group-nodes .bp-node{margin-bottom:7px}
+.bp-group-nodes .bp-node:last-child{margin-bottom:0}
+.bp-bracket{width:25px;flex-shrink:0;border-radius:9px;color:#fff;font-weight:800;font-size:11px;letter-spacing:3px;writing-mode:vertical-rl;display:flex;align-items:center;justify-content:center;padding:10px 0;min-height:80px;box-shadow:0 2px 7px rgba(240,110,20,.32)}
+.mp-main{font-weight:700;color:#1f2a44}
+.mp-line{padding:1px 0;color:#5c6b84}
 .mp-red{color:#d93025;font-weight:600}
-.mp-br{display:flex;gap:8px;position:relative}
-.mp-br .mp-items{flex:1;min-width:0}
-.mp-br-bar{width:24px;flex-shrink:0;border-radius:8px;color:#fff;font-weight:800;font-size:11px;letter-spacing:3px;writing-mode:vertical-rl;display:flex;align-items:center;justify-content:center;padding:10px 0;height:fit-content;align-self:stretch;min-height:70px;box-shadow:0 2px 6px rgba(240,110,20,.3)}
-.mp-dash{border:1.5px dashed #e8c545;background:#fffdf4;border-radius:8px;padding:6px 9px;margin:4px 0}
+.mp-dash{border:1.5px dashed #e8c545;background:#fffdf3;border-radius:9px;padding:7px 10px;margin:5px 0;color:#6b5b33}
+.mp-dash .mp-line{color:#6b5b33}
 .mp-foot{background:#364fc7;color:#fff;text-align:center;font-size:11.5px;padding:10px 14px;line-height:1.7;letter-spacing:.5px}
 
 /* ===== 详情页思维导图式呈现 ===== */
@@ -1891,9 +1897,10 @@ function renderDetail() {
     return out;
   }
 
+  // ===== 白纸手绘式思维导图：每组一个独立区块，中心主干 → 分支节点 → 内容框 =====
+  var secIdx = 0;
   groups.forEach(function(g){
-    var gc0 = gcolor(g);
-    var rows = '';
+    var gc = gcolor(g);
     var items = [];
     gmap[g].forEach(function(fd){
       var v = f[fd.key];
@@ -1901,36 +1908,40 @@ function renderDetail() {
       if (fd.key === 'note' && slogan) return;
       items.push(fd);
     });
-    // 相邻同 bracket 的项合并为一组，右侧画橙色竖条
+    if (!items.length) return;
+
+    // 相邻同 bracket 的节点合并到同一个「右括号」里
+    var nodeBlocks = '';
     var i = 0;
     while (i < items.length) {
       var fd = items[i];
-      if (fd.bracket) {
-        var j = i, chunk = '';
-        while (j < items.length && items[j].bracket === fd.bracket) {
-          var fj = items[j];
-          chunk += '<div class="mp-item" style="color:' + gc0.c + '">' +
-            '<div class="mp-tag" style="color:' + gc0.c + ';background:' + gc0.bg + '">' + esc(fj.label) + '</div>' +
-            '<div class="mp-val">' + mpValue(f[fj.key]) + '</div>' +
-          '</div>';
-          j++;
-        }
-        rows += '<div class="mp-br"><div class="mp-items" style="border-left-color:' + gc0.bg + '">' + chunk + '</div>' +
-                '<div class="mp-br-bar" style="background:linear-gradient(180deg,#ff9f43,#f76707)">' + esc(fd.bracket) + '</div></div>';
-        i = j;
-      } else {
-        rows += '<div class="mp-item" style="color:' + gc0.c + '">' +
-          '<div class="mp-tag" style="color:' + gc0.c + ';background:' + gc0.bg + '">' + esc(fd.label) + '</div>' +
-          '<div class="mp-val">' + mpValue(f[fd.key]) + '</div>' +
+      var thisBracket = fd.bracket || '';
+      var j = i, chunk = '';
+      while (j < items.length && (items[j].bracket || '') === thisBracket) {
+        var fj = items[j];
+        chunk += '<div class="bp-node">' +
+          '<div class="bp-head"><span class="bp-dot" style="background:' + gc.c + '"></span>' + esc(fj.label) + '</div>' +
+          '<div class="bp-body">' + mpValue(f[fj.key]) + '</div>' +
         '</div>';
-        i++;
+        j++;
       }
+      if (thisBracket) {
+        nodeBlocks += '<div class="bp-group">' +
+          '<div class="bp-group-nodes">' + chunk + '</div>' +
+          '<div class="bp-bracket" style="background:linear-gradient(180deg,#ffa94d,#f76707)">' + esc(thisBracket) + '</div>' +
+        '</div>';
+      } else {
+        nodeBlocks += chunk;
+      }
+      i = j;
     }
-    if (!rows) return;
-    var gc = gcolor(g);
-    h += '<div class="mp-sec">' +
-      '<div class="mp-gtag" style="background:' + gc.c + '">' + esc(g.replace(/^[一二三四五六七八九十]+、/, '')) + '</div>' +
-      '<div class="mp-items" style="border-left-color:' + gc.bg + '">' + rows + '</div>' +
+
+    var secName = g.replace(/^[一二三四五六七八九十]+、/, '');
+    var accent = ['yl','core','opt','green','gray'][secIdx % 5];
+    secIdx++;
+    h += '<div class="bp-sec bp-' + accent + '">' +
+      '<div class="bp-rail"><div class="bp-badge" style="background:' + gc.c + '">' + esc(secName) + '</div></div>' +
+      '<div class="bp-branch"><div class="bp-spine" style="background:' + gc.c + '"></div>' + nodeBlocks + '</div>' +
     '</div>';
   });
 
@@ -2748,7 +2759,7 @@ function openSettings() {
         '</div>' +
         '<div style="margin-top:12px;font-size:13px;color:#8a919b">' +
           '产品数：<b style="color:#202124">' + appData.products.length + '</b>　已填字段：<b style="color:#202124">' + totalFields + '</b>' +
-          '<br>版本：v3.4.1' +
+          '<br>版本：v3.7' +
         '</div>' +
       '</div>' +
       '<div style="padding:16px">' +
@@ -3131,7 +3142,7 @@ document.getElementById('btn-share').addEventListener('click', shareCompareImage
 // 注册 Service Worker
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', function(){
-    navigator.serviceWorker.register('./sw.js').catch(function(e){
+    navigator.serviceWorker.register("./sw.js").catch(function(e){
       console.warn('SW 注册失败', e);
     });
   });
