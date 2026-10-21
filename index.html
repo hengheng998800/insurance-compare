@@ -1671,8 +1671,10 @@ function renderList() {
       __lineMap[ln].push(p);
     });
     __lines.sort(function(a,b){ var ra=__lineRank(a.rows),rb=__lineRank(b.rows); return rb!==ra ? rb-ra : __prodYear(b.rows[0])-__prodYear(a.rows[0]); });
+    // 只有存在「两个及以上各有2+款产品」的堆时才加分隔线；全是单款的公司不分割
+    var __bigLines = __lines.filter(function(L){ return L.rows.length >= 2; }).length;
     __lines.forEach(function(L){
-      if (__lines.length > 1) {
+      if (__bigLines >= 2) {
         h += '<div class="line-div"><span class="line-div-txt">' + esc(L.name) + '</span></div>';
       }
       L.rows.forEach(function(p){
@@ -3573,7 +3575,7 @@ function openSettings() {
         '<div style="margin-top:12px;font-size:13px;color:#8a919b">' +
           '产品数：<b style="color:#202124">' + appData.products.length + '</b>　已填字段：<b style="color:#202124">' + totalFields + '</b>' +
           (appData.dataTag ? '<br>数据包：<b style="color:#c5221f">' + esc(appData.dataTag) + '</b>' : '') +
-          '<br>版本：v3.9.21' +
+          '<br>版本：v3.9.22' +
         '</div>' +
       '</div>' +
       '<div style="padding:16px">' +
