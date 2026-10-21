@@ -2111,7 +2111,7 @@ function renderDetail() {
   // —— 保费试算（官方费率 perK 模式 / 组合费率回退模式）——
   if (f.perK && f.perK['必选']) {
     // 官方费率表：每1000元保额，0-50岁逐岁
-    var RIDER_DEFS = [
+    var RIDER_DEFS = Array.isArray(f.riderDefs) && f.riderDefs.length ? f.riderDefs : [
       { key:'身故', name:'身故或全残' },
       { key:'关爱', name:'疾病关爱金' },
       { key:'多次', name:'重疾多次给付' },
@@ -2119,22 +2119,29 @@ function renderDetail() {
       { key:'癌前', name:'癌前病变手术金' },
       { key:'特药', name:'癌症特药治疗金' }
     ];
-    var pkPays = Object.keys(f.perK['必选']).sort(function(a,b){ return +a - +b; });
+    var pkPays = Object.keys(f.perK['必选']).sort(function(a,b){
+      var na = parseFloat(a), nb = parseFloat(b);
+      if (!isNaN(na) && !isNaN(nb)) return na - nb;
+      return String(a).localeCompare(String(b), 'zh');
+    });
     var pkSums = ['10','20','30','50'];
-    var pkAges = []; for (var ai = 0; ai <= 50; ai++) pkAges.push(ai);
-    var calcAge2 = 30;
-    var calc = { g: '男', age: calcAge2, sum: '30', pay: '20', riders: {} };
+    var __perkAgeMax = 50;
+    (function(){ var k0 = pkPays[0]; var n0 = (f.perK['必选'][k0]||{})['男'] || (f.perK['必选'][k0]||{})['女']; if (Array.isArray(n0) && n0.length) __perkAgeMax = n0.length - 1; })();
+    var pkAges = []; for (var ai = 0; ai <= __perkAgeMax; ai++) pkAges.push(ai);
+    var calcAge2 = Math.min(30, __perkAgeMax);
+    var calc = { g: '男', age: calcAge2, sum: '30', pay: (pkPays.filter(function(x){ return x.indexOf('20') >= 0; })[0] || pkPays[0]), riders: {} };
     var RIDER_BASE = '必选';
 
     function perKAt(planKey, pay, g, age) {
       var node = f.perK[planKey] && f.perK[planKey][pay] && f.perK[planKey][pay][g];
       if (!node) return null;
-      var v = node[Math.min(Math.max(age, 0), 50)];
+      var v = node[Math.min(Math.max(age, 0), __perkAgeMax)];
       return (v == null || v <= 0) ? null : v;
     }
     var ageOpts2 = pkAges.map(function(a){ return '<option value="' + a + '"' + (a === calc.age ? ' selected' : '') + '>' + a + '岁</option>'; }).join('');
     var sumOpts2 = pkSums.map(function(s){ return '<option value="' + s + '"' + (s === calc.sum ? ' selected' : '') + '>' + s + '万保额</option>'; }).join('');
-    var payOpts2 = pkPays.map(function(py){ return '<option value="' + py + '"' + (py === calc.pay ? ' selected' : '') + '>' + py + '年交</option>'; }).join('');
+    function payLabel(py){ return /年交$|^趸交$/.test(py) ? py : py + '年交'; }
+    var payOpts2 = pkPays.map(function(py){ return '<option value="' + py + '"' + (py === calc.pay ? ' selected' : '') + '>' + payLabel(py) + '</option>'; }).join('');
     var riderChips2 = RIDER_DEFS.map(function(rd, i){
       return '<span class="gc-rider" id="gc-rider-' + i + '" data-i="' + i + '">' + esc(rd.name) + '<span class="gc-price">…</span></span>';
     }).join('');
@@ -2147,7 +2154,7 @@ function renderDetail() {
       '<div class="gc-row"><span class="gc-k">缴费期间</span><select id="gc-pay" class="gc-sel">' + payOpts2 + '</select></div>' +
       '<div class="gc-row" style="align-items:flex-start"><span class="gc-k" style="padding-top:7px">附加责任</span><div style="flex:1">' + riderChips2 + '</div></div>' +
       '<div class="gc-total-row"><div><div class="gc-total-k">年交保费（估算）</div><div id="gc-detail" class="gc-detail"></div></div><div id="gc-total" class="gc-total">—</div></div>' +
-      '<div class="gc-tip">数据来源：海保人寿官网备案费率表（每1000元保额标准体费率，保终身）。保障期间保终身；保至70岁版及非标准体以投保页试算为准</div>' +
+      '<div class="gc-tip">' + (f.perkTip || '数据来源：官网备案费率表（每1000元保额标准体费率，保终身）；非标准体及未列出组合以投保页试算为准') + '</div>' +
       '</div>';
     window.__calcMode = 'perk';
   } else if (Array.isArray(p.rates) && p.rates.length) {
@@ -2302,7 +2309,7 @@ function renderDetail() {
       });
       document.getElementById('gc-total').innerText = base != null ? '¥' + total.toLocaleString('zh-CN') : '暂无费率';
       document.getElementById('gc-detail').innerText =
-        (calc.g === '男' ? '男性' : '女性') + ' · ' + calc.age + '岁 · ' + calc.sum + '万保额·' + calc.pay + '年交·保终身' +
+        (calc.g === '男' ? '男性' : '女性') + ' · ' + calc.age + '岁 · ' + calc.sum + '万保额·' + (/年交$|^趸交$/.test(calc.pay) ? calc.pay : calc.pay + '年交') + '·' + (f.perkTerm || '保终身') +
         (base == null ? '（暂无费率数据）' : (parts.length ? '（附加' + parts.join(' + ') + '）' : ''));
     }
     Array.prototype.forEach.call(document.querySelectorAll('.gc-gb'), function(btn){
@@ -3519,7 +3526,7 @@ function openSettings() {
         '</div>' +
         '<div style="margin-top:12px;font-size:13px;color:#8a919b">' +
           '产品数：<b style="color:#202124">' + appData.products.length + '</b>　已填字段：<b style="color:#202124">' + totalFields + '</b>' +
-          '<br>版本：v3.9.9' +
+          '<br>版本：v3.9.10' +
         '</div>' +
       '</div>' +
       '<div style="padding:16px">' +
