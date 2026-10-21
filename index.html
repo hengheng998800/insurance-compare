@@ -484,6 +484,17 @@ textarea.finput{min-height:38px;overflow:hidden}
 .fm-chip{font-size:11px;padding:4px 11px;border-radius:999px;background:#f2f5fa;color:#5a6578;border:1px solid #e2e8f1;cursor:pointer}
 .fm-chip.on{background:#2563eb;color:#fff;border-color:#2563eb}
 .fm-rate-hint{font-size:11px;color:#0d8a4f;margin:-6px 0 10px}
+
+/* v3.9.1 健康告知模块 */
+details.hn-node{cursor:pointer}
+details.hn-node summary{list-style:none;display:flex;align-items:center;gap:6px}
+details.hn-node summary::-webkit-details-marker{display:none}
+details.hn-node summary::after{content:'▾';margin-left:auto;color:#9aa4b2;font-size:11px;transition:transform .2s}
+details.hn-node[open] summary::after{transform:rotate(180deg)}
+.hn-count{font-size:9.5px;color:#8a94a6;background:#f1f4f9;border-radius:999px;padding:1px 8px;margin-left:4px}
+.hn-sec-line{font-weight:700;color:#8f2b25;margin-top:3px}
+.hn-node.hn-ok{border:1px solid #bfe8d2;background:#f6fdf9}
+.hn-warn{font-size:10.5px;color:#b3261e;background:#fdecec;border:1px solid #f5c6c2;border-radius:9px;padding:6px 10px;margin-top:2px;line-height:1.6}
 </style>
 </head>
 <body>
@@ -625,6 +636,8 @@ var TYPE_FIELDS = {
     { key:'payPeriod',    label:'交费期间',   type:'text', group:'一、投保规则' },
     { key:'review',       label:'保单复议',   type:'text', group:'一、投保规则', better:'high', score:true, note:'如：支持/不支持，复议可修改核保结论' },
     { key:'waitPeriod',   label:'等待期',     type:'text', group:'一、投保规则', better:'low', score:true },
+    { key:'hesitate',     label:'犹豫期',     type:'text', group:'一、投保规则' },
+    { key:'companyInfo',  label:'公司实力',   type:'text', group:'一、投保规则' },
     { key:'occupation',   label:'职业类别',   type:'text', group:'一、投保规则' },
     { key:'maxSumInsured',label:'最高基本保额', type:'text', group:'一、投保规则', better:'high', score:true },
     { key:'price',        label:'保费',       type:'text', group:'一、投保规则', better:'low', score:true },
@@ -2021,6 +2034,29 @@ function renderDetail() {
     '</div>';
   });
 
+  // 健康告知模块（白纸思维导图风格，可折叠）
+  if (Array.isArray(p.notice) && p.notice.length) {
+    var noticeNodes = '';
+    p.notice.forEach(function(sec, si){
+      var isExempt = sec.t.indexOf('例外') >= 0;
+      var rows = '';
+      (sec.items||[]).forEach(function(line, li){
+        rows += '<div class="mp-line' + (line.indexOf('【')===0 ? ' hn-sec-line' : '') + '">' + esc(line) + '</div>';
+      });
+      noticeNodes += '<details class="bp-node hn-node' + (isExempt ? ' hn-ok' : '') + '"' + (si < 3 ? ' open' : '') + '>' +
+        '<summary class="bp-head"><span class="bp-dot" style="background:' + (isExempt ? '#2bb673' : '#d93025') + '"></span>' + esc(sec.t) +
+        '<span class="hn-count">' + (sec.items||[]).length + ' 条</span></summary>' +
+        '<div class="bp-body" style="padding-left:13px">' + rows + '</div>' +
+      '</details>';
+    });
+    var accentN = ['core','opt','green','gray','yl'][secIdx % 5]; secIdx++;
+    h += '<div class="bp-sec bp-' + accentN + '">' +
+      '<div class="bp-rail"><div class="bp-badge" style="background:linear-gradient(180deg,#e05252,#b71c1c)">健康告知</div></div>' +
+      '<div class="bp-branch"><div class="bp-spine" style="background:#d93025"></div>' + noticeNodes +
+      '<div class="hn-warn">⚠️ 如实告知是理赔的前提：以上任何一项答「是」都可能影响承保，可走智能核保/人工核保（支持保单复议）</div>' +
+      '</div></div>';
+  }
+
   h += '</div>' +
     '<div class="mp-foot">以上为产品责任简述，具体以保险合同 &amp; 条款为准<br>保障看得见，选择不迷路 ✦</div>' +
   '</div>';
@@ -3142,7 +3178,7 @@ function openSettings() {
         '</div>' +
         '<div style="margin-top:12px;font-size:13px;color:#8a919b">' +
           '产品数：<b style="color:#202124">' + appData.products.length + '</b>　已填字段：<b style="color:#202124">' + totalFields + '</b>' +
-          '<br>版本：v3.9' +
+          '<br>版本：v3.9.1' +
         '</div>' +
       '</div>' +
       '<div style="padding:16px">' +
