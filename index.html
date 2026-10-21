@@ -1665,7 +1665,7 @@ function renderList() {
     var __TIER_RANK = {'高端医疗':4,'中端医疗':3,'中高端医疗':3,'普通百万医疗':2,'百万医疗':2,'惠民保':1};
     function __lineRank(rows){ var m=0; rows.forEach(function(p){ m=Math.max(m, __TIER_RANK[tierOfP(p)]||0); }); return m; }
     var __lines = [], __lineMap = {};
-    pros_.slice().sort(function(a,b){ var ya=__prodYear(a),yb=__prodYear(b); return yb!==ya ? yb-ya : (b.updatedAt||0)-(a.updatedAt||0); }).forEach(function(p){
+    pros_.slice().sort(function(a,b){ var ra=__TIER_RANK[tierOfP(a)]||0,rb=__TIER_RANK[tierOfP(b)]||0; if(ra!==rb) return rb-ra; var ya=__prodYear(a),yb=__prodYear(b); return yb!==ya ? yb-ya : (b.updatedAt||0)-(a.updatedAt||0); }).forEach(function(p){
       var ln = __lineOf(p);
       if (!__lineMap[ln]) { __lineMap[ln] = []; __lines.push({name:ln, rows:__lineMap[ln]}); }
       __lineMap[ln].push(p);
@@ -3573,7 +3573,7 @@ function openSettings() {
         '<div style="margin-top:12px;font-size:13px;color:#8a919b">' +
           '产品数：<b style="color:#202124">' + appData.products.length + '</b>　已填字段：<b style="color:#202124">' + totalFields + '</b>' +
           (appData.dataTag ? '<br>数据包：<b style="color:#c5221f">' + esc(appData.dataTag) + '</b>' : '') +
-          '<br>版本：v3.9.20' +
+          '<br>版本：v3.9.21' +
         '</div>' +
       '</div>' +
       '<div style="padding:16px">' +
