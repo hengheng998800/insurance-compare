@@ -108,6 +108,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei
 .know-card:active{transform:scale(.97);box-shadow:0 2px 8px rgba(30,60,120,.15)}
 .know-card.base{grid-column:1 / -1;background:linear-gradient(135deg,#f0f5ff,#e4edfc);border:1px solid #b9cdf0;box-shadow:0 1.5px 6px rgba(37,99,235,.10)}
 .know-ribbon{display:inline-block;font-size:9.5px;font-weight:700;color:#fff;background:linear-gradient(135deg,#3b82f6,#2563eb);border-radius:9px;padding:2px 9px;margin-bottom:5px;letter-spacing:.5px}
+.know-card.civic{grid-column:1 / -1;background:linear-gradient(135deg,#f2fbf6,#e6f6ee);border:1px solid #b5e0c8;box-shadow:0 1.5px 6px rgba(16,140,80,.10)}
+.civic-ribbon{color:#0c6b3d;background:linear-gradient(135deg,#5fbb8a,#2f9e63)}
 .know-name{font-size:13px;font-weight:800;color:#1a3a6b;margin-bottom:5px}
 .know-li{display:flex;gap:4px;font-size:10.5px;line-height:1.5;margin-top:2px;color:#5c6b84}
 .know-li .ic{flex-shrink:0}
@@ -1395,10 +1397,11 @@ function tierName(t) { t = (t || '').trim(); return t === '基础百万医疗' ?
    ============================================================ */
 var KNOW = [
   { key:'yl', name:'医疗险', sub:'医保黄金搭档 · 解决看病花钱', items:[
-    { label:'职工医保', base:true, pros:['单位+个人共同缴费，个人负担小','报销比例高（住院约70%-90%）','有个人账户，可买药/看门诊'], cons:['缴费相对较高','退休前需持续缴纳'] },
     { label:'居民医保', base:true, pros:['缴费极低 ≈400元/年','交一年保一年，人人可保','老人小孩都能参加'], cons:['报销比例较低（约50%-70%）','无个人账户'] },
-    { label:'普通百万医疗险', tier:'普通百万医疗', pros:['保费低 ≈300元/年','保额高、保障广'], cons:['1万免赔额','多数无外购药报销'] },
-    { label:'惠民钱（普惠型）', tier:'普通百万医疗', pros:['门槛低、保费极低 ≈几十元/年'], cons:['4万免赔额','无外购药、保障窄'] },
+    { label:'职工医保', base:true, pros:['单位+个人共同缴费，个人负担小','报销比例高（住院约70%-90%）','有个人账户，可买药/看门诊'], cons:['缴费相对较高','退休前需持续缴纳'] },
+    { label:'惠民保（普惠型）', civic:true, tier:'惠民保', pros:['政府指导、参保门槛极低','不限年龄、带病/高龄也可保','保费 ≈几十到一百多元/年'], cons:['免赔额高（常见1.5-2万）','报销范围有限、保障窄'] },
+    { label:'百万医疗险 · 保证续保20年', tier:'普通百万医疗', pros:['20年内续保稳定，不怕停售','保费低 ≈300元/年、保额高'], cons:['1万免赔额','多数无外购药报销'] },
+    { label:'百万医疗险 · 一年期', tier:'普通百万医疗', pros:['保费更低、投保灵活','杠杆高 ≈百元级/年'], cons:['不保证续保，停售要换产品','健康变化后可能买不到'] },
     { label:'中端医疗险', tier:'中端医疗', pros:['可0免赔、含外购药','可选特需部/定点私立'], cons:['保费较高 ≈1000-2000元/年'] },
     { label:'高端医疗险', tier:'高端医疗', pros:['0免赔、全报销','含私立/海外医疗、含门诊'], cons:['保费昂贵 ≈几千-几万/年'] }
   ]},
@@ -1436,8 +1439,9 @@ function renderLearn(box) {
       '<div class="know-sec-t"><span class="know-pill pill-' + sec.key + '">' + t.icon + ' ' + esc(sec.name) + '</span><em>「' + esc(sec.sub) + '」</em></div>' +
       '<div class="know-grid">';
     sec.items.forEach(function(it){
-      h += '<button class="know-card' + (it.base ? ' base' : '') + '" data-learn-type="' + (it.base ? '' : sec.key) + '" data-learn-tier="' + esc(it.tier || '') + '" data-learn-label="' + esc(it.label) + '">' +
+      h += '<button class="know-card' + (it.base ? ' base' : '') + (it.civic ? ' civic' : '') + '" data-learn-type="' + (it.base ? '' : sec.key) + '" data-learn-tier="' + esc(it.tier || '') + '" data-learn-label="' + esc(it.label) + '">' +
         (it.base ? '<div class="know-ribbon">🇨🇳 国家福利 · 建议最优先配置</div>' : '') +
+        (it.civic ? '<div class="know-ribbon civic-ribbon">🏛️ 政府指导 · 普惠政策型</div>' : '') +
         '<div class="know-name">' + esc(it.label) + '</div>';
       (it.pros || []).forEach(function(x){
         h += '<div class="know-li pro"><span class="ic">✔</span><span>' + esc(x) + '</span></div>';
@@ -1509,7 +1513,7 @@ function renderList() {
 
   // 公司 / 层级 / 搜索 筛选面板
   function tierOfP(p){ return tierName(p.tier); }
-  var TIERS = ['普通百万医疗','中端医疗','高端医疗'];
+  var TIERS = ['惠民保','普通百万医疗','中端医疗','高端医疗'];
   var lf = document.getElementById('list-filter');
   var searchWasFocused = document.activeElement && document.activeElement.id === 'list-q';
   var coMap = {};
@@ -1811,9 +1815,9 @@ function renderEdit() {
     '<div class="fgroup-title">' + t.icon + ' ' + t.name + '</div>' +
     '<div class="frow"><div class="flabel">产品名称<span style="color:#d93025">*</span></div>' +
     '<input class="finput" id="f-name" placeholder="如 某某福终身重疾险" value="' + esc(p.name) + '"></div>' +
-    (type === 'yl' ? '<div class="frow"><div class="flabel">医疗档次<div class="fnote">用于按档次筛选对比：普通百万医疗 / 中端医疗 / 高端医疗</div></div>' +
+    (type === 'yl' ? '<div class="frow"><div class="flabel">医疗档次<div class="fnote">用于按档次筛选对比：惠民保 / 普通百万医疗 / 中端医疗 / 高端医疗</div></div>' +
       '<select class="finput" id="f-tier">' +
-      ['','普通百万医疗','中端医疗','高端医疗'].map(function(o){
+      ['','惠民保','普通百万医疗','中端医疗','高端医疗'].map(function(o){
         var lb = o === '' ? '未标注' : o;
         return '<option value="' + o + '"' + ((p.tier||'') === o ? ' selected' : '') + '>' + lb + '</option>';
       }).join('') +
@@ -2444,7 +2448,7 @@ function renderTable() {
   fb += '</div>';
 
   // 公司 / 医疗层级：下拉式筛选（一排两个，不占空间）
-  var TIERS = ['普通百万医疗','中端医疗','高端医疗'];
+  var TIERS = ['惠民保','普通百万医疗','中端医疗','高端医疗'];
   function tierOf(p){ return tierName(p.tier); }
   var allYl = appData.products.filter(function(p){ return p.type === 'yl'; });
   var coMap = {};
@@ -3539,7 +3543,7 @@ function openSettings() {
         '</div>' +
         '<div style="margin-top:12px;font-size:13px;color:#8a919b">' +
           '产品数：<b style="color:#202124">' + appData.products.length + '</b>　已填字段：<b style="color:#202124">' + totalFields + '</b>' +
-          '<br>版本：v3.9.15' +
+          '<br>版本：v3.9.16' +
         '</div>' +
       '</div>' +
       '<div style="padding:16px">' +
