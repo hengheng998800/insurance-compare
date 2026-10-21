@@ -98,6 +98,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei
 .know-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .know-card{text-align:left;border:1px solid #dbe3ee;border-radius:10px;background:#fff;padding:9px 10px;cursor:pointer;box-shadow:0 1px 3px rgba(30,40,60,.06);transition:transform .12s, box-shadow .12s;font-family:inherit}
 .know-card:active{transform:scale(.97);box-shadow:0 2px 8px rgba(30,60,120,.15)}
+.know-card.base{grid-column:1 / -1;background:linear-gradient(135deg,#f0f5ff,#e4edfc);border:1px solid #b9cdf0;box-shadow:0 1.5px 6px rgba(37,99,235,.10)}
+.know-ribbon{display:inline-block;font-size:9.5px;font-weight:700;color:#fff;background:linear-gradient(135deg,#3b82f6,#2563eb);border-radius:9px;padding:2px 9px;margin-bottom:5px;letter-spacing:.5px}
 .know-name{font-size:13px;font-weight:800;color:#1a3a6b;margin-bottom:5px}
 .know-li{display:flex;gap:4px;font-size:10.5px;line-height:1.5;margin-top:2px;color:#5c6b84}
 .know-li .ic{flex-shrink:0}
@@ -1205,6 +1207,8 @@ function renderAll() {
    ============================================================ */
 var KNOW = [
   { key:'yl', name:'医疗险', sub:'医保黄金搭档 · 解决看病花钱', items:[
+    { label:'职工医保', base:true, pros:['单位+个人共同缴费，个人负担小','报销比例高（住院约70%-90%）','有个人账户，可买药/看门诊'], cons:['缴费相对较高','退休前需持续缴纳'] },
+    { label:'居民医保', base:true, pros:['缴费极低 ≈400元/年','交一年保一年，人人可保','老人小孩都能参加'], cons:['报销比例较低（约50%-70%）','无个人账户'] },
     { label:'普通百万医疗险', tier:'基础百万医疗', pros:['保费低 ≈300元/年','保额高、保障广'], cons:['1万免赔额','多数无外购药报销'] },
     { label:'惠民钱（普惠型）', tier:'基础百万医疗', pros:['门槛低、保费极低 ≈几十元/年'], cons:['4万免赔额','无外购药、保障窄'] },
     { label:'中端医疗险', tier:'中端医疗', pros:['可0免赔、含外购药','可选特需部/定点私立'], cons:['保费较高 ≈1000-2000元/年'] },
@@ -1243,7 +1247,8 @@ function renderLearn(box) {
       '<div class="know-sec-t">' + t.icon + ' <b>' + esc(sec.name) + '</b><em>「' + esc(sec.sub) + '」</em></div>' +
       '<div class="know-grid">';
     sec.items.forEach(function(it){
-      h += '<button class="know-card" data-learn-type="' + sec.key + '" data-learn-tier="' + esc(it.tier || '') + '" data-learn-label="' + esc(it.label) + '">' +
+      h += '<button class="know-card' + (it.base ? ' base' : '') + '" data-learn-type="' + (it.base ? '' : sec.key) + '" data-learn-tier="' + esc(it.tier || '') + '" data-learn-label="' + esc(it.label) + '">' +
+        (it.base ? '<div class="know-ribbon">🇨🇳 国家福利 · 建议最优先配置</div>' : '') +
         '<div class="know-name">' + esc(it.label) + '</div>';
       (it.pros || []).forEach(function(x){
         h += '<div class="know-li pro"><span class="ic">✔</span><span>' + esc(x) + '</span></div>';
@@ -1267,6 +1272,10 @@ function renderLearn(box) {
   });
   box.querySelectorAll('.know-card').forEach(function(card){
     card.addEventListener('click', function(){
+      if (!this.dataset.learnType) {
+        toast('💡 ' + this.dataset.learnLabel + '是国家福利，先把医保配好，再考虑商业医疗险');
+        return;
+      }
       state.learn = { label: this.dataset.learnLabel };
       state.listType = this.dataset.learnType;
       state.listTier = this.dataset.learnTier || 'all';
