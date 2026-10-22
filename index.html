@@ -109,6 +109,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei
 .know-sec-t em{font-style:normal;font-size:11px;color:#6d84ab}
 .know-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .know-card{text-align:left;border:1px solid #dbe3ee;border-radius:10px;background:#fff;padding:9px 10px;cursor:pointer;box-shadow:0 1px 3px rgba(30,40,60,.06);transition:transform .12s, box-shadow .12s;font-family:inherit}
+/* v3.9.24 全部产品折叠大卡片 */
+.all-card{background:#fff;border:1px solid #c2ccd9;border-radius:12px;margin:10px 0 12px;box-shadow:0 1.5px 5px rgba(30,40,60,.08);overflow:hidden}
+.all-card .know-head{border-bottom:none}
+.all-card.open .know-head{border-bottom:1px solid #e3e9f2}
+.all-body{display:none}
+.all-card.open .all-body{display:block}
+.all-card .co-card{margin:10px 12px 12px}
+.all-arrow{color:#1a4a9e;font-size:13px;transition:transform .2s;flex-shrink:0}
+.all-card.open .all-arrow{transform:rotate(90deg)}
 .know-card:active{transform:scale(.97);box-shadow:0 2px 8px rgba(30,60,120,.15)}
 .know-card.base{grid-column:1 / -1;background:linear-gradient(135deg,#f0f5ff,#e4edfc);border:1px solid #b9cdf0;box-shadow:0 1.5px 6px rgba(37,99,235,.10)}
 .know-ribbon{display:inline-block;font-size:9.5px;font-weight:700;color:#fff;background:linear-gradient(135deg,#3b82f6,#2563eb);border-radius:9px;padding:2px 9px;margin-bottom:5px;letter-spacing:.5px}
@@ -1575,6 +1584,12 @@ function renderList() {
   // 概览条（统计基于全部产品，点击可切换筛选）
   var kindCounts = {};
   appData.products.forEach(function(p){ kindCounts[p.type] = (kindCounts[p.type]||0)+1; });
+  var allOpen = !!state.allOpen;
+  h += '<div class="all-card' + (allOpen ? ' open' : '') + '" id="all-card">';
+  h += '<div class="know-head" id="all-head">' +
+    '<div class="kt"><b>📦 全部产品</b><span>' + appData.products.length + ' 款 · 点' + (allOpen ? '收起' : '开') + '查看所有公司产品</span></div>' +
+    '<div class="all-arrow">▶</div></div>';
+  h += '<div class="all-body">';
   h += '<div class="list-overview">';
   h += '<span class="ov-chip' + (state.listType==='all'?' on':'') + '" data-t="all">📦 共 ' + appData.products.length + ' 款</span>';
   Object.keys(kindCounts).forEach(function(t){
@@ -1697,9 +1712,20 @@ function renderList() {
     h += '</div></div>';
   });
 
+  h += '</div></div>';
   h += '<div style="padding:12px 0 0"><button class="btn btn-ghost" id="btn-add-list">＋ 添加产品</button></div>';
   box.innerHTML = h;
   renderLearn(box);
+
+  // 全部产品大卡片：开合
+  var allCard = document.getElementById('all-card');
+  var allHead = document.getElementById('all-head');
+  if (allHead) allHead.addEventListener('click', function(){
+    state.allOpen = !state.allOpen;
+    allCard.classList.toggle('open', state.allOpen);
+    var span = allHead.querySelector('.kt span');
+    if (span) span.textContent = appData.products.length + ' 款 · 点' + (state.allOpen ? '收起' : '开') + '查看所有公司产品';
+  });
 
   // 概览条：点击筛选类型
   box.querySelectorAll('.ov-chip').forEach(function(el){
@@ -3576,7 +3602,7 @@ function openSettings() {
         '<div style="margin-top:12px;font-size:13px;color:#8a919b">' +
           '产品数：<b style="color:#202124">' + appData.products.length + '</b>　已填字段：<b style="color:#202124">' + totalFields + '</b>' +
           (appData.dataTag ? '<br>数据包：<b style="color:#c5221f">' + esc(appData.dataTag) + '</b>' : '') +
-          '<br>版本：v3.9.23' +
+          '<br>版本：v3.9.24' +
         '</div>' +
       '</div>' +
       '<div style="padding:16px">' +
