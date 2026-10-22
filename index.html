@@ -9,7 +9,7 @@
 <script>
 /* v3.9.29 版本自检：有网时自动拉最新版并刷新（防死循环）；断网静默跳过 */
 (function(){
-  var BUILD = 'v3.9.29';
+  var BUILD = 'v3.9.30';
   try {
     var k = '__appVerChk';
     if (sessionStorage.getItem(k) === BUILD) return; // 本次会话已检查过且是最新
@@ -448,7 +448,7 @@ textarea.finput{min-height:38px;overflow:hidden}
 .g-hero{position:relative;overflow:hidden;background:radial-gradient(130% 100% at 88% -12%, #2fae67 0%, rgba(47,174,103,0) 55%),radial-gradient(95% 75% at -5% 105%, #053d21 0%, rgba(5,61,33,0) 58%),linear-gradient(135deg,#0a4d2a 0%,#0f7a42 52%,#149a55 100%);color:#fff;padding:24px 16px 20px;text-align:center}
 .g-hero::before{content:'';position:absolute;top:-40%;left:-30%;width:80%;height:160%;background:linear-gradient(105deg,rgba(255,255,255,0) 40%,rgba(255,255,255,.10) 50%,rgba(255,255,255,0) 60%);pointer-events:none}
 .g-hero::after{content:'';position:absolute;inset:7px;border:1px solid rgba(245,217,141,.30);border-radius:14px;pointer-events:none}
-.g-hero-mark{position:absolute;right:-6px;bottom:-52px;font-size:150px;font-weight:900;line-height:1;color:rgba(255,255,255,.12);letter-spacing:0;pointer-events:none;transform:rotate(-6deg);text-shadow:none;user-select:none}
+.g-hero-mark{position:absolute;right:6px;bottom:-34px;font-size:140px;font-weight:900;line-height:1;color:rgba(255,255,255,.22);letter-spacing:0;pointer-events:none;transform:rotate(-6deg);text-shadow:none;user-select:none;background:linear-gradient(180deg,rgba(255,255,255,.34),rgba(255,255,255,.08));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
 .g-hero-tag{position:relative;z-index:1}
 .g-hero-title{position:relative;z-index:1}
 .g-hero-sub{position:relative;z-index:1}
@@ -3682,7 +3682,7 @@ function openSettings() {
         '<div style="margin-top:12px;font-size:13px;color:#8a919b">' +
           '产品数：<b style="color:#202124">' + appData.products.length + '</b>　已填字段：<b style="color:#202124">' + totalFields + '</b>' +
           (appData.dataTag ? '<br>数据包：<b style="color:#c5221f">' + esc(appData.dataTag) + '</b>' : '') +
-          '<br>版本：v3.9.29' +
+          '<br>版本：v3.9.30' +
         '</div>' +
       '</div>' +
       '<div style="padding:16px">' +
