@@ -31,7 +31,7 @@
 <script>
 /* v3.9.29 版本自检：有网时自动拉最新版并刷新（防死循环）；断网静默跳过 */
 (function(){
-  var BUILD = 'v3.9.33';
+  var BUILD = 'v3.9.34';
   try {
     var k = '__appVerChk';
     if (sessionStorage.getItem(k) === BUILD) return; // 本次会话已检查过且是最新
@@ -345,7 +345,79 @@ textarea.finput{min-height:38px;overflow:hidden}
 .sel-pill.on{color:#1a5fd0;background:#e8f0fe;border-color:#2f6fed;font-weight:600}
 .best-mark{display:inline-block;font-size:10px;background:#137333;color:#fff;border-radius:3px;padding:0 3px;margin-left:3px;vertical-align:middle}
 
-/* ===== 两两对比 ===== */
+/* ===== 健康告知 ===== */
+.hc-hero{margin:10px 12px 0;padding:16px 16px 15px;border-radius:14px;color:#fff;
+  background:linear-gradient(135deg,#1f6b52 0%,#2e8f6d 45%,#3fa882 100%);
+  box-shadow:0 5px 16px rgba(31,107,82,.22);position:relative;overflow:hidden}
+.hc-hero::after{content:'';position:absolute;right:-30px;top:-40px;width:130px;height:130px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.18),transparent 70%)}
+.hc-hero-t{font-size:17px;font-weight:700;letter-spacing:.5px}
+.hc-hero-s{font-size:11.5px;opacity:.85;margin-top:5px;line-height:1.5}
+.hc-card{background:#fff;margin:10px 12px 0;border-radius:12px;padding:13px 13px 14px;border:1px solid #e8ecf1;box-shadow:0 1px 4px rgba(0,0,0,.05)}
+.hc-card-t{font-size:13.5px;font-weight:700;color:#20242b;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.hc-card-hint{font-size:10.5px;font-weight:400;color:#95a0ad;background:#f3f5f8;border-radius:5px;padding:1px 6px}
+.hc-chips{display:flex;flex-wrap:wrap;gap:7px}
+.hc-chip{display:inline-flex;align-items:center;gap:4px;font-family:inherit;font-size:12.5px;line-height:1;
+  padding:8px 11px;border-radius:20px;border:1px solid #dde3ea;background:#fafbfc;color:#4a5360;cursor:pointer;
+  transition:all .16s;-webkit-tap-highlight-color:transparent}
+.hc-chip .hc-ic{font-size:13px;line-height:1}
+.hc-chip.on{background:#e7f7ef;border-color:#39a06f;color:#12653f;font-weight:600;box-shadow:0 1px 4px rgba(57,160,111,.18)}
+.hc-free-wrap{margin-top:11px}
+.hc-free{width:100%;box-sizing:border-box;border:1px solid #e1e6ec;border-radius:9px;padding:9px 10px;
+  font-family:inherit;font-size:12.5px;line-height:1.55;color:#2d333b;background:#fafbfc;outline:none;resize:vertical}
+.hc-free:focus{border-color:#39a06f;background:#fff}
+.hc-free-tip{font-size:10.5px;color:#a3adb8;margin-top:4px}
+.hc-clear{margin-top:10px;font-family:inherit;font-size:12px;color:#8a939e;background:#f4f6f9;border:none;
+  border-radius:8px;padding:7px 14px;cursor:pointer}
+.hc-empty{background:#fff;margin:10px 12px;border-radius:12px;padding:28px 20px;text-align:center;border:1px dashed #d8dfe8}
+.hc-empty-ic{font-size:30px;margin-bottom:8px}
+.hc-empty-t{font-size:14px;font-weight:600;color:#39414c}
+.hc-empty-s{font-size:11.5px;color:#8b96a3;line-height:1.7;margin-top:6px}
+.hc-sum{display:flex;gap:7px;margin:11px 12px 0}
+.hc-sum-i{flex:1;background:#fff;border-radius:11px;padding:10px 4px 9px;text-align:center;border:1px solid #eceff3;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.hc-sum-i b{display:block;font-size:19px;line-height:1.2;font-weight:800}
+.hc-sum-i span{font-size:10.5px;color:#8b96a3;letter-spacing:.5px}
+.hc-sum-i.ok b{color:#1a8a4a}
+.hc-sum-i.cau b{color:#c98209}
+.hc-sum-i.blk b{color:#d0442f}
+.hc-sum-i.non b{color:#98a2ae}
+.hc-sec{margin:14px 12px 0}
+.hc-sec-h{display:flex;align-items:center;gap:8px;padding:0 2px 3px}
+.hc-sec-h .hc-sec-ic{font-size:15px}
+.hc-sec-h b{font-size:14px;color:#1f252d;letter-spacing:.5px}
+.hc-sec-h span{font-size:11px;color:#98a2ae;margin-left:6px}
+.hc-sec-sub{font-size:10.5px;color:#9aa4b0;line-height:1.6;padding:0 2px 9px}
+.hc-sec.ok .hc-sec-h b{color:#146c3c}
+.hc-sec.cau .hc-sec-h b{color:#a06c05}
+.hc-sec.blk .hc-sec-h b{color:#b23a26}
+.hc-item{background:#fff;border-radius:11px;margin-bottom:8px;border:1px solid #eceff3;
+  box-shadow:0 1px 3px rgba(0,0,0,.045);overflow:hidden;cursor:pointer;position:relative}
+.hc-sec.ok .hc-item{border-left:3px solid #3aab6d}
+.hc-sec.cau .hc-item{border-left:3px solid #e3a228}
+.hc-sec.blk .hc-item{border-left:3px solid #dd5c45}
+.hc-sec.non .hc-item{border-left:3px solid #c9d2dc}
+.hc-item:active{background:#fafbfc}
+.hc-item-h{padding:10px 12px 0}
+.hc-item-n{font-size:13.5px;font-weight:700;color:#1c222a;line-height:1.4;padding-right:60px}
+.hc-item-tag{font-size:10.5px;color:#8e98a4;margin-top:2px}
+.hc-item-b{padding:8px 12px 4px}
+.hc-line{border-radius:7px;padding:6px 8px;margin-bottom:5px}
+.hc-line:last-child{margin-bottom:0}
+.hc-line-h{display:flex;align-items:center;gap:6px}
+.hc-line-h b{font-size:12px;color:#2b323b}
+.hc-lv{font-size:9.5px;border-radius:3px;padding:1px 5px;line-height:1.5}
+.hc-line-n{font-size:11px;line-height:1.6;color:#5c6672;margin-top:3px}
+.lvl-blk{background:#fdf0ee}
+.lvl-blk .hc-lv{background:#f6d6d0;color:#b23a26}
+.lvl-cau{background:#fdf6e7}
+.lvl-cau .hc-lv{background:#f8e6bd;color:#96620a}
+.lvl-ok{background:#eefaf3}
+.lvl-ok .hc-lv{background:#cfeddb;color:#146c3c}
+.lvl-none{background:#f6f7f9}
+.lvl-none .hc-line-n{color:#9aa4b0}
+.hc-item-go{font-size:10.5px;color:#b3bcc6;text-align:right;padding:2px 12px 9px}
+.hc-note{margin:14px 14px 26px;font-size:10.5px;color:#9aa4b0;line-height:1.75}
+
+/* ===== 两两对比（已停用，保留样式兼容） ===== */
 .duo-group{display:flex;align-items:center;gap:7px;padding:16px 4px 8px;font-size:13px;font-weight:700;color:#1a5fd0;letter-spacing:.5px}
 .duo-group::before{content:'';width:4px;height:15px;border-radius:2px;background:#2f6fed}
 .duo-group:first-child{padding-top:6px}
@@ -721,8 +793,8 @@ details.hn-node[open] summary::after{transform:rotate(180deg)}
     </div>
     <!-- 对比表 -->
     <div class="page" id="page-table"></div>
-    <!-- 两两对比 -->
-    <div class="page" id="page-duo"></div>
+    <!-- 健康告知 -->
+    <div class="page" id="page-health"></div>
     <!-- 打分排序 -->
     <div class="page" id="page-score"></div>
     <!-- 家庭方案 -->
@@ -742,9 +814,9 @@ details.hn-node[open] summary::after{transform:rotate(180deg)}
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"></rect><line x1="3" y1="10" x2="21" y2="10"></line><line x1="9" y1="10" x2="9" y2="20"></line></svg>
       <span>对比表</span>
     </div>
-    <div class="nav-item" data-page="duo">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18"></path><path d="M5 8l-3 6h6z"></path><path d="M19 8l-3 6h6z"></path></svg>
-      <span>两两对比</span>
+    <div class="nav-item" data-page="health">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-4.6-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 11c0 5.4-7 10-7 10z"></path><path d="M12 9.5v4"></path><path d="M10 11.5h4"></path></svg>
+      <span>健康告知</span>
     </div>
     <div class="nav-item" data-page="score">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
@@ -1300,6 +1372,68 @@ function getFields(type) {
   return TYPE_FIELDS[type] || TYPE_FIELDS.qt;
 }
 
+/* ============================================================
+   v3.9.34 字段别名归一化
+   同一含义存成了不同 key 的，读取时自动合并到标准 key
+   ============================================================ */
+var FIELD_ALIAS = {
+  // 年度保额
+  sumInsured:        ['maxSumInsured','guaranteed','accidentDeath'],
+  // 免赔额
+  deductible:        ['medicalDeduct','opt'],
+  // 报销比例
+  reimburseRate:     ['socialRule','socialLimit','medicalRate'],
+  // 医院范围
+  hospitalRange:     ['hospital','accidentHospital'],
+  // 续保条件
+  renewal:           ['guaranteed','renewalBonus'],
+  // 增值服务
+  services:          ['增值服务','service'],
+  // 意外医疗额度
+  medical:           ['generalMed'],
+  // 生效时间
+  effective:         ['effectiveTime']
+};
+// 建立反向索引：别名 → 标准名
+var __ALIAS_REV = {};
+Object.keys(FIELD_ALIAS).forEach(function(std){
+  FIELD_ALIAS[std].forEach(function(al){ if (al !== std) __ALIAS_REV[al] = std; });
+});
+
+// 按标准 key 取字段值（自动合并别名 + 去重拼接）
+function fieldVal(fields, key) {
+  if (!fields) return undefined;
+  var v = fields[key];
+  var has = (v !== undefined && v !== null && v !== '' && !(Array.isArray(v) && !v.length));
+  var extra = [];
+  var aliasList = FIELD_ALIAS[key] || [];
+  aliasList.forEach(function(al){
+    if (al === key) return;
+    var av = fields[al];
+    if (av === undefined || av === null || av === '') return;
+    if (Array.isArray(av) ? !av.length : false) return;
+    extra.push(av);
+  });
+  if (!extra.length) return v;
+  // 合并：主值 + 别名值（去除重复文字）
+  var out = [];
+  function push(x){
+    if (Array.isArray(x)) { x.forEach(push); return; }
+    var s = String(x).trim();
+    if (!s) return;
+    // 若新值已被已有值包含，跳过（避免重复）
+    for (var i=0;i<out.length;i++){
+      if (out[i].indexOf(s) >= 0) return;
+      if (s.indexOf(out[i]) >= 0) { out[i] = s; return; }
+    }
+    out.push(s);
+  }
+  if (has) push(v);
+  extra.forEach(push);
+  if (!out.length) return v;
+  return out.length === 1 ? out[0] : out;
+}
+
 function findField(type, key) {
   var fs = getFields(type);
   for (var i=0;i<fs.length;i++) if (fs[i].key === key) return fs[i];
@@ -1481,14 +1615,14 @@ function switchPage(page) {
   document.getElementById('bottom-nav').style.display = isSub ? 'none' : 'flex';
   document.getElementById('btn-back').style.display = isSub ? 'flex' : 'none';
 
-  var titles = { list:'保险对比', table:'对比表', duo:'两两对比', score:'打分排序', fam:'家庭方案', edit:'填写条款', detail:'产品详情' };
+  var titles = { list:'保险对比', table:'对比表', health:'健康告知', score:'打分排序', fam:'家庭方案', edit:'填写条款', detail:'产品详情' };
   document.getElementById('page-title').textContent = titles[page] || '保险对比';
 
   document.getElementById('pages').scrollTop = 0;
 
   if (page === 'list') renderList();
   if (page === 'table') renderTable();
-  if (page === 'duo') renderDuo();
+  if (page === 'health') renderHealth();
   if (page === 'score') renderScore();
   if (page === 'fam') renderFam();
   if (page === 'detail') renderDetail();
@@ -1498,7 +1632,7 @@ function switchPage(page) {
 function renderAll() {
   if (state.currentPage === 'list') renderList();
   if (state.currentPage === 'table') renderTable();
-  if (state.currentPage === 'duo') renderDuo();
+  if (state.currentPage === 'health') renderHealth();
   if (state.currentPage === 'score') renderScore();
 }
 
@@ -2303,7 +2437,6 @@ function renderDetail() {
     if (/投保规则/.test(g)) return;
     var items = gmap[g].filter(function(fd){
       if (fd.key === 'note') return false; // 亮点单独渲染
-      if (valueEmpty(f[fd.key])) return false;
       return true;
     });
     if (!items.length) return;
@@ -2312,9 +2445,12 @@ function renderDetail() {
     var inner = '';
     if (isResp) inner += '<div class="g-thead"><span>保障责任</span><span>保障内容</span></div>';
     items.forEach(function(fd){
-      var lines = gLines(f[fd.key]);
+      var fv = fieldVal(f, fd.key);
+      var empty = valueEmpty(fv);
+      var lines = empty ? [] : gLines(fv);
       var stack = fd.label.length > 7 ? ' g-tr-stack' : '';
-      inner += '<div class="g-tr' + stack + '"><div class="g-td-name">' + esc(fd.label) + '</div><div class="g-td-val">';
+      inner += '<div class="g-tr' + (empty ? ' g-tr-todo' : '') + stack + '"><div class="g-td-name">' + esc(fd.label) + '</div><div class="g-td-val">';
+      if (empty) inner += '<div class="g-line g-line-todo">— 待补</div>';
       lines.forEach(function(ln, li){
         inner += '<div class="g-line' + (/^[①②③④⑤⑥⑦⑧⑨⑩⑪⑫]/.test(ln.trim()) && li > 0 ? ' g-line-sub' : '') + '">' + gMark(ln) + '</div>';
       });
@@ -3146,7 +3282,7 @@ function bindCellEdit(box, view) {
   box.addEventListener('click', function(ev){
     var th = ev.target.closest('thead th[data-p]');
     if (th) { state.editingId = th.dataset.p; switchPage('edit'); return; }
-    var cell = ev.target.closest('td[data-p], .duo-cell[data-p]');
+    var cell = ev.target.closest('td[data-p]');
     if (cell && cell.dataset.k) openCellEditor(cell.dataset.p, cell.dataset.k, view);
   });
 }
@@ -3159,7 +3295,7 @@ function rerenderCompareView(view) {
     var sc2 = document.querySelector('.cmp-scroll');
     if (sc2) { sc2.scrollLeft = sl; sc2.scrollTop = st; }
   } else {
-    renderDuo();
+    renderTable();
   }
 }
 
@@ -3286,122 +3422,253 @@ function bindCoTierChips(box) {
 }
 
 /* ============================================================
-   视图二：两两对比
+   视图二：健康告知智能匹配
    ============================================================ */
-function renderDuo() {
-  var box = document.getElementById('page-duo');
-  var ps = appData.products;
-  if (ps.length < 2) {
-    box.innerHTML = '<div class="empty"><p>至少需要两个产品</p><div class="hint">两两对比是拿两个产品逐条对照<br>先去添加第二个产品吧</div></div>';
+var HEALTH_CONDS = [
+  { k:'甲状腺结节', ic:'🦋' },
+  { k:'乳腺结节',   ic:'🌸' },
+  { k:'肺结节',     ic:'🫁' },
+  { k:'高血压',     ic:'🩺' },
+  { k:'糖尿病',     ic:'🩸' },
+  { k:'乙肝',       ic:'🧬' },
+  { k:'尿酸高',     ic:'⚗️' },
+  { k:'脂肪肝',     ic:'🍔' },
+  { k:'肾结石',     ic:'💧' },
+  { k:'胆囊息肉',   ic:'🫧' },
+  { k:'胃部疾病',   ic:'🍽️' },
+  { k:'住院史',     ic:'🏥' },
+  { k:'抑郁症',     ic:'🌧️' },
+  { k:'新生儿',     ic:'👶' }
+];
+var HEALTH_KW = {
+  '甲状腺结节':['甲状腺结节','甲状腺'],
+  '乳腺结节':['乳腺结节','乳腺'],
+  '肺结节':['肺结节'],
+  '高血压':['高血压','血压'],
+  '糖尿病':['糖尿病','血糖'],
+  '乙肝':['乙肝','肝炎','大三阳','小三阳','表面抗原'],
+  '尿酸高':['尿酸','痛风'],
+  '脂肪肝':['脂肪肝'],
+  '肾结石':['肾结石','结石'],
+  '胆囊息肉':['胆囊息肉','胆囊','息肉'],
+  '胃部疾病':['胃'],
+  '住院史':['住院','手术'],
+  '抑郁症':['抑郁','焦虑','精神'],
+  '新生儿':['新生儿','早产','低体重','黄疸']
+};
+var HEALTH_LV = { ok:0, caution:1, block:2 };
+
+function healthData() {
+  if (!appData.healthPick) appData.healthPick = { conds:[], free:'' };
+  if (!appData.healthPick.conds) appData.healthPick.conds = [];
+  if (appData.healthPick.free == null) appData.healthPick.free = '';
+  return appData.healthPick;
+}
+
+/* 从自由文本里识别病种 */
+function healthParseFree(txt) {
+  var hit = [], t = String(txt || '');
+  if (!t.trim()) return hit;
+  Object.keys(HEALTH_KW).forEach(function(k){
+    var kws = HEALTH_KW[k];
+    for (var i = 0; i < kws.length; i++) {
+      if (t.indexOf(kws[i]) >= 0) { hit.push(k); break; }
+    }
+  });
+  return hit;
+}
+
+/* 返回某产品对某病种的判定 { level:'ok'|'caution'|'block'|'none', note } */
+function healthJudge(p, cond) {
+  var hs = p.health || [], best = null;
+  for (var i = 0; i < hs.length; i++) {
+    var h = hs[i];
+    if (!h || typeof h !== 'object' || !h.cond) continue;
+    if (String(h.cond).indexOf(cond) >= 0 || cond.indexOf(String(h.cond)) >= 0) {
+      if (!best || (HEALTH_LV[h.level] || 0) > (HEALTH_LV[best.level] || 0)) best = h;
+    }
+  }
+  if (!best) return { level:'none', note:'' };
+  return { level: best.level === 'block' ? 'block' : 'caution', note: best.note || '' };
+}
+
+/* 综合评估一款产品：{ level, items:[{cond,level,note}], hasData } */
+function healthEval(p, conds) {
+  var hasData = !!((p.health || []).length);
+  if (!conds.length) return { level:'na', items:[], hasData:hasData };
+  var items = [], level = 'ok';
+  conds.forEach(function(c){
+    var r = healthJudge(p, c);
+    items.push({ cond:c, level:r.level, note:r.note });
+    if (r.level === 'block') level = 'block';
+    else if (r.level === 'caution' && level !== 'block') level = 'caution';
+  });
+  return { level:level, items:items, hasData:hasData };
+}
+
+function renderHealth() {
+  var box = document.getElementById('page-health');
+  if (!box) return;
+  var ps = appData.products || [];
+  if (ps.length === 0) {
+    box.innerHTML = '<div class="empty"><p>还没有产品</p><div class="hint">先把产品加进来<br>再回来做健康告知匹配</div></div>';
     return;
   }
-  // 默认选前两个
-  if (!state.duoA || !getProduct(state.duoA)) state.duoA = ps[0].id;
-  if (!state.duoB || !getProduct(state.duoB)) state.duoB = ps[1] ? ps[1].id : ps[0].id;
-  if (state.duoA === state.duoB && ps.length > 1) {
-    state.duoB = ps.filter(function(x){ return x.id !== state.duoA; })[0].id;
-  }
 
-  var A = getProduct(state.duoA), B = getProduct(state.duoB);
+  var pick = healthData();
+  var conds = pick.conds.slice();
+  healthParseFree(pick.free).forEach(function(c){ if (conds.indexOf(c) < 0) conds.push(c); });
 
-  function optHtml(sel) {
-    return ps.map(function(p){
-      var t = TYPES[p.type] || TYPES.qt;
-      return '<option value="' + p.id + '"' + (p.id === sel ? ' selected' : '') + '>' + esc(p.name) + '（' + t.short + '）</option>';
-    }).join('');
-  }
+  var h = '';
 
-  var h = '<div class="duo-select">' +
-    '<select id="duo-a">' + optHtml(state.duoA) + '</select>' +
-    '<select id="duo-b">' + optHtml(state.duoB) + '</select>' +
+  /* ---- 输入区 ---- */
+  h += '<div class="hc-hero">' +
+    '<div class="hc-hero-t">🩺 健康告知智能匹配</div>' +
+    '<div class="hc-hero-s">勾选或输入体检异常 / 既往症，自动判断哪些产品的健康告知能过</div>' +
   '</div>';
 
-  // 顶部胜负小结
-  var duoEval = evaluateGroup([A, B]);
-  var ea = duoEval[A.id] || { win:0, lose:0, prosTop:[], consTop:[] };
-  var eb = duoEval[B.id] || { win:0, lose:0, prosTop:[], consTop:[] };
-  var leadA = ea.win - eb.win;
-  var leadTxt = leadA > 0 ? ('A「' + A.name + '」领先 ' + leadA + ' 项')
-              : (leadA < 0 ? ('B「' + B.name + '」领先 ' + (-leadA) + ' 项') : '两者各有优势，不相上下');
-  h += '<div class="duo-summary">' +
-    '<div class="ds-title">📊 ' + esc(leadTxt) + '</div>' +
-    '<div class="ds-cols">' +
-      '<div class="ds-col"><span class="ds-who">A</span>' + esc(A.name) +
-        '<div class="ds-num"><b>' + ea.win + '</b> 项优势 / ' + ea.lose + ' 项劣势</div>' +
-        (ea.prosTop[0] ? '<div class="ds-hl">✓ ' + esc(ea.prosTop[0].label) + '</div>' : '') + '</div>' +
-      '<div class="ds-col"><span class="ds-who">B</span>' + esc(B.name) +
-        '<div class="ds-num"><b>' + eb.win + '</b> 项优势 / ' + eb.lose + ' 项劣势</div>' +
-        (eb.prosTop[0] ? '<div class="ds-hl">✓ ' + esc(eb.prosTop[0].label) + '</div>' : '') + '</div>' +
+  h += '<div class="hc-card">' +
+    '<div class="hc-card-t">① 选择身体状况<span class="hc-card-hint">可多选</span></div>' +
+    '<div class="hc-chips">';
+  HEALTH_CONDS.forEach(function(c){
+    var on = conds.indexOf(c.k) >= 0;
+    h += '<button type="button" class="hc-chip' + (on ? ' on' : '') + '" data-cond="' + esc(c.k) + '">' +
+      '<span class="hc-ic">' + c.ic + '</span>' + esc(c.k) + '</button>';
+  });
+  h += '</div>' +
+    '<div class="hc-free-wrap">' +
+      '<textarea id="hc-free" class="hc-free" rows="2" placeholder="也可以直接描述，例：甲状腺结节 TI-RADS 3 级 0.6cm，乳腺 BI-RADS 2 级，血压 145/92，2023 年做过阑尾炎手术…">' + esc(pick.free) + '</textarea>' +
+      '<div class="hc-free-tip">写清部位、分级、数值，会自动识别病种并勾上</div>' +
     '</div>' +
+    (conds.length ? '<button type="button" class="hc-clear" id="hc-clear">清空条件</button>' : '') +
   '</div>';
 
-  // 字段并集（A 与 B 类型可能不同）
-  var kmap = {}, ordered = [];
-  [A, B].forEach(function(p){
-    getFields(p.type).forEach(function(fd){
-      if (!kmap[fd.key]) { kmap[fd.key] = fd; ordered.push(fd.key); }
-    });
-  });
-  var fields = ordered.map(function(k){ return kmap[k]; }).filter(function(fd){
-    return !valueEmpty((A.fields||{})[fd.key]) || !valueEmpty((B.fields||{})[fd.key]);
-  });
-
-  // 差异统计
-  var diffCount = 0;
-  h += '<div class="duo-list">';
-  var lastDuoGroup = null;
-  fields.forEach(function(fd){
-    // 分组标题（一、投保规则 / 二、必选责任 / …）
-    var dg = fd.group || '其他';
-    if (dg !== lastDuoGroup) {
-      h += '<div class="duo-group">' + esc(dg) + '</div>';
-      lastDuoGroup = dg;
-    }
-    var va = (A.fields||{})[fd.key], vb = (B.fields||{})[fd.key];
-    var sa = valueToText(va);
-    var sb = valueToText(vb);
-    var same = sa === sb;
-
-    // 优劣判断：走语义引擎
-    var onlyA = false, onlyB = false;
-    if (sa !== '' && sb === '') { onlyA = true; diffCount++; }
-    else if (sb !== '' && sa === '') { onlyB = true; diffCount++; }
-    else if (!same) diffCount++;
-
-    var dj = judgeField(fd, [{ id: A.id, txt: sa }, { id: B.id, txt: sb }]);
-    var ja = dj[A.id] || { level:0, reason:'' }, jb = dj[B.id] || { level:0, reason:'' };
-    var winA = ja.level > 0, winB = jb.level > 0;
-
-    var cA = 'duo-cell' + (winA ? ' win' : (winB ? ' lose' : (same ? ' same' : '')));
-    var cB = 'duo-cell' + (winB ? ' win' : (winA ? ' lose' : (same ? ' same' : '')));
-    var tagA = winA ? '<span class="adv-mark">优</span>' : (jb.level > 0 ? '<span class="dis-mark">弱</span>' : '');
-    var tagB = winB ? '<span class="adv-mark">优</span>' : (ja.level > 0 ? '<span class="dis-mark">弱</span>' : '');
-    var rsA = (winA && ja.reason) ? '<span class="adv-reason">' + esc(ja.reason) + '</span>' : '';
-    var rsB = (winB && jb.reason) ? '<span class="adv-reason">' + esc(jb.reason) + '</span>' : '';
-
-    var rowDiff = (!same) || onlyA || onlyB;
-    h += '<div class="duo-row' + (rowDiff ? ' has-diff' : '') + '">' +
-      '<div class="duo-label">' + esc(fd.label) + (rowDiff ? '<span class="diff-tag">异</span>' : '') + '</div>' +
-      '<div class="duo-cells">' +
-        '<div class="' + cA + '" data-p="' + esc(A.id) + '" data-k="' + esc(fd.key) + '">' + (sa === '' ? '<span style="color:#c0c5cc">未填（点这里填写）</span>' : cellHtml(va)) + (onlyA ? '<span class="duo-only">仅A</span>' : '') + tagA + rsA + '</div>' +
-        '<div class="' + cB + '" data-p="' + esc(B.id) + '" data-k="' + esc(fd.key) + '">' + (sb === '' ? '<span style="color:#c0c5cc">未填（点这里填写）</span>' : cellHtml(vb)) + (onlyB ? '<span class="duo-only">仅B</span>' : '') + tagB + rsB + '</div>' +
-      '</div>' +
+  /* ---- 未选条件 ---- */
+  if (!conds.length) {
+    var withData = ps.filter(function(p){ return (p.health || []).length; }).length;
+    h += '<div class="hc-empty">' +
+      '<div class="hc-empty-ic">☝️</div>' +
+      '<div class="hc-empty-t">先在上面勾选 1 个以上身体状况</div>' +
+      '<div class="hc-empty-s">当前 ' + ps.length + ' 款产品中，已有 <b>' + withData + '</b> 款录入了健康告知数据<br>' +
+        '其余 ' + (ps.length - withData) + ' 款会显示为「待补数据」</div>' +
     '</div>';
+    box.innerHTML = h;
+    bindHealthEvents(box, conds);
+    return;
+  }
+
+  /* ---- 结果分档 ---- */
+  var buckets = { ok:[], caution:[], block:[], none:[] };
+  ps.forEach(function(p){
+    var ev = healthEval(p, conds);
+    var e = { p:p, ev:ev };
+    if (ev.level === 'ok') {
+      // 该产品对这些病种都没数据 → 归入 none
+      if (ev.items.every(function(it){ return it.level === 'none'; })) buckets.none.push(e);
+      else buckets.ok.push(e);
+    }
+    else if (ev.level === 'caution') buckets.caution.push(e);
+    else buckets.block.push(e);
   });
-  h += '</div>';
-  h += '<div class="cmp-note">共 ' + fields.length + ' 项可比字段，其中 ' + diffCount + ' 项存在差异。<br>绿色＝该项更优；✏️ 点击任意格子可直接修改并保存。</div>';
+
+  var sum = '<div class="hc-sum">' +
+    '<div class="hc-sum-i ok"><b>' + buckets.ok.length + '</b><span>可投</span></div>' +
+    '<div class="hc-sum-i cau"><b>' + buckets.caution.length + '</b><span>需核保</span></div>' +
+    '<div class="hc-sum-i blk"><b>' + buckets.block.length + '</b><span>不可投</span></div>' +
+    '<div class="hc-sum-i non"><b>' + buckets.none.length + '</b><span>待补</span></div>' +
+  '</div>';
+  h += sum;
+
+  var secMeta = [
+    { key:'ok',      cls:'ok',  ic:'✅', title:'可以投保',   sub:'健康告知可正常通过（或已明确可标体/除外承保前无需核保）' },
+    { key:'caution', cls:'cau', ic:'⚠️', title:'需要核保',   sub:'可以尝试智能核保，结果可能是标体 / 除外 / 加费，建议先走核保再决定' },
+    { key:'block',   cls:'blk', ic:'❌', title:'不建议投保', sub:'这些产品对当前状况大多直接拒保，别白填一遍' },
+    { key:'none',    cls:'non', ic:'📭', title:'暂无健康告知数据', sub:'产品库里还没录这款的告知结论，需人工看条款' }
+  ];
+
+  secMeta.forEach(function(sm){
+    var arr = buckets[sm.key];
+    if (!arr.length) return;
+    arr.sort(function(a,b){ return (b.ev.hasData?1:0) - (a.ev.hasData?1:0); });
+    h += '<div class="hc-sec ' + sm.cls + '">' +
+      '<div class="hc-sec-h"><span class="hc-sec-ic">' + sm.ic + '</span>' +
+        '<div><b>' + sm.title + '</b><span>' + arr.length + ' 款</span></div>' +
+      '</div>' +
+      '<div class="hc-sec-sub">' + sm.sub + '</div>';
+    arr.forEach(function(e){
+      var p = e.p, ev = e.ev;
+      var t = TYPES[p.type] || TYPES.qt;
+      // 有关联结论的病种（排除 none）
+      var hit = ev.items.filter(function(it){ return it.level !== 'none'; });
+      h += '<div class="hc-item" data-pid="' + esc(p.id) + '">' +
+        '<div class="hc-item-h">' +
+          '<div class="hc-item-n">' + esc(p.name) + '</div>' +
+          '<div class="hc-item-tag">' + esc(t.short) + ' · ' + esc(tierName(p.tier)) + '</div>' +
+        '</div>';
+      if (hit.length) {
+        h += '<div class="hc-item-b">';
+        hit.forEach(function(it){
+          var lv = it.level === 'block' ? 'lvl-blk' : (it.level === 'caution' ? 'lvl-cau' : 'lvl-ok');
+          var lb = it.level === 'block' ? '拒保倾向' : (it.level === 'caution' ? '需核保' : '可通过');
+          h += '<div class="hc-line ' + lv + '">' +
+            '<div class="hc-line-h"><b>' + esc(it.cond) + '</b><span class="hc-lv">' + lb + '</span></div>' +
+            (it.note ? '<div class="hc-line-n">' + esc(it.note) + '</div>' : '') +
+          '</div>';
+        });
+        h += '</div>';
+      } else {
+        h += '<div class="hc-item-b"><div class="hc-line lvl-none"><div class="hc-line-n">未录入相关结论，建议直接查条款或问客服</div></div></div>';
+      }
+      h += '<div class="hc-item-go">查看产品详情 ›</div>' +
+      '</div>';
+    });
+    h += '</div>';
+  });
+
+  var filled = ps.filter(function(p){ return (p.health || []).length; }).length;
+  h += '<div class="hc-note">⚠️ 匹配结果基于已录入的 ' + filled + '/' + ps.length + ' 款产品健康告知数据自动推断，<b>仅供参考</b>。' +
+       '实际承保结论以保险公司智能核保 / 人工核保结论为准，投保前请逐条核对告知问卷。</div>';
 
   box.innerHTML = h;
+  bindHealthEvents(box, conds);
+}
 
-  document.getElementById('duo-a').addEventListener('change', function(){
-    state.duoA = this.value;
-    renderDuo();
+function bindHealthEvents(box, conds) {
+  box.querySelectorAll('.hc-chip').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var c = btn.dataset.cond, pick = healthData();
+      var i = pick.conds.indexOf(c);
+      if (i >= 0) pick.conds.splice(i, 1); else pick.conds.push(c);
+      saveData();
+      renderHealth();
+    });
   });
-  document.getElementById('duo-b').addEventListener('change', function(){
-    state.duoB = this.value;
-    renderDuo();
+  var free = document.getElementById('hc-free');
+  if (free) {
+    var tm = 0;
+    free.addEventListener('input', function(){
+      healthData().free = this.value;
+      clearTimeout(tm);
+      tm = setTimeout(function(){ saveData(); renderHealth(); }, 600);
+    });
+    free.addEventListener('blur', function(){
+      healthData().free = this.value;
+      saveData();
+    });
+  }
+  var clr = document.getElementById('hc-clear');
+  if (clr) clr.addEventListener('click', function(){
+    var pick = healthData();
+    pick.conds = []; pick.free = '';
+    saveData();
+    renderHealth();
   });
-  bindCellEdit(box, 'duo');
+  box.querySelectorAll('.hc-item').forEach(function(it){
+    it.addEventListener('click', function(){
+      state.detailId = it.dataset.pid;
+      switchPage('detail');
+    });
+  });
 }
 
 /* ============================================================
@@ -3919,7 +4186,7 @@ function openSettings() {
         '<div style="margin-top:12px;font-size:13px;color:#8a919b">' +
           '产品数：<b style="color:#202124">' + appData.products.length + '</b>　已填字段：<b style="color:#202124">' + totalFields + '</b>' +
           (appData.dataTag ? '<br>数据包：<b style="color:#c5221f">' + esc(appData.dataTag) + '</b>' : '') +
-          '<br>版本：v3.9.33' +
+          '<br>版本：v3.9.34' +
         '</div>' +
       '</div>' +
       '<div style="padding:16px">' +
