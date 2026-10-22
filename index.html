@@ -3566,6 +3566,7 @@ function openSettings() {
         '<button class="btn btn-primary" id="st-export" style="width:100%;margin-bottom:9px">📤 导出数据（先备份一份）</button>' +
         '<button class="btn btn-primary" id="st-import" style="width:100%;margin-bottom:9px;background:linear-gradient(135deg,#22a06b,#137333)">📥 导入并合并备份（选 JSON 文件）</button>' +
         '<button class="btn" id="st-replace" style="width:100%;margin-bottom:9px;background:#fff3f0;color:#c5221f;border:1.5px solid #f3c1b8">🔄 导入并替换（清掉本机产品库后导入）</button>' +
+        (appData.lastBackup && appData.lastBackup.products ? '<button class="btn" id="st-restore" style="width:100%;margin-bottom:9px;background:#f5f7ff;color:#1a5fd0;border:1.5px solid #c9d8f5">↩️ 恢复上次替换前的数据（' + appData.lastBackup.products.length + '款 · ' + esc(String(appData.lastBackup.at||'').slice(5,16).replace('T',' ')) + '）</button>' : '') +
       '</div>' +
       '<div style="padding:10px 16px 0">' +
         '<div style="background:#f5f7ff;border-radius:10px;padding:13px 14px;font-size:13px;color:#5f6368;line-height:1.7">' +
@@ -3575,7 +3576,7 @@ function openSettings() {
         '<div style="margin-top:12px;font-size:13px;color:#8a919b">' +
           '产品数：<b style="color:#202124">' + appData.products.length + '</b>　已填字段：<b style="color:#202124">' + totalFields + '</b>' +
           (appData.dataTag ? '<br>数据包：<b style="color:#c5221f">' + esc(appData.dataTag) + '</b>' : '') +
-          '<br>版本：v3.9.22' +
+          '<br>版本：v3.9.23' +
         '</div>' +
       '</div>' +
       '<div style="padding:16px">' +
@@ -3595,6 +3596,20 @@ function openSettings() {
 
   m.querySelector('#st-export').addEventListener('click', function(){
     exportData();
+  });
+
+  var __restoreBtn = m.querySelector('#st-restore');
+  if (__restoreBtn) __restoreBtn.addEventListener('click', function(){
+    var bk = appData.lastBackup;
+    if (!bk || !bk.products) { toast('没有可恢复的备份'); return; }
+    if (!confirm('恢复「' + String(bk.at||'').slice(0,16).replace('T',' ') + '」替换前的本机数据？\n\n当前 ' + appData.products.length + ' 个产品将变回 ' + bk.products.length + ' 个。')) return;
+    appData.products = JSON.parse(JSON.stringify(bk.products));
+    if (bk.dataTag !== undefined) appData.dataTag = bk.dataTag;
+    delete appData.lastBackup;
+    saveData(appData);
+    m.classList.remove('show');
+    renderAll();
+    toast('已恢复：' + appData.products.length + ' 个产品');
   });
 
   var __importMode = 'merge';
@@ -3622,14 +3637,34 @@ function openSettings() {
       if (!d || !Array.isArray(d.products)) { toast('文件格式不对'); return; }
 
       if (__importMode === 'replace') {
-        if (!confirm('替换模式：\n\n本机现有 ' + appData.products.length + ' 个产品将被全部清除，替换为备份里的 ' + d.products.length + ' 个产品。\n\n本机数据不会保留，确定替换吗？')) return;
-        appData.products = d.products.slice();
+        // 先备份本机数据（万一替换后想找回手改内容）
+        try {
+          appData.lastBackup = {
+            at: new Date().toISOString(),
+            dataTag: appData.dataTag || '',
+            products: JSON.parse(JSON.stringify(appData.products))
+          };
+        } catch(e) {}
+        // 找出「新包里没有、但本机有」的产品（你手动添加的），默认保留
+        var inNew = {};
+        d.products.forEach(function(x){ inNew[x.id] = 1; });
+        var mine = appData.products.filter(function(x){ return !inNew[x.id]; });
+        var keepMine = true;
+        if (mine.length) {
+          keepMine = confirm('本机有 ' + mine.length + ' 个产品不在新数据包里：\n\n' +
+            mine.slice(0,8).map(function(x){ return '· ' + x.name; }).join('\n') +
+            (mine.length > 8 ? '\n... 等' + mine.length + '个' : '') +
+            '\n\n【确定】保留这些产品（推荐）\n【取消】连它们一起清掉');
+        }
+        var restored = d.products.slice();
+        if (keepMine && mine.length) restored = restored.concat(mine);
+        appData.products = restored;
         appData.dataTag = d.dataTag || d.tag || '';
         if (d.weights) appData.weights = JSON.parse(JSON.stringify(d.weights));
         saveData(appData);
         m.classList.remove('show');
         renderAll();
-        toast('已替换：现有 ' + appData.products.length + ' 个产品');
+        toast('已替换：现有 ' + appData.products.length + ' 个产品' + (keepMine && mine.length ? '（保留你自建' + mine.length + '个）' : ''));
         return;
       }
 
