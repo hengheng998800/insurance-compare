@@ -3,6 +3,34 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<script>
+/* v3.9.29 版本自检：有网时自动拉最新版并刷新（防死循环）；断网静默跳过 */
+(function(){
+  var BUILD = 'v3.9.29';
+  try {
+    var k = '__appVerChk';
+    if (sessionStorage.getItem(k) === BUILD) return; // 本次会话已检查过且是最新
+    fetch('index.html?_chk=' + Date.now(), {cache:'no-store'})
+      .then(function(r){ return r.text(); })
+      .then(function(t){
+        var m = t.match(/版本：v3\.9\.\d+/);
+        var remote = m ? m[0] : '';
+        if (remote && remote !== '版本：' + BUILD) {
+          sessionStorage.removeItem(k);
+          caches && caches.keys && caches.keys().then(function(keys){
+            keys.forEach(function(kk){ caches.delete(kk); });
+            location.reload(true);
+          }).catch(function(){ location.reload(true); });
+        } else {
+          sessionStorage.setItem(k, BUILD);
+        }
+      }).catch(function(){ /* 断网：静默，继续用缓存 */ });
+  } catch(e){}
+})();
+</script>
 <title>保险对比</title>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -3654,7 +3682,7 @@ function openSettings() {
         '<div style="margin-top:12px;font-size:13px;color:#8a919b">' +
           '产品数：<b style="color:#202124">' + appData.products.length + '</b>　已填字段：<b style="color:#202124">' + totalFields + '</b>' +
           (appData.dataTag ? '<br>数据包：<b style="color:#c5221f">' + esc(appData.dataTag) + '</b>' : '') +
-          '<br>版本：v3.9.28' +
+          '<br>版本：v3.9.29' +
         '</div>' +
       '</div>' +
       '<div style="padding:16px">' +
