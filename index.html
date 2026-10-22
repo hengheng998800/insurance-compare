@@ -9,7 +9,7 @@
 <script>
 /* v3.9.29 版本自检：有网时自动拉最新版并刷新（防死循环）；断网静默跳过 */
 (function(){
-  var BUILD = 'v3.9.30';
+  var BUILD = 'v3.9.31';
   try {
     var k = '__appVerChk';
     if (sessionStorage.getItem(k) === BUILD) return; // 本次会话已检查过且是最新
@@ -479,6 +479,32 @@ textarea.finput{min-height:38px;overflow:hidden}
 .g-mod-head{display:flex;align-items:center;gap:8px;padding:12px 12px 10px;border-bottom:1px solid #eaf4ec}
 .g-mod-bar{width:4px;height:16px;border-radius:2px;background:linear-gradient(180deg,#1fa860,#0b5c33);flex:0 0 4px}
 .g-mod-title{font-size:14.5px;font-weight:800;color:#14532d;letter-spacing:.5px}
+.g-edit{margin-left:auto;width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:8px;background:#eaf6ee;border:1px solid #cfe7d8;font-size:13px;cursor:pointer;flex-shrink:0;-webkit-tap-highlight-color:transparent}
+.g-edit:active{background:#d8efdf}
+.u-b{font-weight:800;color:#0d3b22}
+.u-hl{background:linear-gradient(180deg,transparent 55%,#b7f0c9 55%);color:#0b4a26;font-weight:800;padding:0 2px;border-radius:2px}
+.u-warn{color:#c5221f;font-weight:800;background:#fdecea;padding:0 3px;border-radius:3px}
+/* 模块编辑弹层 */
+.me-mask{position:fixed;inset:0;background:rgba(15,25,20,.45);z-index:9999;display:flex;align-items:flex-end}
+.me-panel{width:100%;max-height:86vh;background:#fff;border-radius:16px 16px 0 0;display:flex;flex-direction:column;animation:meUp .22s ease}
+@keyframes meUp{from{transform:translateY(40px);opacity:.6}to{transform:translateY(0);opacity:1}}
+.me-head{display:flex;align-items:center;gap:8px;padding:14px 16px 10px;border-bottom:1px solid #eef2f6}
+.me-head b{font-size:15.5px;color:#14532d;flex:1}
+.me-x{font-size:20px;color:#98a2b3;padding:0 6px;cursor:pointer}
+.me-tip{padding:8px 16px;font-size:11px;color:#7b8a97;background:#f7faf8;line-height:1.6;border-bottom:1px solid #eef2f6}
+.me-tip code{background:#e8f2ea;color:#14532d;padding:1px 4px;border-radius:3px;font-size:10.5px;margin:0 1px}
+.me-body{flex:1;overflow-y:auto;padding:10px 16px 16px;-webkit-overflow-scrolling:touch}
+.me-row{margin-top:10px}
+.me-lbl{font-size:12px;font-weight:700;color:#3d4d5c;margin-bottom:5px}
+.me-row textarea{width:100%;box-sizing:border-box;border:1px solid #d8e3dc;border-radius:9px;padding:9px 11px;font-size:13px;line-height:1.6;font-family:inherit;color:#1f2937;background:#fbfdfc;resize:none;min-height:40px}
+.me-row textarea:focus{outline:none;border-color:#1fa860;background:#fff;box-shadow:0 0 0 3px rgba(31,168,96,.12)}
+.me-add{margin-top:7px;font-size:12px;color:#1a7f4b;font-weight:700;padding:6px 0;cursor:pointer}
+.me-del{position:absolute;right:8px;top:8px;width:20px;height:20px;border-radius:50%;background:#f1f3f5;color:#98a2b3;font-size:13px;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.me-row-rel{position:relative}
+.me-foot{display:flex;gap:10px;padding:10px 16px calc(10px + env(safe-area-inset-bottom));border-top:1px solid #eef2f6}
+.me-foot .btn{flex:1}
+/* 出图模式：隐藏编辑按钮 */
+.shot-mode .g-edit,.shot-mode .no-shot{display:none !important}
 .g-pill{margin-left:auto;background:#e6f6ec;color:#128a4b;border-radius:14px;font-size:10.5px;padding:3px 10px;font-weight:600}
 .g-kv-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px 10px;padding:12px 12px 2px}
 .g-kv{background:#f4faf6;border-radius:10px;padding:8px 10px}
@@ -2148,7 +2174,19 @@ function renderDetail() {
   }
 
   // 关键词高亮：百分比绿徽章 + 风险词红字
-  function gHl(s) {
+  // 自定义标记：**加粗**  ##绿高亮##  !!红警告!!
+  function gMark(s) {
+    var raw = String(s);
+    var PH = [], N = 0;
+    function ph(html){ PH.push(html); return '\u0001' + (N++) + '\u0001'; }
+    raw = raw.replace(/\*\*([^*]+)\*\*/g, function(_, x){ return ph('<b class="u-b">' + esc(x) + '</b>'); });
+    raw = raw.replace(/##([^#]+)##/g, function(_, x){ return ph('<span class="u-hl">' + esc(x) + '</span>'); });
+    raw = raw.replace(/!!([^!]+)!!/g, function(_, x){ return ph('<span class="u-warn">' + esc(x) + '</span>'); });
+    var out = gMark(raw);
+    out = out.replace(/\u0001(\d+)\u0001/g, function(_, i){ return PH[+i]; });
+    return out;
+  }
+  function gMark(s) {
     s = esc(String(s));
     // 百分比（绿徽章）
     s = s.replace(/(\d+(?:\.\d+)?%)/g, '<span class="g-pct">$1</span>');
@@ -2168,14 +2206,17 @@ function renderDetail() {
   function gNumList(arr) {
     var out = '<div class="g-num-grid">';
     arr.forEach(function(x, i){
-      out += '<div class="g-num-item"><span class="g-num">' + (i + 1) + '</span><span>' + gHl(x) + '</span></div>';
+      out += '<div class="g-num-item"><span class="g-num">' + (i + 1) + '</span><span>' + gMark(x) + '</span></div>';
     });
     return out + '</div>';
   }
-  function gCard(title, pill, inner) {
+  function gCard(title, pill, inner, meta) {
+    var editBtn = (meta && meta.keys && meta.keys.length)
+      ? '<span class="g-edit" data-ek="' + esc(meta.keys.join(',')) + '" data-et="' + esc(meta.title || title) + '">✏️</span>'
+      : '';
     return '<div class="g-card">' +
       '<div class="g-mod-head"><span class="g-mod-bar"></span><span class="g-mod-title">' + esc(title) + '</span>' +
-      (pill ? '<span class="g-pill">' + pill + '</span>' : '') + '</div>' + inner + '</div>';
+      (pill ? '<span class="g-pill">' + pill + '</span>' : '') + editBtn + '</div>' + inner + '</div>';
   }
 
   var h = '<div class="poster g-poster">' +
@@ -2210,7 +2251,7 @@ function renderDetail() {
     kvCount++;
     var vs = Array.isArray(v) ? v.join('；') : valueToText(v);
     kvRows += '<div class="g-kv' + (vs.length > 16 ? ' g-wide' : '') + '">' +
-      '<div class="g-kv-k">' + esc(fd.label) + '</div><div class="g-kv-v">' + gHl(vs) + '</div></div>';
+      '<div class="g-kv-k">' + esc(fd.label) + '</div><div class="g-kv-v">' + gMark(vs) + '</div></div>';
   });
   // —— 模块零：公司实力（在投保规则前）——
   var coName = String(f.company || '').trim();
@@ -2222,14 +2263,17 @@ function renderDetail() {
     coHtml += '<div class="g-co-name">' + esc(coName) + '<span>保险公司简介</span></div></div>';
     coArr.forEach(function(ln, i){
       var icons = ['🏦','💰','📈','🛎️','⭐'];
-      coHtml += '<div class="g-co-li"><span class="g-co-ic">' + (icons[i] || '⭐') + '</span><span>' + gHl(ln) + '</span></div>';
+      coHtml += '<div class="g-co-li"><span class="g-co-ic">' + (icons[i] || '⭐') + '</span><span>' + gMark(ln) + '</span></div>';
     });
     coHtml += '<div class="g-co-tip">偿付能力等数据以该公司最新季度偿付能力报告为准</div></div>';
-    h += gCard('🏢 公司实力', '', coHtml);
+    h += gCard('🏢 公司实力', '', coHtml, { keys:['company','companyInfo'], title:'公司实力' });
   }
   if (kvCount) {
+    var kvKeys = fields.filter(function(fd){
+      return (fd.group || '').indexOf('投保规则') >= 0 && fd.key !== 'companyInfo' && fd.key !== 'note';
+    }).map(function(fd){ return fd.key; });
     h += gCard('投保规则', '',
-      '<div class="g-kv-grid">' + kvRows + '</div>');
+      '<div class="g-kv-grid">' + kvRows + '</div>', { keys: kvKeys, title: '投保规则' });
   }
 
   // —— 模块二/三：责任表（深绿表头 + 行分隔）——
@@ -2250,7 +2294,7 @@ function renderDetail() {
       var stack = fd.label.length > 7 ? ' g-tr-stack' : '';
       inner += '<div class="g-tr' + stack + '"><div class="g-td-name">' + esc(fd.label) + '</div><div class="g-td-val">';
       lines.forEach(function(ln, li){
-        inner += '<div class="g-line' + (/^[①②③④⑤⑥⑦⑧⑨⑩⑪⑫]/.test(ln.trim()) && li > 0 ? ' g-line-sub' : '') + '">' + gHl(ln) + '</div>';
+        inner += '<div class="g-line' + (/^[①②③④⑤⑥⑦⑧⑨⑩⑪⑫]/.test(ln.trim()) && li > 0 ? ' g-line-sub' : '') + '">' + gMark(ln) + '</div>';
       });
       if (fd.key === 'criticalPay' && Array.isArray(f.sixCritical) && f.sixCritical.length)
         inner += '<div class="g-num-wrap"><div class="g-num-title">6种特定重疾（未达定义而身故，视同符合）</div>' + gNumList(f.sixCritical) + '</div>';
@@ -2258,7 +2302,8 @@ function renderDetail() {
         inner += '<div class="g-num-wrap"><div class="g-num-title">6种特定癌前病变手术</div>' + gNumList(f.precancerList) + '</div>';
       inner += '</div></div>';
     });
-    h += gCard((g.replace(/^[一二三四五六七八九十]+、/, '') === '其他' ? '其他说明' : g.replace(/^[一二三四五六七八九十]+、/, '')), pill, inner);
+    var gKeys = gmap[g].filter(function(fd){ return fd.key !== 'note'; }).map(function(fd){ return fd.key; });
+    h += gCard((g.replace(/^[一二三四五六七八九十]+、/, '') === '其他' ? '其他说明' : g.replace(/^[一二三四五六七八九十]+、/, '')), pill, inner, { keys: gKeys, title: g.replace(/^[一二三四五六七八九十]+、/, '') });
   });
 
   // —— 保费试算（官方费率 perK 模式 / 组合费率回退模式）——
@@ -2394,7 +2439,7 @@ function renderDetail() {
   if (noteLines.length) {
     var hlRows = '';
     noteLines.forEach(function(ln){ hlRows += '<div class="g-hl-row">' + gHl(ln) + '</div>'; });
-    h += gCard('产品亮点', '', '<div class="g-hl-wrap">' + hlRows + '</div>');
+    h += gCard('产品亮点', '', '<div class="g-hl-wrap">' + hlRows + '</div>', { keys:['note'], title:'产品亮点' });
   }
 
   // —— 实战点评（网络专业点评汇总）——
@@ -2435,7 +2480,8 @@ function renderDetail() {
   h += '<div class="cmp-note" style="padding:4px 16px 0">已填写 ' + filled + ' 个字段，共 ' + fields.length + ' 个</div>';
 
   h += '<div style="padding:14px 12px 24px">' +
-    '<button class="btn btn-primary" id="btn-edit-current">编辑条款细节</button>' +
+    '<button class="btn btn-primary" id="btn-shot-current" style="background:linear-gradient(135deg,#0f7a42,#1fa860)">📸 一键保存为图片</button>' +
+    '<div class="btn-row"><button class="btn btn-ghost" id="btn-edit-current">编辑条款细节（全部字段）</button></div>' +
     '<div class="btn-row"><button class="btn btn-ghost" id="btn-dup-current">复制一份</button></div>' +
   '</div>';
 
@@ -2542,6 +2588,17 @@ function renderDetail() {
     gcUpdate();
   }
 
+  // ===== v3.9.31 模块级内联编辑 =====
+  box.querySelectorAll('.g-edit').forEach(function(el){
+    el.addEventListener('click', function(ev){
+      ev.stopPropagation();
+      openModuleEdit(p.id, el.getAttribute('data-ek').split(','), el.getAttribute('data-et'));
+    });
+  });
+  // ===== 一键存图 =====
+  var shotBtn = document.getElementById('btn-shot-current');
+  if (shotBtn) shotBtn.addEventListener('click', function(){ shotDetail(p.id); });
+
   document.getElementById('btn-edit-current').addEventListener('click', function(){
     state.editingId = p.id;
     switchPage('edit');
@@ -2557,6 +2614,200 @@ function renderDetail() {
     toast('已复制');
     state.detailId = copy.id;
     renderDetail();
+  });
+}
+
+/* ============================================================
+   v3.9.31 模块级内联编辑（点铅笔 → 底部面板 → 原地刷新）
+   ============================================================ */
+function openModuleEdit(pid, keys, title) {
+  var p = getProduct(pid);
+  if (!p) return;
+  var fields = getFields(p.type);
+  var f = p.fields || {};
+  var mask = document.createElement('div');
+  mask.className = 'me-mask';
+  var rows = '';
+  keys.forEach(function(k){
+    var def = null;
+    for (var i = 0; i < fields.length; i++) { if (fields[i].key === k) { def = fields[i]; break; } }
+    var label = def ? def.label : k;
+    var val = f[k];
+    var isArr = Array.isArray(val);
+    var lines = isArr ? val.slice() : (val ? String(val).split('\n') : []);
+    if (!lines.length) lines = [''];
+    rows += '<div class="me-row" data-k="' + esc(k) + '"><div class="me-lbl">' + esc(label) + '</div><div class="me-lines">';
+    lines.forEach(function(ln, i){
+      rows += '<div class="me-row-rel" style="margin-bottom:6px"><textarea class="me-ta" rows="1">' + esc(ln) + '</textarea>' +
+        (lines.length > 1 ? '<span class="me-del">×</span>' : '') + '</div>';
+    });
+    rows += '</div><div class="me-add">＋ 增加一行</div></div>';
+  });
+  mask.innerHTML = '<div class="me-panel">' +
+    '<div class="me-head"><b>✏️ 编辑 · ' + esc(title || '') + '</b><span class="me-x">✕</span></div>' +
+    '<div class="me-tip">标记语法：<code>**加粗**</code> <code>##绿底高亮（优势）##</code> <code>!!红字（风险提醒）!!</code><br>一行一条 · 保存后原地生效</div>' +
+    '<div class="me-body">' + rows + '</div>' +
+    '<div class="me-foot"><button class="btn btn-ghost me-cancel">取消</button><button class="btn btn-primary me-save">保存</button></div>' +
+    '</div>';
+  document.body.appendChild(mask);
+
+  function growAll(){
+    mask.querySelectorAll('.me-ta').forEach(function(ta){
+      ta.style.height = 'auto';
+      ta.style.height = Math.max(38, ta.scrollHeight) + 'px';
+    });
+  }
+  setTimeout(growAll, 30);
+  mask.addEventListener('input', function(e){ if (e.target.classList.contains('me-ta')) growAll(); });
+
+  function close(){ mask.remove(); }
+  mask.querySelector('.me-x').addEventListener('click', close);
+  mask.querySelector('.me-cancel').addEventListener('click', close);
+  mask.addEventListener('click', function(e){ if (e.target === mask) close(); });
+
+  // 增删行
+  mask.addEventListener('click', function(e){
+    var add = e.target.closest('.me-add');
+    if (add) {
+      var row = add.closest('.me-row');
+      var lines = row.querySelector('.me-lines');
+      var d = document.createElement('div');
+      d.className = 'me-row-rel';
+      d.style.marginBottom = '6px';
+      d.innerHTML = '<textarea class="me-ta" rows="1" placeholder="再填一条…"></textarea><span class="me-del">×</span>';
+      lines.appendChild(d);
+      row.querySelectorAll('.me-del').forEach(function(x){ x.style.display = 'flex'; });
+      growAll();
+      d.querySelector('textarea').focus();
+      return;
+    }
+    var del = e.target.closest('.me-del');
+    if (del) {
+      var wrap = del.closest('.me-row-rel');
+      var linesBox = del.closest('.me-lines');
+      wrap.remove();
+      if (linesBox.querySelectorAll('.me-row-rel').length === 1) {
+        linesBox.querySelectorAll('.me-del').forEach(function(x){ x.style.display = 'none'; });
+      }
+    }
+  });
+
+  mask.querySelector('.me-save').addEventListener('click', function(){
+    p.fields = p.fields || {};
+    mask.querySelectorAll('.me-row').forEach(function(row){
+      var k = row.getAttribute('data-k');
+      var arr = [];
+      row.querySelectorAll('.me-ta').forEach(function(ta){
+        var v = (ta.value || '').trim();
+        if (v) arr.push(v);
+      });
+      if (!arr.length) { delete p.fields[k]; }
+      else if (arr.length === 1) { p.fields[k] = arr[0]; }
+      else { p.fields[k] = arr; }
+    });
+    p.updatedAt = Date.now();
+    saveData(appData);
+    close();
+    renderDetail();
+    toast('已保存');
+  });
+}
+
+/* ============================================================
+   v3.9.31 产品详情一键存图（用 SVG foreignObject 渲染 DOM）
+   ============================================================ */
+function shotDetail(pid) {
+  var p = getProduct(pid);
+  if (!p) return;
+  var poster = document.querySelector('#page-detail .g-poster');
+  if (!poster) { toast('页面还没渲染好'); return; }
+  toast('正在生成图片…');
+
+  // 收集本页所有样式表文本
+  var cssText = '';
+  for (var s = 0; s < document.styleSheets.length; s++) {
+    try {
+      var rules = document.styleSheets[s].cssRules;
+      for (var r = 0; r < rules.length; r++) cssText += rules[r].cssText + '\n';
+    } catch(e) {}
+  }
+
+  var w = poster.offsetWidth;
+  var clone = poster.cloneNode(true);
+  // 隐藏编辑按钮
+  clone.querySelectorAll('.g-edit').forEach(function(el){ el.remove(); });
+
+  var doc = '<!DOCTYPE html><html><head><meta charset="utf-8">' +
+    '<meta name="viewport" content="width=' + w + '">' +
+    '<style>' + cssText + '</style>' +
+    '<style>html,body{margin:0;padding:0;background:#eef7ef;width:' + w + 'px}' +
+    '.poster{margin:0;border-radius:0;border:none;box-shadow:none}</style>' +
+    '</head><body>' + clone.outerHTML + '</body></html>';
+
+  var ifr = document.createElement('iframe');
+  ifr.style.cssText = 'position:fixed;left:-9999px;top:0;width:' + w + 'px;height:10000px;border:0;';
+  document.body.appendChild(ifr);
+  var idoc = ifr.contentDocument || ifr.contentWindow.document;
+  idoc.open(); idoc.write(doc); idoc.close();
+
+  setTimeout(function(){
+    try {
+      var body = idoc.body;
+      var H = Math.max(body.scrollHeight, idoc.documentElement.scrollHeight);
+      var svg = '<svg xmlns="http://www.w3.org/2000/svg" width="' + w + '" height="' + H + '">' +
+        '<foreignObject width="100%" height="100%">' +
+        new XMLSerializer().serializeToString(idoc.documentElement).replace(/^<html[^>]*>/, '<div xmlns="http://www.w3.org/1999/xhtml" style="width:' + w + 'px">').replace(/<\/html>$/, '</div>') +
+        '</foreignObject></svg>';
+      var img = new Image();
+      var scale = 2;
+      img.onload = function(){
+        var cv = document.createElement('canvas');
+        cv.width = w * scale; cv.height = H * scale;
+        var ctx = cv.getContext('2d');
+        ctx.fillStyle = '#eef7ef'; ctx.fillRect(0, 0, cv.width, cv.height);
+        ctx.drawImage(img, 0, 0, cv.width, cv.height);
+        ifr.remove();
+        showShotResult(cv);
+      };
+      img.onerror = function(){ ifr.remove(); toast('生成失败，请重试'); };
+      img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+    } catch(e) {
+      ifr.remove();
+      toast('生成失败：' + e.message);
+    }
+  }, 400);
+}
+
+function showShotResult(cv) {
+  var mask = document.createElement('div');
+  mask.className = 'me-mask';
+  mask.innerHTML = '<div class="me-panel" style="max-height:92vh">' +
+    '<div class="me-head"><b>📸 已生成图片</b><span class="me-x">✕</span></div>' +
+    '<div class="me-body" style="text-align:center"><img style="max-width:100%;border-radius:10px;box-shadow:0 4px 16px rgba(0,0,0,.15)" src="' + cv.toDataURL('image/png') + '"></div>' +
+    '<div class="me-foot"><button class="btn btn-ghost" id="shot-save">保存到相册</button><button class="btn btn-primary" id="shot-share">分享</button></div>' +
+    '</div>';
+  document.body.appendChild(mask);
+  var dataUrl = cv.toDataURL('image/png');
+  mask.querySelector('.me-x').addEventListener('click', function(){ mask.remove(); });
+  mask.addEventListener('click', function(e){ if (e.target === mask) mask.remove(); });
+  mask.querySelector('#shot-save').addEventListener('click', function(){
+    var a = document.createElement('a');
+    a.href = dataUrl;
+    a.download = '保险产品_' + Date.now() + '.png';
+    a.click();
+    toast('已保存（长按图片也可保存到相册）');
+  });
+  mask.querySelector('#shot-share').addEventListener('click', function(){
+    try {
+      cv.toBlob(function(blob){
+        var file = new File([blob], 'product.png', { type: 'image/png' });
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+          navigator.share({ files: [file], title: '产品详情' });
+        } else {
+          toast('请长按图片保存后分享');
+        }
+      });
+    } catch(e) { toast('请长按图片保存后分享'); }
   });
 }
 
@@ -3682,7 +3933,7 @@ function openSettings() {
         '<div style="margin-top:12px;font-size:13px;color:#8a919b">' +
           '产品数：<b style="color:#202124">' + appData.products.length + '</b>　已填字段：<b style="color:#202124">' + totalFields + '</b>' +
           (appData.dataTag ? '<br>数据包：<b style="color:#c5221f">' + esc(appData.dataTag) + '</b>' : '') +
-          '<br>版本：v3.9.30' +
+          '<br>版本：v3.9.31' +
         '</div>' +
       '</div>' +
       '<div style="padding:16px">' +
