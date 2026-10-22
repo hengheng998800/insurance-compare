@@ -31,28 +31,37 @@
 <script>
 /* v3.9.29 版本自检：有网时自动拉最新版并刷新（防死循环）；断网静默跳过 */
 (function(){
-  var BUILD = 'v3.9.34';
+  var BUILD = window.__BUILD__;
   try {
     var k = '__appVerChk';
-    if (sessionStorage.getItem(k) === BUILD) return; // 本次会话已检查过且是最新
-    fetch('index.html?_chk=' + Date.now(), {cache:'no-store'})
+    if (sessionStorage.getItem(k) === BUILD) return;
+    var ctrl = window.AbortController ? new AbortController() : null;
+    var tid = setTimeout(function(){ if (ctrl) { try { ctrl.abort(); } catch(e){} } }, 6000);
+    fetch('index.html?_chk=' + Date.now(), {cache:'no-store', signal: ctrl ? ctrl.signal : undefined})
       .then(function(r){ return r.text(); })
       .then(function(t){
-        var m = t.match(/版本：v3\.9\.\d+/);
-        var remote = m ? m[0] : '';
-        if (remote && remote !== '版本：' + BUILD) {
-          sessionStorage.removeItem(k);
-          caches && caches.keys && caches.keys().then(function(keys){
-            keys.forEach(function(kk){ caches.delete(kk); });
-            location.reload(true);
-          }).catch(function(){ location.reload(true); });
+        clearTimeout(tid);
+        var m = t.match(/window\.__BUILD__\s*=\s*"(v[\d.]+)"/);
+        var remote = m ? m[1] : '';
+        if (remote && remote !== BUILD) {
+          sessionStorage.setItem(k, remote);
+          try { if (navigator.serviceWorker && navigator.serviceWorker.getRegistrations) {
+            navigator.serviceWorker.getRegistrations().then(function(rs){ rs.forEach(function(r){ r.unregister(); }); });
+          } } catch(e){}
+          var go = function(){ location.replace(location.pathname + '?v=' + remote.replace(/[^\d]/g,'') + '&_r=' + Date.now()); };
+          if (caches && caches.keys) {
+            caches.keys().then(function(keys){
+              return Promise.all(keys.map(function(kk){ return caches.delete(kk); }));
+            }).then(go).catch(go);
+          } else { go(); }
         } else {
-          sessionStorage.setItem(k, BUILD);
+          sessionStorage.setItem(k, BUILD || remote);
         }
-      }).catch(function(){ /* 断网：静默，继续用缓存 */ });
+      }).catch(function(){});
   } catch(e){}
 })();
 </script>
+<script>window.__BUILD__="v3.9.35";</script>
 <title>保险对比</title>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -4186,7 +4195,9 @@ function openSettings() {
         '<div style="margin-top:12px;font-size:13px;color:#8a919b">' +
           '产品数：<b style="color:#202124">' + appData.products.length + '</b>　已填字段：<b style="color:#202124">' + totalFields + '</b>' +
           (appData.dataTag ? '<br>数据包：<b style="color:#c5221f">' + esc(appData.dataTag) + '</b>' : '') +
-          '<br>版本：v3.9.34' +
+          '<br>版本：<b style="color:#202124">' + BUILD + '</b>' +
+          '<div style="margin-top:10px"><button class="btn btn-ghost" id="st-check" style="font-size:13px;padding:8px 14px">🔄 检查更新</button>' +
+          '<span id="st-check-msg" style="font-size:12px;color:#8a919b;margin-left:8px"></span></div>' +
         '</div>' +
       '</div>' +
       '<div style="padding:16px">' +
@@ -4616,12 +4627,59 @@ function showShareSheet(url, fname) {
 }
 
 document.getElementById('btn-settings').addEventListener('click', openSettings);
+
+function forceCheckUpdate(btn, msgEl) {
+  if (msgEl) { msgEl.textContent = '检查中…'; msgEl.style.color = '#8a919b'; }
+  if (btn) btn.disabled = true;
+  fetch('index.html?_force=' + Date.now(), { cache: 'no-store' })
+    .then(function(r){ return r.text(); })
+    .then(function(t){
+      var m = t.match(/window\.__BUILD__\s*=\s*"(v[\d.]+)"/);
+      var remote = m ? m[1] : '';
+      if (remote && remote !== BUILD) {
+        if (msgEl) { msgEl.textContent = '发现 ' + remote + '，正在更新…'; msgEl.style.color = '#1a7f37'; }
+        try { sessionStorage.removeItem('__appVerChk'); } catch(e){}
+        var go = function(){ location.replace(location.pathname + '?v=' + remote.replace(/[^\d]/g,'') + '&_r=' + Date.now()); };
+        var chain = Promise.resolve();
+        try { if (navigator.serviceWorker && navigator.serviceWorker.getRegistrations) {
+          chain = navigator.serviceWorker.getRegistrations().then(function(rs){
+            return Promise.all(rs.map(function(r){ return r.unregister(); }));
+          });
+        } } catch(e){}
+        chain.then(function(){
+          if (caches && caches.keys) {
+            return caches.keys().then(function(keys){
+              return Promise.all(keys.map(function(kk){ return caches.delete(kk); }));
+            });
+          }
+        }).then(go).catch(go);
+      } else {
+        if (btn) btn.disabled = false;
+        if (msgEl) {
+          msgEl.textContent = remote ? '已是最新 ' + remote : '取不到版本号（网络异常？）';
+          msgEl.style.color = remote ? '#1a7f37' : '#c5221f';
+        }
+      }
+    })
+    .catch(function(){
+      if (btn) btn.disabled = false;
+      if (msgEl) { msgEl.textContent = '网络不通，稍后再试'; msgEl.style.color = '#c5221f'; }
+    });
+}
+
+document.addEventListener('click', function(ev){
+  var b = ev.target.closest && ev.target.closest('#st-check');
+  if (!b) return;
+  forceCheckUpdate(b, document.getElementById('st-check-msg'));
+});
 document.getElementById('btn-share').addEventListener('click', shareCompareImage);
 
 // 注册 Service Worker
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', function(){
-    navigator.serviceWorker.register('./sw.js').catch(function(e){
+    navigator.serviceWorker.register('./sw.js', { updateViaCache: 'none' }).then(function(reg){
+      try { reg.update(); } catch(e){}
+    }).catch(function(e){
       console.warn('SW 注册失败', e);
     });
   });
