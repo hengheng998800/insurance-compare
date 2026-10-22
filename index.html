@@ -1481,10 +1481,10 @@ function renderLearn(box) {
         (it.civic ? '<div class="know-ribbon civic-ribbon">🏛️ 政府指导 · 普惠政策型</div>' : '') +
         '<div class="know-name">' + esc(it.label) + '</div>';
       (it.pros || []).forEach(function(x){
-        h += '<div class="know-li pro"><span class="ic">✔</span><span>' + esc(x) + '</span></div>';
+        h += '<div class="know-li pro"><span class="ic" style="color:#1d8a3e;font-weight:700">✔</span><span>' + esc(x) + '</span></div>';
       });
       (it.cons || []).forEach(function(x){
-        h += '<div class="know-li con"><span class="ic">✘</span><span>' + esc(x) + '</span></div>';
+        h += '<div class="know-li con"><span class="ic" style="color:#c5221f;font-weight:700">✘</span><span>' + esc(x) + '</span></div>';
       });
       h += '</button>';
     });
@@ -1913,26 +1913,19 @@ function renderEdit() {
       var val = (p.fields && p.fields[f.key] !== undefined) ? p.fields[f.key] : '';
       h += '<div class="frow">';
       h += '<div class="flabel">' + esc(f.label) + (f.note ? '<div class="fnote">' + esc(f.note) + '</div>' : '') + '</div>';
-      if (f.type === 'long' && f.multi) {
-        // 多条描述：每行一条，可增删
-        var lines = Array.isArray(val) ? val.slice() : (val ? [String(val)] : []);
-        if (lines.length === 0) lines = [''];
-        h += '<div class="multi-wrap" data-k="' + f.key + '">';
-        lines.forEach(function(ln, li){
-          h += '<div class="multi-row">' +
-            '<textarea class="finput multi-input" data-k="' + f.key + '" data-t="long" rows="1" ' +
-            'placeholder="' + esc(li === 0 ? (f.note || '填写一条描述…') : '再填一条…') + '">' + esc(ln) + '</textarea>' +
-            (lines.length > 1 ? '<div class="multi-del" data-k="' + f.key + '" data-i="' + li + '">×</div>' : '') +
-          '</div>';
-        });
-        h += '<div class="multi-add" data-k="' + f.key + '">＋ 增加一条</div>';
-        h += '</div>';
-      } else if (f.type === 'long') {
-        h += '<textarea class="finput" data-k="' + f.key + '" data-t="long" rows="2" placeholder="' + esc(f.note || '点击填写…') + '">' + esc(val) + '</textarea>';
-      } else {
-        h += '<input class="finput" data-k="' + f.key + '" data-t="text" ' +
-             'placeholder="' + esc(f.note || '') + '" value="' + esc(val) + '">';
-      }
+      // v3.9.28：所有字段统一为「分段分行」编辑器——每一行一条，可增删
+      var lines = Array.isArray(val) ? val.slice() : (val ? String(val).split('\n').filter(function(x){return x.trim();}) : []);
+      if (lines.length === 0) lines = [''];
+      h += '<div class="multi-wrap" data-k="' + f.key + '">';
+      lines.forEach(function(ln, li){
+        h += '<div class="multi-row">' +
+          '<textarea class="finput multi-input" data-k="' + f.key + '" data-t="' + (f.type === 'text' ? 'text' : 'long') + '" rows="1" ' +
+          'placeholder="' + esc(li === 0 ? (f.note || '填写一条，一行一条更清晰…') : '再填一条…') + '">' + esc(ln) + '</textarea>' +
+          (lines.length > 1 ? '<div class="multi-del" data-k="' + f.key + '" data-i="' + li + '">×</div>' : '') +
+        '</div>';
+      });
+      h += '<div class="multi-add" data-k="' + f.key + '">＋ 增加一条</div>';
+      h += '</div>';
       h += '</div>';
     });
     h += '</div>';
@@ -1967,7 +1960,8 @@ function renderEdit() {
     };
     var tierEl = document.getElementById('f-tier');
     if (tierEl) obj.tier = tierEl.value || '';
-    // 先处理多条字段
+    var multiKeys = {};
+    fields.forEach(function(fd){ if (fd.type === 'long' && fd.multi) multiKeys[fd.key] = 1; });
     box.querySelectorAll('.multi-wrap').forEach(function(wrap){
       var k = wrap.dataset.k;
       var arr = [];
@@ -1975,14 +1969,9 @@ function renderEdit() {
         var v = (ta.value || '').trim();
         if (v) arr.push(v);
       });
-      if (arr.length > 0) obj.fields[k] = arr;
-    });
-    // 再处理单值字段（跳过多条字段内的 textarea）
-    box.querySelectorAll('[data-k]').forEach(function(el){
-      if (el.classList.contains('multi-input')) return;
-      var k = el.dataset.k;
-      var v = el.value;
-      if (v !== '' && v !== undefined && v !== null) obj.fields[k] = v;
+      if (arr.length === 0) return;
+      if (arr.length === 1 && !multiKeys[k]) obj.fields[k] = arr[0]; // 单行保持字符串
+      else obj.fields[k] = arr;
     });
     return obj;
   }
@@ -2187,7 +2176,6 @@ function renderDetail() {
   var kvRows = '', kvCount = 0;
   fields.forEach(function(fd){
     if ((fd.group || '').indexOf('投保规则') < 0) return;
-    if (fd.key === 'ageLimit') return; // 放右上角胶囊
     if (fd.key === 'companyInfo') return; // 单独渲染为公司实力卡
     var v = f[fd.key];
     if (valueEmpty(v)) return;
@@ -2212,7 +2200,7 @@ function renderDetail() {
     h += gCard('🏢 公司实力', '', coHtml);
   }
   if (kvCount) {
-    h += gCard('投保规则', f.ageLimit ? esc(f.ageLimit) + '可投' : '',
+    h += gCard('投保规则', '',
       '<div class="g-kv-grid">' + kvRows + '</div>');
   }
 
@@ -3666,7 +3654,7 @@ function openSettings() {
         '<div style="margin-top:12px;font-size:13px;color:#8a919b">' +
           '产品数：<b style="color:#202124">' + appData.products.length + '</b>　已填字段：<b style="color:#202124">' + totalFields + '</b>' +
           (appData.dataTag ? '<br>数据包：<b style="color:#c5221f">' + esc(appData.dataTag) + '</b>' : '') +
-          '<br>版本：v3.9.27' +
+          '<br>版本：v3.9.28' +
         '</div>' +
       '</div>' +
       '<div style="padding:16px">' +
