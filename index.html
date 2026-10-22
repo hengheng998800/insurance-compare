@@ -31,7 +31,7 @@
 <script>
 /* v3.9.29 版本自检：有网时自动拉最新版并刷新（防死循环）；断网静默跳过 */
 (function(){
-  var BUILD = 'v3.9.32';
+  var BUILD = 'v3.9.33';
   try {
     var k = '__appVerChk';
     if (sessionStorage.getItem(k) === BUILD) return; // 本次会话已检查过且是最新
@@ -2204,11 +2204,11 @@ function renderDetail() {
     raw = raw.replace(/[*＊]{2}([^*＊]+)[*＊]{2}/g, function(_, x){ return ph('<b class="u-b">' + esc(x) + '</b>'); });
     raw = raw.replace(/[#＃]{2}([^#＃]+)[#＃]{2}/g, function(_, x){ return ph('<span class="u-hl">' + esc(x) + '</span>'); });
     raw = raw.replace(/[!！]{2}([^!！]+)[!！]{2}/g, function(_, x){ return ph('<span class="u-warn">' + esc(x) + '</span>'); });
-    var out = gMark(raw);
+    var out = gHl(raw);
     out = out.replace(/\u0001(\d+)\u0001/g, function(_, i){ return PH[+i]; });
     return out;
   }
-  function gMark(s) {
+  function gHl(s) {
     s = esc(String(s));
     // 百分比（绿徽章）
     s = s.replace(/(\d+(?:\.\d+)?%)/g, '<span class="g-pct">$1</span>');
@@ -2460,7 +2460,7 @@ function renderDetail() {
   // —— 产品亮点（总体备注）——
   if (noteLines.length) {
     var hlRows = '';
-    noteLines.forEach(function(ln){ hlRows += '<div class="g-hl-row">' + gHl(ln) + '</div>'; });
+    noteLines.forEach(function(ln){ hlRows += '<div class="g-hl-row">' + gMark(ln) + '</div>'; });
     h += gCard('产品亮点', '', '<div class="g-hl-wrap">' + hlRows + '</div>', { keys:['note'], title:'产品亮点' });
   }
 
@@ -2469,7 +2469,7 @@ function renderDetail() {
     var inCards = '';
     f.insights.forEach(function(it){
       inCards += '<div class="g-ins"><div class="g-ins-side"><span class="g-ins-ch">' + esc((it.t || '评').charAt(0)) + '</span></div>' +
-        '<div><div class="g-ins-title">' + esc(it.title || '') + '</div><div class="g-ins-desc">' + gHl(it.desc || '') + '</div></div></div>';
+        '<div><div class="g-ins-title">' + esc(it.title || '') + '</div><div class="g-ins-desc">' + gMark(it.desc || '') + '</div></div></div>';
     });
     h += gCard('实战点评', '优势与特点', '<div class="g-ins-grid">' + inCards + '</div>');
   }
@@ -3919,7 +3919,7 @@ function openSettings() {
         '<div style="margin-top:12px;font-size:13px;color:#8a919b">' +
           '产品数：<b style="color:#202124">' + appData.products.length + '</b>　已填字段：<b style="color:#202124">' + totalFields + '</b>' +
           (appData.dataTag ? '<br>数据包：<b style="color:#c5221f">' + esc(appData.dataTag) + '</b>' : '') +
-          '<br>版本：v3.9.32' +
+          '<br>版本：v3.9.33' +
         '</div>' +
       '</div>' +
       '<div style="padding:16px">' +
