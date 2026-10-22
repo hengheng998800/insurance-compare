@@ -1,6 +1,6 @@
 // 保险对比 Service Worker —— 离线缓存
 // 导航请求：network-first（优先最新版本，断网才用缓存）；静态资源：cache-first
-const CACHE = 'ins-compare-v88';
+const CACHE = 'ins-compare-v89';
 const APP_SHELL = [
   './',
   './index.html',
