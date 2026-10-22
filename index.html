@@ -417,14 +417,26 @@ textarea.finput{min-height:38px;overflow:hidden}
 .mp-foot{background:#364fc7;color:#fff;text-align:center;font-size:11.5px;padding:10px 14px;line-height:1.7;letter-spacing:.5px}
 /* ===== v3.9.3 绿色表格式模块卡 ===== */
 .g-poster{background:#eef7ef}
-.g-hero{background:linear-gradient(135deg,#0b5c33 0%,#128a4b 55%,#1fa860 100%);color:#fff;padding:22px 16px 18px;text-align:center}
-.g-hero-tag{display:inline-block;border:1px solid rgba(255,255,255,.45);border-radius:20px;font-size:10.5px;letter-spacing:2px;padding:2px 12px;margin-bottom:10px;opacity:.9}
-.g-hero-title{font-size:24px;font-weight:800;letter-spacing:1px;text-shadow:0 2px 6px rgba(0,0,0,.25)}
-.g-hero-sub{font-size:12px;margin-top:8px;opacity:.95;line-height:1.6}
+.g-hero{position:relative;overflow:hidden;background:radial-gradient(130% 100% at 88% -12%, #2fae67 0%, rgba(47,174,103,0) 55%),radial-gradient(95% 75% at -5% 105%, #053d21 0%, rgba(5,61,33,0) 58%),linear-gradient(135deg,#0a4d2a 0%,#0f7a42 52%,#149a55 100%);color:#fff;padding:24px 16px 20px;text-align:center}
+.g-hero::before{content:'';position:absolute;top:-40%;left:-30%;width:80%;height:160%;background:linear-gradient(105deg,rgba(255,255,255,0) 40%,rgba(255,255,255,.10) 50%,rgba(255,255,255,0) 60%);pointer-events:none}
+.g-hero-logo-bg{position:absolute;right:-14px;bottom:-14px;width:104px;height:104px;opacity:.14;filter:grayscale(20%) brightness(2);pointer-events:none}
+.g-hero-tag{display:inline-block;border:1px solid rgba(245,217,141,.6);color:#f5d98d;border-radius:20px;font-size:10.5px;letter-spacing:3px;padding:3px 14px;margin-bottom:12px}
+.g-hero-title{font-size:25px;font-weight:800;letter-spacing:1.5px;text-shadow:0 2px 8px rgba(0,0,0,.35)}
+.g-hero-div{width:52px;height:2px;margin:12px auto 0;background:linear-gradient(90deg,transparent,#f5d98d,transparent);border-radius:2px}
+.g-hero-sub{font-size:12px;margin-top:9px;opacity:.95;line-height:1.6}
 .g-hero-badges{display:flex;justify-content:center;gap:6px;flex-wrap:wrap;margin-top:10px}
 .g-hero-co{background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.35);border-radius:20px;font-size:11px;padding:3px 10px}
 .g-body{padding:12px 10px 4px}
 .g-card{background:#fff;border-radius:14px;box-shadow:0 2px 10px rgba(18,138,75,.08);padding-bottom:10px;margin-bottom:12px;overflow:hidden}
+/* v3.9.25 公司实力卡 */
+.g-co-top{display:flex;align-items:center;gap:11px;padding:4px 0 10px;border-bottom:1px dashed #dceade;margin-bottom:9px}
+.g-co-logo{width:42px;height:42px;border-radius:10px;object-fit:contain;background:#f4f6f9;border:1px solid #e5e9ef;flex-shrink:0}
+.g-co-logo-fb{display:flex;align-items:center;justify-content:center;font-size:19px;font-weight:800;color:#fff;background:linear-gradient(135deg,#0f7a42,#1fa860);text-shadow:0 1px 2px rgba(0,0,0,.25)}
+.g-co-name{font-size:16px;font-weight:800;color:#123d24;display:flex;flex-direction:column;line-height:1.3}
+.g-co-name span{font-size:10.5px;font-weight:600;color:#7f9a88;letter-spacing:2px;margin-top:1px}
+.g-co-li{display:flex;gap:7px;font-size:12px;line-height:1.65;color:#3d4d5c;padding:3.5px 0}
+.g-co-ic{flex-shrink:0}
+.g-co-tip{margin-top:8px;font-size:10px;color:#9aab9f;border-top:1px solid #eef4f0;padding-top:7px}
 .g-mod-head{display:flex;align-items:center;gap:8px;padding:12px 12px 10px;border-bottom:1px solid #eaf4ec}
 .g-mod-bar{width:4px;height:16px;border-radius:2px;background:linear-gradient(180deg,#1fa860,#0b5c33);flex:0 0 4px}
 .g-mod-title{font-size:14.5px;font-weight:800;color:#14532d;letter-spacing:.5px}
@@ -2074,6 +2086,29 @@ function renderDetail() {
 
   var sc = calcScore(p);
 
+  // 内置公司简介库（产品未填 companyInfo 时兜底）
+  var COMPANY_BRIEF = {
+    '众安财产': ['2013年成立，总部上海，国内首家互联网保险公司','蚂蚁集团·腾讯·平安等共同发起，港股上市（6060.HK）','2024年保费收入约334亿元，财险行业前十','服务：小病无忧医疗垫付、重疾绿色通道、7×24在线理赔'],
+    '复星联合健康': ['2017年成立，总部广州，复星集团旗下健康险公司','复星医药+复星产业生态，医疗服务资源丰富','主打中高端医疗与少儿重疾，爆款产品多','服务：专家门诊预约、住院垫付、MDT多学科会诊'],
+    '复星保德信': ['2012年成立，总部上海，中外合资（复星+美国保德信各50%）','美国保德信：美国最大人寿保险公司之一，150年历史','核心偿付能力121.4%、综合185.63%','线下网点少（江苏/四川/上海/北京/山东/河南），其他地区线上办理'],
+    '平安健康': ['平安集团旗下专业健康险公司，2005年成立','依托平安集团医疗健康生态（平安好医生）','服务网络：全国公立医院直付、垫付网络行业领先','服务：就医陪诊、住院垫付、二次诊疗意见'],
+    '君龙人寿': ['2008年成立，总部厦门，中外合资（建发集团+台湾人寿）','台资背景，精算与健康管理经验丰富','主打少儿重疾（小青龙系列）与互联网渠道','服务：在线理赔、健康随访'],
+    '太平洋健康': ['中国太保旗下专业健康险公司','太平洋保险：A+H两地上市，国内头部保险集团','依托太保服务网络，蓝医保系列承保方','服务：特药直付、住院垫付、视频问诊'],
+    'MSH（万欣和）': ['1974年创立于英国，国际高端健康险服务商','2001年进入中国，服务外企高管与高端医疗20余年','直付网络（TPA）：与全国1000+公立/私立医院直付合作','服务：MSH卡直付、国际二诊、全球救援'],
+    '人保财险': ['中国人民保险集团旗下，1949年成立，共和国保险长子','国内财险市场份额第一（约1/3）','网点覆盖全国县域，理赔网络最深','服务：全国通赔、现场查勘快'],
+    '中国人保': ['1949年成立，共和国第一家保险公司','世界500强，A+H上市，综合金融保险集团','旗下人保财险/人保健康/人保寿险','服务：网点最多，全国通赔'],
+    '人保健康': ['2005年成立，国内第一家专业健康险公司','中国人保集团旗下，注册资本85亿','医保合作项目覆盖广，政府项目经验丰富','服务：就医绿色通道、垫付网络'],
+    '北京人寿': ['2018年成立，总部北京，北京市属国有背景','股东：北京国资+顺鑫控股等','主打少儿重疾（大黄蜂系列）与惠民项目','服务：在线理赔、健康管理'],
+    '海保人寿': ['2018年成立，总部海口，海南自贸港首家全国性寿险公司','注册实缴资本20亿','主打互联网重疾（超级玛丽系列）','服务：在线理赔、电子保单'],
+    '安盛天平': ['安盛集团（AXA）中国财险子公司','AXA：法国百年保险集团，全球最大保险集团之一','高端医疗与出行险经验丰富','服务：全球救援、医疗直付'],
+    '美亚保险': ['AIG（美国国际集团）在华全资财险子公司','AIG：全球知名保险集团，旅行险全球领先','高端少儿医疗（臻馨宝贝）承保方','服务：全球救援、直付网络'],
+    '华贵人寿': ['2017年成立，总部贵阳，茅台集团参股','互联网定寿标杆（大麦系列）','条款简洁、费率低，口碑好','服务：在线核保、电子保单'],
+    '京东安联': ['京东集团+德国安联集团合资','安联：德国百年保险集团，欧洲最大保险公司','依托京东健康生态，健康服务整合强','服务：京东健康在线问诊、送药到家'],
+    '和泰人寿': ['2017年成立，总部济南','股东含中信国安等','互联网渠道为主（超级玛丽渠道产品）','服务：在线理赔'],
+    '信美相互': ['2017年成立，国内首家相互制寿险组织','会员共治模式，蚂蚁集团参股','主打少儿重疾与互联网健康险','服务：会员福利、大病互助运营经验'],
+    '招商仁和人寿': ['2017年成立，总部深圳','招商局集团+中航+广东国资发起','仁和保险品牌历史可追溯至1875年','服务：线下网点（大湾区为主）'],
+    '太平洋财险': ['中国太保旗下财险公司，A+H上市集团','国内财险前三','网点全国覆盖','服务：全国通赔']
+  };
   // ===== 绿色表格式模块卡呈现（v3.9.3 · 1:1 复刻责任表全拆解风格） =====
   var slogan = '';
   var noteTxt = valueToText(f.note || '');
@@ -2119,6 +2154,7 @@ function renderDetail() {
     '<div class="g-hero">' +
       '<div class="g-hero-tag">◆ 保险产品 · 责任表全拆解</div>' +
       '<div class="g-hero-title">' + esc(p.name) + '</div>' +
+      '<div class="g-hero-div"></div>' +
       (slogan ? '<div class="g-hero-sub">' + gHl(slogan) + '</div>' : '') +
       '<div class="g-hero-badges">' +
         '<span class="pcard-badge ' + t.cls + '">' + t.icon + ' ' + t.name + '</span>' +
@@ -2126,6 +2162,13 @@ function renderDetail() {
         (p.tier ? '<span class="pcard-badge" style="background:#ffe9c8;color:#b25e00">' + esc(tierName(p.tier)) + '</span>' : '') +
       '</div>' +
     '</div>' +
+    (function(){
+      try {
+        var ls = (typeof CO_LOGO_EMBED !== 'undefined') ? CO_LOGO_EMBED[String(f.company||'').trim()] : '';
+        if (!ls) return '';
+        return '<img class="g-hero-logo-bg" src="' + ls + '" alt="">';
+      } catch(e){ return ''; }
+    })() +
     '<div class="g-body">';
 
   // 分组
@@ -2141,6 +2184,7 @@ function renderDetail() {
   fields.forEach(function(fd){
     if ((fd.group || '').indexOf('投保规则') < 0) return;
     if (fd.key === 'ageLimit') return; // 放右上角胶囊
+    if (fd.key === 'companyInfo') return; // 单独渲染为公司实力卡
     var v = f[fd.key];
     if (valueEmpty(v)) return;
     kvCount++;
@@ -2148,6 +2192,21 @@ function renderDetail() {
     kvRows += '<div class="g-kv' + (vs.length > 16 ? ' g-wide' : '') + '">' +
       '<div class="g-kv-k">' + esc(fd.label) + '</div><div class="g-kv-v">' + gHl(vs) + '</div></div>';
   });
+  // —— 模块零：公司实力（在投保规则前）——
+  var coName = String(f.company || '').trim();
+  var coArr = (Array.isArray(f.companyInfo) && f.companyInfo.length) ? f.companyInfo.filter(function(x){ return String(x).trim(); }) : (COMPANY_BRIEF[coName] || []);
+  if (coName && coArr.length) {
+    var logoSrc = (typeof CO_LOGO_EMBED !== 'undefined' && CO_LOGO_EMBED[coName]) ? CO_LOGO_EMBED[coName] : '';
+    var coHtml = '<div class="g-co-top">';
+    coHtml += (logoSrc ? '<img class="g-co-logo" src="' + logoSrc + '" alt="">' : '<div class="g-co-logo g-co-logo-fb">' + esc(coName.charAt(0)) + '</div>');
+    coHtml += '<div class="g-co-name">' + esc(coName) + '<span>保险公司简介</span></div></div>';
+    coArr.forEach(function(ln, i){
+      var icons = ['🏦','💰','📈','🛎️','⭐'];
+      coHtml += '<div class="g-co-li"><span class="g-co-ic">' + (icons[i] || '⭐') + '</span><span>' + gHl(ln) + '</span></div>';
+    });
+    coHtml += '<div class="g-co-tip">偿付能力等数据以该公司最新季度偿付能力报告为准</div>';
+    h += gCard('🏢 公司实力', '', coHtml);
+  }
   if (kvCount) {
     h += gCard('投保规则', f.ageLimit ? esc(f.ageLimit) + '可投' : '',
       '<div class="g-kv-grid">' + kvRows + '</div>');
@@ -3603,7 +3662,7 @@ function openSettings() {
         '<div style="margin-top:12px;font-size:13px;color:#8a919b">' +
           '产品数：<b style="color:#202124">' + appData.products.length + '</b>　已填字段：<b style="color:#202124">' + totalFields + '</b>' +
           (appData.dataTag ? '<br>数据包：<b style="color:#c5221f">' + esc(appData.dataTag) + '</b>' : '') +
-          '<br>版本：v3.9.24' +
+          '<br>版本：v3.9.25' +
         '</div>' +
       '</div>' +
       '<div style="padding:16px">' +
