@@ -3297,7 +3297,6 @@ function renderReportView(list) {
     var ia = ord.indexOf(a.key), ib = ord.indexOf(b.key);
     return (ia < 0 ? 999 : ia) - (ib < 0 ? 999 : ib);
   });
-  });
 
   var t2 = '<table class="rpt-table"><thead><tr><th style="width:88px">对比维度</th><th>' + esc(A.name) + '</th><th>' + esc(B.name) + '</th></tr></thead><tbody>';
   var lastG = null;
