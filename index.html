@@ -110,6 +110,26 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei
 .ins-warn{background:#fff8f0;border-left:3px solid #e8a23d;padding:8px 10px;border-radius:6px;font-size:12.5px;color:#7a5410;line-height:1.7;margin-top:6px}
 .ins-prod{display:inline-block;font-size:12px;color:#2f6fed;background:#f0f5ff;border:1px solid #d5e3fb;border-radius:8px;padding:3px 10px;margin:3px 5px 0 0;cursor:pointer;font-weight:600}
 .ins-src{font-size:11px;color:#a0a7b0;margin-top:10px;word-break:break-all}
+.ins-src .ins-author{color:#b06f0f;font-weight:700}
+.ins-src .ins-cp{color:#b0b6bf;font-size:10.5px}
+/* 30秒速览表 */
+.ins-tldr{width:100%;border-collapse:collapse;margin-top:9px;background:#f8fbff;border:1px solid #d5e3fb;border-radius:8px;overflow:hidden}
+.ins-tlr{border-bottom:1px solid #e2ecfa}
+.ins-tlr:last-child{border-bottom:none}
+.ins-tk{width:88px;background:#eef4ff;font-size:12px;font-weight:800;color:#14406f;padding:7px 9px;vertical-align:top;white-space:nowrap}
+.ins-tv{font-size:13px;color:#1f2c3e;padding:7px 9px;line-height:1.65;font-weight:600}
+/* 高亮 mark */
+#page-insights mark{background:#fff3bf;color:#9a5b00;padding:0 3px;border-radius:3px;font-weight:700}
+#page-insights mark.mk-red{background:#fde2e0;color:#b3261e}
+#page-insights mark.mk-green{background:#dcf5e5;color:#0d7a3e}
+/* 搜索栏 */
+.ins-searchbar{padding:10px 12px 0}
+.ins-search{width:100%;box-sizing:border-box;border:1px solid #dfe5ee;border-radius:11px;padding:10px 14px;font-size:14px;background:#fff;outline:none;font-family:inherit;box-shadow:0 1.5px 5px rgba(30,40,60,.06)}
+.ins-search:focus{border-color:#2f6fed;box-shadow:0 0 0 3px rgba(47,111,237,.12)}
+.ins-filter{display:flex;gap:7px;margin-top:9px;overflow-x:auto;scrollbar-width:none}
+.ins-filter::-webkit-scrollbar{display:none}
+.ins-fchip{flex-shrink:0;padding:5px 13px;border-radius:10px;font-size:12px;font-weight:600;background:#fff;border:1px solid #dfe5ee;color:#4a5568;cursor:pointer}
+.ins-fchip.active{background:linear-gradient(135deg,#3b82f6,#2563eb);color:#fff;border-color:transparent}
 
 /* ===== 筛选栏（v3.3 精致化）===== */
 .filter-bar{display:flex;gap:7px;padding:12px 12px 4px;overflow-x:auto;background:transparent;border-bottom:none;scrollbar-width:none;flex-shrink:0}
@@ -5639,35 +5659,69 @@ switchPage('list');
 function escH(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 function renderInsights() {
   var box = document.getElementById('page-insights');
-  var list = (appData && appData.insights) || [];
+  var all = (appData && appData.insights) || [];
+  // 标签集合
+  var tagSet = {};
+  all.forEach(function(n){ (n.tags||[]).forEach(function(t){ tagSet[t] = 1; }); });
+  var q = (state._insQ||'').trim().toLowerCase();
+  var ft = state._insTag||'';
+  var list = all.filter(function(n){
+    if (ft && (n.tags||[]).indexOf(ft)<0) return false;
+    if (!q) return true;
+    var hay = [n.title, n.source, n.author, (n.tags||[]).join(' ')]
+      .concat((n.summary||[]).map(function(s){ return (s.h||'') + (s.items||[]).join(' '); }))
+      .concat(n.strategy||[]).concat(n.todos||[]).join(' ').toLowerCase();
+    return hay.indexOf(q)>=0;
+  });
+  function md(s){ // **高亮** 与 {{红}} [[绿]] 简易标记
+    return escH(s)
+      .replace(/\*\*(.+?)\*\*/g, '<mark>$1</mark>')
+      .replace(/\{\{(.+?)\}\}/g, '<mark class="mk-red">$1</mark>')
+      .replace(/\[\[(.+?)\]\]/g, '<mark class="mk-green">$1</mark>');
+  }
   var h = '';
-  h += '<div style="margin:12px 12px 0;padding:10px 12px;background:#fff8f0;border:1px solid #f0dcb8;border-radius:12px;font-size:12px;color:#7a5410;line-height:1.7">';
-  h += '📖 本页是<strong>第三方专业测评的结构化笔记</strong>（D级·仅参考）。它可以提供条款之外的决策视角（长期保费、产品稳定性、年龄段策略），但<strong>所有数字以产品库中经官方文件核对的数据为准</strong>；标「待核」的条目尚未回查官方条款。';
-  h += '</div>';
-  if (!list.length) { h += '<div style="text-align:center;color:#98a0ab;font-size:13px;padding:40px 20px">暂无笔记</div>'; box.innerHTML = h; return; }
-  list.forEach(function(n, i){
+  // 搜索栏
+  h += '<div class="ins-searchbar"><input class="ins-search" id="ins-q" placeholder="🔍 搜索笔记：关键词 / 产品名 / 作者" value="' + escH(state._insQ||'') + '">';
+  h += '<div class="ins-filter"><span class="ins-fchip' + (ft?'':' active') + '" onclick="setInsTag(\'\')">全部</span>';
+  Object.keys(tagSet).forEach(function(t){
+    h += '<span class="ins-fchip' + (ft===t?' active':'') + '" onclick="setInsTag(\''+escH(t)+'\')">' + escH(t) + '</span>';
+  });
+  h += '</div></div>';
+  if (!all.length) { h += '<div style="text-align:center;color:#98a0ab;font-size:13px;padding:40px 20px">暂无笔记</div>'; box.innerHTML = h; return; }
+  if (!list.length) { h += '<div style="text-align:center;color:#98a0ab;font-size:13px;padding:40px 20px">没有匹配「'+escH(state._insQ)+'」的笔记</div>'; box.innerHTML = h; return; }
+  list.forEach(function(n){
     var open = state._insOpen && state._insOpen[n.id];
     h += '<div class="ins-card">';
     h += '<div class="ins-head" onclick="toggleIns(\''+n.id+'\')">';
     h += '<div class="ins-title">' + escH(n.title) + '</div>';
-    h += '<div class="ins-meta"><span class="ins-level">' + escH(n.level||'D级') + '</span><span>' + escH(n.source||'') + '</span><span>·</span><span>' + escH(n.date||'') + '</span>' + (open?'<span style="margin-left:auto">收起 ▲</span>':'<span style="margin-left:auto">展开 ▼</span>') + '</div>';
+    h += '<div class="ins-meta"><span class="ins-level">' + escH(n.level||'D级') + '</span><span>' + escH(n.date||'') + '</span>' + (n.author?'<span>·</span><span>作者：'+escH(n.author)+'</span>':'') + (open?'<span style="margin-left:auto">收起 ▲</span>':'<span style="margin-left:auto">展开 ▼</span>') + '</div>';
+    // 30秒速览（收起时也显示前2条，展开显示全部）
+    if (n.tldr && n.tldr.length) {
+      h += '<table class="ins-tldr">';
+      n.tldr.forEach(function(r, ri){
+        if (!open && ri>=2) return;
+        h += '<tr class="ins-tlr"><td class="ins-tk">' + escH(r.k) + '</td><td class="ins-tv">' + md(r.v) + '</td></tr>';
+      });
+      h += '</table>';
+      if (!open && n.tldr.length>2) h += '<div style="text-align:center;font-size:11.5px;color:#2f6fed;padding-top:6px;font-weight:600">展开看全部 ' + n.tldr.length + ' 条要点 ▼</div>';
+    }
     if (n.tags && n.tags.length) { h += '<div class="ins-tags">' + n.tags.map(function(t){return '<span class="ins-tag">'+escH(t)+'</span>';}).join('') + '</div>'; }
     h += '</div>';
     if (open) {
       h += '<div class="ins-body">';
       (n.summary||[]).forEach(function(sec){
         h += '<div class="ins-sec"><div class="ins-sec-t">' + escH(sec.h) + '</div>';
-        (sec.items||[]).forEach(function(it){ h += '<p>· ' + escH(it) + '</p>'; });
+        (sec.items||[]).forEach(function(it){ h += '<p>· ' + md(it) + '</p>'; });
         h += '</div>';
       });
       if (n.strategy && n.strategy.length) {
         h += '<div class="ins-sec"><div class="ins-sec-t">🎯 年龄段策略</div>';
-        n.strategy.forEach(function(s){ h += '<p>· ' + escH(s) + '</p>'; });
+        n.strategy.forEach(function(s){ h += '<p>· ' + md(s) + '</p>'; });
         h += '</div>';
       }
       if (n.todos && n.todos.length) {
         h += '<div class="ins-sec"><div class="ins-sec-t">⚠️ 待核清单（未回查官方条款）</div><div class="ins-warn">';
-        n.todos.forEach(function(t){ h += '<p>· ' + escH(t) + '</p>'; });
+        n.todos.forEach(function(t){ h += '<p>· ' + md(t) + '</p>'; });
         h += '</div></div>';
       }
       if (n.products && n.products.length) {
@@ -5679,13 +5733,23 @@ function renderInsights() {
         }).join('');
         h += '<div class="ins-sec"><div class="ins-sec-t">🔗 关联产品</div>' + chips + '</div>';
       }
-      if (n.sourceUrl) h += '<div class="ins-src">来源：' + escH(n.sourceUrl) + '</div>';
+      h += '<div class="ins-src">';
+      h += '来源：' + escH(n.source||'') + (n.author ? ' <span class="ins-author">（作者：'+escH(n.author)+'）</span>' : ' <span class="ins-author">（⚠️ 作者待补）</span>') + '<br>';
+      if (n.sourceUrl) h += '<a href="' + escH(n.sourceUrl) + '" target="_blank" style="color:#7aa2e8">' + escH(n.sourceUrl) + '</a><br>';
+      h += '<span class="ins-cp">版权归原作者所有，本笔记仅为个人学习整理，不作商业用途。</span>';
+      h += '</div>';
       h += '</div>';
     }
     h += '</div>';
   });
   box.innerHTML = h;
+  var inp = document.getElementById('ins-q');
+  if (inp) {
+    inp.addEventListener('input', function(){ state._insQ = this.value; renderInsights();
+      var np = document.getElementById('ins-q'); np.focus(); np.setSelectionRange(np.value.length, np.value.length); });
+  }
 }
+function setInsTag(t){ state._insTag = t; renderInsights(); }
 function toggleIns(id){ state._insOpen = state._insOpen||{}; state._insOpen[id] = !state._insOpen[id]; renderInsights(); }
 function openDetailFromIns(pid){ state.detailId = pid; switchPage('detail'); }
 
