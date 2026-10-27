@@ -1,0 +1,150 @@
+{
+  "version": "1.0",
+  "updatedAt": "2026-10-27",
+  "intro": {
+    "title": "三款免健告百万医疗 · 逐项打分",
+    "subtitle": "不比谁最好，只比谁适合谁。每一维度给出结论，也给出得分。",
+    "howToScore": [
+      { "score": 5, "label": "明显更优", "desc": "别人追不上" },
+      { "score": 4, "label": "有优势", "desc": "但不压倒性" },
+      { "score": 3, "label": "及格线", "desc": "能用不亮眼" },
+      { "score": 2, "label": "明显短板", "desc": "要提前讲清" },
+      { "score": 1, "label": "基本不能指望", "desc": "这项别算进去" }
+    ]
+  },
+  "products": [
+    { "id": "imp-yl-zxs2026",   "label": "众民保·臻选 2026",   "short": "臻选" },
+    { "id": "imp-yl-zmbzdg2026","label": "众民保·中高端 2026", "short": "中高端" },
+    { "id": "imp-yl-lbyb-mjg2027","label": "蓝医保·免健告 2027 计划一", "short": "蓝医保P1" }
+  ],
+  "dimensions": [
+    {
+      "key": "entry",
+      "no": "01",
+      "name": "投保宽松度",
+      "weight": 13,
+      "utility": "中",
+      "bigQuestion": "谁能买进来",
+      "why": "年龄、职业、健康告知、核保——四项决定有没有资格投保。免健告产品看似零门槛，实际靠核保风控筛人。",
+      "fields": ["ageLimit", "occupation", "healthNotice"],
+      "judgeHint": "年龄上限越高越好；职业不限优于限1-6类；核保宽松优于需系统判定"
+    },
+    {
+      "key": "pastDisease",
+      "no": "02",
+      "name": "既往症赔付",
+      "weight": 10,
+      "utility": "高",
+      "bigQuestion": "赔多少，真金白银",
+      "why": "免健告产品真正的分水岭不是能不能买，而是已有病能不能赔、赔多少。这是客户最关心、最容易踩坑的一项。",
+      "fields": ["past", "reimburseRate"],
+      "judgeHint": "一般既往症当天100%优于首年50%；严重既往症有赔付窗口优于彻底除外"
+    },
+    {
+      "key": "renewal",
+      "no": "03",
+      "name": "续保稳定性",
+      "weight": 12,
+      "utility": "高",
+      "bigQuestion": "明年还保不保我",
+      "why": "一年期产品的续保话语权在保司。理赔过还能不能续、停售怎么办，决定这份保单的实际寿命。",
+      "fields": ["coverage", "guaranteed", "renewalType", "renewal"],
+      "judgeHint": "可续保年龄越高越好；有既往症续保承诺优于需重新审核；停售有转保方案优于终止"
+    },
+    {
+      "key": "price",
+      "no": "04",
+      "name": "保费性价比",
+      "weight": 13,
+      "utility": "高",
+      "bigQuestion": "同样的钱买到什么",
+      "why": "免健告客群年龄偏大，保费差异在60岁后拉得极开。单看30岁价格会严重误判。",
+      "fields": ["price"],
+      "judgeHint": "同龄同保额比价格；重点看50岁、60岁、70岁三档；老年段价格优势更有价值"
+    },
+    {
+      "key": "deductible",
+      "no": "05",
+      "name": "免赔门槛",
+      "weight": 11,
+      "utility": "高",
+      "bigQuestion": "住院自己先掏多少",
+      "why": "免赔额直接决定小额住院能不能赔到。1.5万共享与分项各1万，实际自付差距很大。",
+      "fields": ["deductible", "deductibleOpt"],
+      "judgeHint": "0免赔优于1.5万；共享免赔优于分项叠加；有低档位可选更灵活"
+    },
+    {
+      "key": "coverageBreadth",
+      "no": "06",
+      "name": "保障责任广度",
+      "weight": 10,
+      "utility": "高",
+      "bigQuestion": "住院以外还管什么",
+      "why": "主险之外，门急诊、康复、基因检测、外购药械是否纳入，决定保障的完整度。",
+      "fields": ["generalMed", "outpatient", "sumInsured"],
+      "judgeHint": "责任项目越多越好；含门急诊/康复/基因检测加分；注意是否共享主保额"
+    },
+    {
+      "key": "drugCoverage",
+      "no": "07",
+      "name": "特药/外购药",
+      "weight": 12,
+      "utility": "高",
+      "bigQuestion": "天价药能不能报",
+      "why": "免健告客群出险高频集中在肿瘤。特药目录品种数、CAR-T覆盖、院外药配药渠道，是真出事时的救命条款。",
+      "fields": ["specialMed", "cancerExtend", "advanced"],
+      "judgeHint": "品种数越多越好；含CAR-T加分；要核适应症限制与购药审核流程"
+    },
+    {
+      "key": "payout",
+      "no": "08",
+      "name": "赔付比例到手",
+      "weight": 9,
+      "utility": "高",
+      "bigQuestion": "报销打几折",
+      "why": "宣传常写100%，实际受是否经医保结算、是否既往症影响。要看最不利情形下的到手比例。",
+      "fields": ["reimburseRate", "socialRule"],
+      "judgeHint": "未经医保的罚则越轻越好；既往症折减越少越好"
+    },
+    {
+      "key": "hospital",
+      "no": "09",
+      "name": "医院范围",
+      "weight": 7,
+      "utility": "中",
+      "bigQuestion": "能去哪家医院",
+      "why": "公立普通部是基准线。私立、特需、国际部能否报，决定就医体验和实际花费。",
+      "fields": ["hospitalRange", "vipWard"],
+      "judgeHint": "医院清单越宽越好；含特需/国际部加分但要看是否限病种"
+    },
+    {
+      "key": "exclusion",
+      "no": "10",
+      "name": "免责严苛度",
+      "weight": 4,
+      "utility": "中",
+      "bigQuestion": "什么情况一分不赔",
+      "why": "免责条款越细，理赔时争议越多。重点是既往症定义边界与常见拒赔项。",
+      "fields": ["exclusions"],
+      "judgeHint": "免责条目越少越宽松；但对已明确的边界要如实告知客户"
+    },
+    {
+      "key": "servWait",
+      "no": "11",
+      "name": "服务与等待期",
+      "weight": 4,
+      "utility": "中",
+      "bigQuestion": "买完多久生效、有没有人管",
+      "why": "等待期越短越早安心；增值服务在长期住院场景真实有用（护工、垫付、绿通）。",
+      "fields": ["waitPeriod", "services"],
+      "judgeHint": "等待期越短越好；含垫付/护工/绿通加分"
+    }
+  ],
+  "scores": {},
+  "conclusions": {},
+  "caveats": [
+    "打分基于产品公开条款与投保页材料，A 级材料核对进度见各产品「总体备注」。",
+    "权重与实用度按家庭决策场景设定，可按自家情况调整。",
+    "所有保额、免赔、比例以保单与条款附表为准，投保前请以投保页试算确认。"
+  ]
+}
