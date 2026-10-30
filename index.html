@@ -179,6 +179,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei
 .p-row .pr-badge{font-size:10.5px;color:#8a919b;background:#f4f6f9;border-radius:5px;padding:2px 6px;flex-shrink:0}
 .p-row .pr-score{font-size:12px;font-weight:700;flex-shrink:0;width:30px;text-align:right}
 .p-row .pr-score.hi{color:#137333}.p-row .pr-score.mid{color:#b25e00}.p-row .pr-score.lo{color:#c5221f}
+.p-row .pr-star{font-size:17px;line-height:1;color:#c9ced6;flex-shrink:0;padding:4px 2px;margin:-4px 0;user-select:none}
+.p-row .pr-star.on{color:#f5b301;text-shadow:0 0 3px rgba(245,179,1,.35)}
 .list-overview{display:flex;gap:6px;padding:10px 12px 2px;flex-wrap:wrap}
 .ov-chip{font-size:11.5px;color:#5f6368;background:#fff;border:1px solid #d8dee7;border-radius:14px;padding:3.5px 10px}
 .ov-chip{cursor:pointer;user-select:none;transition:all .15s}
@@ -2137,6 +2139,11 @@ function getProduct(id) {
 /* ============================================================
    状态
    ============================================================ */
+/* 系列内星标置顶：持久化到 localStorage（独立键，不进产品数据） */
+var STARS_KEY = 'ins-stars';
+function getStars(){ try { return JSON.parse(localStorage.getItem(STARS_KEY) || '{}'); } catch(e){ return {}; } }
+function toggleStar(id){ var s = getStars(); if (s[id]) delete s[id]; else s[id] = 1; try { localStorage.setItem(STARS_KEY, JSON.stringify(s)); } catch(e){} }
+
 var state = {
   currentPage: 'list',
   listType: 'all',        // 产品库筛选类型
@@ -2511,7 +2518,10 @@ function renderList() {
       if (__bigLines >= 2) {
         h += '<div class="line-div"><span class="line-div-txt">' + esc(L.name) + '</span></div>';
       }
-      L.rows.forEach(function(p){
+      // 系列内置顶：星标产品排最前（不跨系列），其余保持原序（稳定排序）
+      var __stars = getStars();
+      var __rows = L.rows.slice().sort(function(a,b){ return (__stars[b.id]?1:0) - (__stars[a.id]?1:0); });
+      __rows.forEach(function(p){
       var t = TYPES[p.type] || TYPES.qt;
       var sc = calcScore(p);
       var scoreHtml = '';
@@ -2520,6 +2530,7 @@ function renderList() {
         scoreHtml = '<span class="pr-score ' + scl + '">' + sc.toFixed(0) + '</span>';
       }
       h += '<div class="p-row" data-id="' + p.id + '">' +
+        '<span class="pr-star' + (__stars[p.id] ? ' on' : '') + '" data-star="' + p.id + '">' + (__stars[p.id] ? '★' : '☆') + '</span>' +
         '<span class="dot" style="background:' + pal.c + '"></span>' +
         '<span class="pr-name">' + esc(p.name) + '</span>' +
         (p.tier ? '<span class="pr-tier">' + esc(tierOfP(p)) + '</span>' : '') +
@@ -2565,6 +2576,16 @@ function renderList() {
       var i = state.listFold.indexOf(c);
       if (i >= 0) state.listFold.splice(i, 1); else state.listFold.push(c);
       card.classList.toggle('folded');
+    });
+  });
+  // 星标：点星星切换置顶（阻止冒泡，不进详情）
+  box.querySelectorAll('.pr-star').forEach(function(el){
+    el.addEventListener('click', function(e){
+      e.stopPropagation();
+      toggleStar(this.dataset.star);
+      var __sy = window.scrollY;
+      renderList();
+      window.scrollTo(0, __sy);
     });
   });
   // 产品行 → 详情
