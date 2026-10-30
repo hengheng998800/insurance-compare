@@ -4221,7 +4221,8 @@ function renderTable() {
   var fb = '<div class="filter-bar">';
   fb += '<span style="font-size:11px;color:#8a919b;font-weight:600;padding:0 2px;align-self:center">险种</span>';
   usedTypes.forEach(function(t){
-    fb += '<div class="chip' + (state.tableType===t?' active':'') + '" data-t="' + t + '">' + TYPES[t].icon + ' ' + TYPES[t].short + '<span class="cnt">' + counts[t] + '</span></div>';
+    var T = TYPES[t] || TYPES.qt;
+    fb += '<div class="chip' + (state.tableType===t?' active':'') + '" data-t="' + t + '">' + T.icon + ' ' + T.short + '<span class="cnt">' + counts[t] + '</span></div>';
   });
   fb += '</div>';
 
